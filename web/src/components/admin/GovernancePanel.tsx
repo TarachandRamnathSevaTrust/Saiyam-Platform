@@ -17,7 +17,11 @@ import {
   LogIn,
   Check,
   X,
-  ExternalLink,
+  KeyRound,
+  GraduationCap,
+  ArrowRight,
+  Database,
+  Sparkles,
 } from 'lucide-react';
 import { Organization, UserProfile, School } from '@saiyam/shared';
 
@@ -33,6 +37,7 @@ export const GovernancePanel: React.FC = () => {
     updateUser,
     switchUser,
     schools,
+    students,
     assignTrainerToSchool,
     language,
   } = useApp();
@@ -58,6 +63,7 @@ export const GovernancePanel: React.FC = () => {
   const [trainerPhone, setTrainerPhone] = useState('');
   const [trainerEmail, setTrainerEmail] = useState('');
   const [selectedOrgCode, setSelectedOrgCode] = useState('');
+  const [authUserId, setAuthUserId] = useState('');
 
   // Feedback notifications
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -138,6 +144,7 @@ export const GovernancePanel: React.FC = () => {
     setTrainerPhone(user.phone || '');
     setTrainerEmail(user.email);
     setSelectedOrgCode(user.organizationCode || '');
+    setAuthUserId(user.authUserId || user.id);
     setIsAddingTrainer(true);
   };
 
@@ -147,38 +154,42 @@ export const GovernancePanel: React.FC = () => {
     setTrainerPhone('');
     setTrainerEmail('');
     setSelectedOrgCode('');
+    setAuthUserId('');
     setIsAddingTrainer(false);
   };
 
   const handleSaveTrainer = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!trainerName.trim()) {
-      alert(language === 'mr' ? 'कृपया प्रशिक्षकाचे पूर्ण नाव भरा.' : 'Please enter trainer full name.');
+    if (!trainerName.trim() || !trainerEmail.trim()) {
+      alert(language === 'mr' ? 'कृपया प्रशिक्षकाचे पूर्ण नाव आणि लॉगिन ईमेल भरा.' : 'Please enter trainer full name and email.');
       return;
     }
 
     const assignedOrg = organizations.find((o) => o.code === selectedOrgCode);
+    const resolvedAuthId = authUserId.trim() || `auth-${Date.now()}`;
 
     if (editingTrainerId) {
       updateUser(editingTrainerId, {
         fullName: trainerName.trim(),
         phone: trainerPhone.trim(),
-        email: trainerEmail.trim() || `trainer_${Date.now()}@trst.org.in`,
+        email: trainerEmail.trim(),
         organizationId: assignedOrg?.id,
         organizationCode: selectedOrgCode || undefined,
+        authUserId: resolvedAuthId,
       });
-      triggerNotify(language === 'mr' ? 'प्रशिक्षकाची माहिती अद्ययावत केली!' : 'Trainer updated successfully!');
+      triggerNotify(language === 'mr' ? 'प्रशिक्षकाची माहिती व Auth प्रोफाइल अद्ययावत केली!' : 'Trainer & Auth Profile updated successfully!');
     } else {
       addUser({
         fullName: trainerName.trim(),
-        email: trainerEmail.trim() || `trainer_${Date.now()}@trst.org.in`,
+        email: trainerEmail.trim(),
         phone: trainerPhone.trim(),
         role: 'FIELD_TRAINER',
         organizationId: assignedOrg?.id,
         organizationCode: selectedOrgCode || undefined,
+        authUserId: resolvedAuthId,
         isActive: true,
       });
-      triggerNotify(language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षक यशस्वीरित्या जोडला!' : 'Field Trainer added successfully!');
+      triggerNotify(language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षक व Supabase प्रोफाइल जोडली!' : 'Field Trainer & Auth Profile mapped successfully!');
     }
 
     handleResetTrainerForm();
@@ -199,8 +210,8 @@ export const GovernancePanel: React.FC = () => {
           </h1>
           <p className="text-xs text-[#f0da9a] mt-0.5">
             {language === 'mr'
-              ? 'कोणताही डेटा हार्डकोड न ठेवता संस्था, प्रशिक्षक, आणि शाळा वाटपाचे १००% थेट नियंत्रण.'
-              : 'Zero hardcoded data: Full control over partner organizations, field facilitators, and school allocations.'}
+              ? 'संस्था ➔ क्षेत्र प्रशिक्षक (Supabase Auth) ➔ शाळा ➔ विद्यार्थी थेट मॅपिंग.'
+              : 'Strict Data Lineage: Organization ➔ Field Trainer (Supabase Auth Profile) ➔ Schools ➔ Students.'}
           </p>
         </div>
 
@@ -211,6 +222,78 @@ export const GovernancePanel: React.FC = () => {
             <span>{notification.message}</span>
           </div>
         )}
+      </div>
+
+      {/* Visual Pipeline Flow Card (Explaining the 4-Step Architecture) */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+        <div className="flex items-center space-x-2 mb-3">
+          <Database className="w-4 h-4 text-[#233d76]" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
+            {language === 'mr' ? 'प्रणाली डेटा प्रवाह व मॅपिंग (System Data Lineage Flow)' : 'System Data Lineage Flow'}
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Step 1 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+            <div className="w-7 h-7 rounded-lg bg-[#233d76] text-white flex items-center justify-center font-bold text-xs shrink-0">
+              1
+            </div>
+            <div>
+              <div className="font-bold text-xs text-slate-900">
+                {language === 'mr' ? 'संस्था जोडा' : 'Add Organization'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                {language === 'mr' ? 'TRST Direct किंवा भागीदार NGO तयार करा.' : 'Create in-house or partner NGO entity.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+            <div className="w-7 h-7 rounded-lg bg-[#dfaf27] text-[#233d76] flex items-center justify-center font-bold text-xs shrink-0">
+              2
+            </div>
+            <div>
+              <div className="font-bold text-xs text-slate-900">
+                {language === 'mr' ? 'प्रशिक्षक व Auth प्रोफाइल' : 'Trainer & Auth Profile'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                {language === 'mr' ? 'Supabase Auth युझर जोडून प्रोफाइल नियुक्त करा.' : 'Map Supabase Auth user to trainer profile.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              3
+            </div>
+            <div>
+              <div className="font-bold text-xs text-slate-900">
+                {language === 'mr' ? 'प्रशिक्षक शाळा नोंदवतात' : 'Trainers Add Schools'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                {language === 'mr' ? 'शाळा थेट प्रशिक्षक व संस्थेच्या अंतर्गत मॅप होते.' : 'Schools lock automatically under their trainer.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              4
+            </div>
+            <div>
+              <div className="font-bold text-xs text-slate-900">
+                {language === 'mr' ? 'विद्यार्थी व सत्रे' : 'Students & Sessions'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                {language === 'mr' ? 'चाचण्या व २५ सत्र नोंदी आपोआप ट्रॅक होतात.' : 'Tests and 25 sessions roll up cleanly.'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Sub Tabs */}
@@ -269,12 +352,12 @@ export const GovernancePanel: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'क्षेत्र प्रशिक्षकांची यादी व नियंत्रण' : 'Field Facilitators Directory'}
+                {language === 'mr' ? 'क्षेत्र प्रशिक्षकांची यादी व प्रोफाइल मॅपिंग' : 'Field Facilitators & Auth Profiles'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'
-                  ? 'येथे नवीन प्रशिक्षक जोडा, संस्था नियुक्त करा आणि थेट त्या खात्यातून काम करून तपासा.'
-                  : 'Add facilitators, assign organizations, and impersonate/switch to test on-ground flows.'}
+                  ? 'येथे प्रशिक्षक जोडा, संस्था नियुक्त करा आणि Supabase Auth युझर मॅप करा.'
+                  : 'Add facilitators, map to partner organizations, and link to Supabase Auth login accounts.'}
               </p>
             </div>
 
@@ -305,8 +388,8 @@ export const GovernancePanel: React.FC = () => {
                   <UserPlus className="w-4 h-4 text-[#233d76]" />
                   <h4 className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
                     {editingTrainerId
-                      ? language === 'mr' ? 'प्रशिक्षकाची माहिती बदला' : 'Edit Field Facilitator'
-                      : language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षकाची नोंदणी' : 'Register New Field Facilitator'}
+                      ? language === 'mr' ? 'प्रशिक्षकाची माहिती व Auth मॅपिंग बदला' : 'Edit Field Facilitator Profile'
+                      : language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षकाची नोंदणी व Auth लिंक' : 'Register Field Trainer & Map Auth Profile'}
                   </h4>
                 </div>
                 <button
@@ -318,7 +401,7 @@ export const GovernancePanel: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
                     {language === 'mr' ? 'प्रशिक्षकाचे पूर्ण नाव *' : 'Full Name *'}
@@ -328,9 +411,23 @@ export const GovernancePanel: React.FC = () => {
                     required
                     value={trainerName}
                     onChange={(e) => setTrainerName(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. राहुल शिंदे...' : 'e.g. Facilitator Name...'}
+                    placeholder={language === 'mr' ? 'उदा. सचिन शिंदे...' : 'e.g. Facilitator Name...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                     autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'लॉगिन ईमेल आयडी (Supabase Auth) *' : 'Login Email (Supabase Auth) *'}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={trainerEmail}
+                    onChange={(e) => setTrainerEmail(e.target.value)}
+                    placeholder="trainer@domain.org"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
@@ -343,19 +440,6 @@ export const GovernancePanel: React.FC = () => {
                     value={trainerPhone}
                     onChange={(e) => setTrainerPhone(e.target.value)}
                     placeholder="+91 98000 00000"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'ईमेल आयडी' : 'Email Address'}
-                  </label>
-                  <input
-                    type="email"
-                    value={trainerEmail}
-                    onChange={(e) => setTrainerEmail(e.target.value)}
-                    placeholder="facilitator@domain.org"
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
@@ -377,6 +461,44 @@ export const GovernancePanel: React.FC = () => {
                     ))}
                   </select>
                 </div>
+
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-slate-700 block">
+                      {language === 'mr' ? 'Supabase Auth User ID (UUID)' : 'Supabase Auth User ID (UUID)'}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setAuthUserId(`usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`)}
+                      className="text-[11px] text-[#233d76] font-bold hover:underline"
+                    >
+                      {language === 'mr' ? 'स्वयंचलित ID तयार करा' : 'Auto-Generate ID'}
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={authUserId}
+                    onChange={(e) => setAuthUserId(e.target.value)}
+                    placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {language === 'mr'
+                      ? 'बॅकएंडमध्ये या ईमेलने युझर तयार केल्यावर हा आयडी public.profiles शी थेट जोडला जातो.'
+                      : 'When created in Supabase Auth, the trigger populates public.profiles and maps to this trainer.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Explanatory Callout */}
+              <div className="bg-[#f0da9a]/30 border border-[#dfaf27]/40 rounded-xl p-3 flex items-start space-x-2.5 text-xs text-[#233d76]">
+                <KeyRound className="w-4 h-4 text-[#233d76] shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>{language === 'mr' ? 'लॉगिन अधिकार:' : 'Access Rights:'}</strong>{' '}
+                  {language === 'mr'
+                    ? 'जेव्हा हा प्रशिक्षक या ईमेलने लॉग इन करेल, तेव्हा त्याला फक्त त्याच्या संस्थेच्या अंतर्गत येणाऱ्या शाळा व विद्यार्थ्यांचे संचलन दिसेल.'
+                    : 'When this facilitator signs in with this login, they will automatically access their assigned schools and students.'}
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
@@ -393,7 +515,7 @@ export const GovernancePanel: React.FC = () => {
                 >
                   {editingTrainerId
                     ? language === 'mr' ? 'बदल जतन करा' : 'Update Trainer'
-                    : language === 'mr' ? 'प्रशिक्षक जतन करा' : 'Save Trainer'}
+                    : language === 'mr' ? 'प्रशिक्षक व प्रोफाइल जतन करा' : 'Save Trainer & Profile'}
                 </button>
               </div>
             </form>
@@ -405,10 +527,10 @@ export const GovernancePanel: React.FC = () => {
               <thead className="bg-[#233d76] text-white">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'प्रशिक्षकाचे नाव' : 'Trainer Name'}</th>
-                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संस्था' : 'Organization'}</th>
-                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संपर्क' : 'Contact'}</th>
-                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'वाटप केलेल्या शाळा' : 'Assigned Schools'}</th>
-                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'कृती / नियंत्रण' : 'Actions & Login'}</th>
+                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संस्था (Hierarchy)' : 'Organization'}</th>
+                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'Supabase Auth प्रोफाइल' : 'Auth Profile'}</th>
+                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'मॅप झालेली व्याप्ती' : 'Mapped Scope'}</th>
+                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'लॉगिन / कृती' : 'Test Login & Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -424,6 +546,8 @@ export const GovernancePanel: React.FC = () => {
                   fieldTrainers.map((tr) => {
                     const trainerOrg = organizations.find((o) => o.code === tr.organizationCode);
                     const assignedSchools = schools.filter((s) => s.assignedTrainerId === tr.id);
+                    const assignedSchoolIds = new Set(assignedSchools.map((s) => s.id));
+                    const assignedStudents = students.filter((st) => assignedSchoolIds.has(st.schoolId));
 
                     return (
                       <tr key={tr.id} className="hover:bg-slate-50 transition-colors">
@@ -434,7 +558,7 @@ export const GovernancePanel: React.FC = () => {
                             </div>
                             <div>
                               <div className="text-sm font-bold text-slate-900">{tr.fullName}</div>
-                              <span className="text-[10px] text-slate-400">ID: {tr.id}</span>
+                              {tr.phone && <div className="text-[11px] text-slate-400">{tr.phone}</div>}
                             </div>
                           </div>
                         </td>
@@ -452,27 +576,22 @@ export const GovernancePanel: React.FC = () => {
                         </td>
 
                         <td className="px-4 py-3 text-slate-600">
-                          <div className="font-mono text-[11px]">{tr.email}</div>
-                          {tr.phone && <div className="text-[11px] text-slate-400">{tr.phone}</div>}
+                          <div className="font-mono text-[11px] text-[#233d76] font-bold">{tr.email}</div>
+                          <div className="flex items-center space-x-1 text-[10px] text-emerald-700 mt-0.5">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>{language === 'mr' ? 'Auth प्रोफाइल जोडली' : 'Auth Profile Linked'}</span>
+                          </div>
                         </td>
 
                         <td className="px-4 py-3 text-center">
-                          {assignedSchools.length > 0 ? (
-                            <div className="flex flex-wrap items-center justify-center gap-1 max-w-[200px] mx-auto">
-                              {assignedSchools.map((s) => (
-                                <span
-                                  key={s.id}
-                                  className="bg-emerald-50 text-emerald-800 font-medium text-[10px] px-2 py-0.5 rounded border border-emerald-200"
-                                >
-                                  {s.name}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 italic text-[11px]">
-                              {language === 'mr' ? 'शाळा जोडलेली नाही' : 'No schools'}
+                          <div className="inline-flex flex-col items-center">
+                            <span className="font-bold text-[#233d76] text-xs">
+                              {assignedSchools.length} {language === 'mr' ? 'शाळा' : 'schools'}
                             </span>
-                          )}
+                            <span className="text-[11px] text-slate-500">
+                              {assignedStudents.length} {language === 'mr' ? 'विद्यार्थी' : 'students'}
+                            </span>
+                          </div>
                         </td>
 
                         <td className="px-4 py-3 text-center">
@@ -725,6 +844,8 @@ export const GovernancePanel: React.FC = () => {
             ) : (
               organizations.map((org) => {
                 const linkedSchools = schools.filter((s) => (s.organizationCode || '') === org.code);
+                const linkedSchoolIds = new Set(linkedSchools.map((s) => s.id));
+                const linkedStudents = students.filter((st) => linkedSchoolIds.has(st.schoolId));
                 const linkedTrainers = users.filter((u) => (u.organizationCode || '') === org.code);
 
                 return (
@@ -760,9 +881,19 @@ export const GovernancePanel: React.FC = () => {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between text-[11px] font-bold text-[#233d76]">
-                        <span>{linkedTrainers.length} {language === 'mr' ? 'प्रशिक्षक' : 'trainers'}</span>
-                        <span>{linkedSchools.length} {language === 'mr' ? 'शाळा' : 'schools'}</span>
+                      <div className="grid grid-cols-3 gap-1 py-1 px-2 bg-slate-50 rounded-lg text-center text-[11px] font-bold text-[#233d76]">
+                        <div>
+                          <div className="text-sm font-black">{linkedTrainers.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'प्रशिक्षक' : 'Trainers'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black">{linkedSchools.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'शाळा' : 'Schools'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black">{linkedStudents.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</div>
+                        </div>
                       </div>
 
                       <div className="pt-2 flex justify-end space-x-2">

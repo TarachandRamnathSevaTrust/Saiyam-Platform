@@ -69,8 +69,27 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
         {/* Form Body (Matching Page 104 in Old Manual) */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-          {/* Implementing Organization Assignment (shown only when organizations exist) */}
-          {organizations.length > 0 && (
+          {/* Trainer & Organization Lineage Indicator */}
+          <div className="bg-[#233d76]/5 border border-[#233d76]/20 rounded-xl p-3 text-xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-600">
+                {language === 'mr' ? 'नोंदणीकर्ता प्रशिक्षक:' : 'Facilitator:'}
+              </span>
+              <span className="font-bold text-[#233d76]">{currentUser.fullName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-600">
+                {language === 'mr' ? 'संस्था (Hierarchy):' : 'Organization:'}
+              </span>
+              <span className="font-bold text-slate-800">
+                {organizations.find((o) => o.code === (currentUser.organizationCode || organizationCode))?.nameMr ||
+                  (currentUser.organizationCode || 'TRST Direct')}
+              </span>
+            </div>
+          </div>
+
+          {/* Implementing Organization Assignment (dropdown shown if Admin or unassigned) */}
+          {!currentUser.organizationCode && organizations.length > 0 && (
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 {language === 'mr' ? 'अंमलबजावणी संस्था (Implementing Organization)' : 'Organization'}
@@ -80,7 +99,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 onChange={(e) => setOrganizationCode(e.target.value)}
                 className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-[#233d76] bg-slate-50 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
               >
-                <option value="">{language === 'mr' ? '-- संस्था निवडा (पर्यायी) --' : '-- Select Organization (Optional) --'}</option>
+                <option value="">{language === 'mr' ? '-- संस्था निवडा --' : '-- Select Organization --'}</option>
                 {organizations.map((org) => (
                   <option key={org.id} value={org.code}>
                     {org.nameMr} ({org.code})

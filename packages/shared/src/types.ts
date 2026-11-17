@@ -20,6 +20,7 @@ export interface Organization {
 
 export interface UserProfile {
   id: string;
+  authUserId?: string; // Links to Supabase auth.users(id)
   fullName: string;
   email: string;
   role: UserRole;
