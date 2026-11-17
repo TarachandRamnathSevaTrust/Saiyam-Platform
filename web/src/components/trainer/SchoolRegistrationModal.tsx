@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const { addSchool, currentUser, organizations, language } = useApp();
+  const { addSchool, currentUser, organizations, language, financialYear } = useApp();
 
   const [organizationCode, setOrganizationCode] = useState(
     currentUser.organizationCode || (organizations[0]?.code || '')
@@ -33,6 +33,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
     addSchool({
       name: name.trim(),
+      financialYear,
       organizationCode,
       village: village.trim(),
       taluka: taluka.trim(),

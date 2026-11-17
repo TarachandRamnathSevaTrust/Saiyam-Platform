@@ -33,6 +33,9 @@ interface AppContextType {
   updateUser: (id: string, updates: Partial<UserProfile>) => void;
   deleteUser: (id: string) => void;
   assignTrainerToSchool: (schoolId: string, trainerId: string) => void;
+  financialYear: string;
+  setFinancialYear: (fy: string) => void;
+  availableFinancialYears: string[];
   language: 'mr' | 'en';
   setLanguage: (lang: 'mr' | 'en') => void;
   organizations: Organization[];
@@ -111,6 +114,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return INITIAL_USERS[0];
   });
+
+  const availableFinancialYears = ['2024-25', '2025-26', '2026-27'];
+  const [financialYear, setFinancialYear] = useState<string>(() => {
+    return localStorage.getItem('saiyam_fy_v8') || '2025-26';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_fy_v8', financialYear);
+  }, [financialYear]);
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
   const [organizations, setOrganizations] = useState<Organization[]>(() => {
@@ -267,6 +279,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addSchool = (schoolData: Omit<School, 'id' | 'createdAt'>): School => {
     const newSchool: School = {
       ...schoolData,
+      financialYear: schoolData.financialYear || financialYear,
       id: `sch-${Date.now()}`,
       organizationCode: schoolData.organizationCode || currentUser.organizationCode,
       createdAt: new Date().toISOString().split('T')[0],
@@ -281,6 +294,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addStudent = (studentData: Omit<Student, 'id' | 'createdAt'>): Student => {
     const newStudent: Student = {
       ...studentData,
+      financialYear: studentData.financialYear || financialYear,
       id: `st-${Date.now()}`,
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -289,6 +303,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Create initial pairs for all 3 papers (MKMH, MMAT, ERT)
     const newPairs: StudentAssessmentPair[] = (['MKMH', 'MMAT', 'ERT'] as PaperType[]).map((pType) => ({
       studentId: newStudent.id,
+      financialYear: newStudent.financialYear,
       studentName: newStudent.fullName,
       bundleSequenceNo: newStudent.bundleSequenceNo,
       gender: newStudent.gender,
@@ -367,12 +382,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const saveSessionLog = (logData: Omit<SessionLog, 'id' | 'createdAt'>) => {
     const newLog: SessionLog = {
       ...logData,
+      financialYear: logData.financialYear || financialYear,
       id: `log-${Date.now()}`,
       createdAt: new Date().toISOString().split('T')[0],
     };
     setSessionLogs((prev) => {
       const filtered = prev.filter(
-        (l) => !(l.schoolId === logData.schoolId && l.sessionNumber === logData.sessionNumber)
+        (l) => !(l.schoolId === logData.schoolId && l.sessionNumber === logData.sessionNumber && (l.financialYear || financialYear) === (logData.financialYear || financialYear))
       );
       return [newLog, ...filtered];
     });
@@ -436,6 +452,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateUser,
         deleteUser,
         assignTrainerToSchool,
+        financialYear,
+        setFinancialYear,
+        availableFinancialYears,
         language,
         setLanguage,
         organizations,

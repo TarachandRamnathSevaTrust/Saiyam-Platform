@@ -32,6 +32,7 @@ export const apiService = {
       if (error) throw error;
       return (data || []).map((row) => ({
         id: row.id,
+        financialYear: row.financial_year || '2025-26',
         name: row.name,
         village: row.village,
         taluka: row.taluka,
@@ -71,6 +72,7 @@ export const apiService = {
       if (error) throw error;
       return {
         id: data.id,
+        financialYear: data.financial_year || school.financialYear || '2025-26',
         name: data.name,
         village: data.village,
         taluka: data.taluka,
@@ -131,6 +133,7 @@ export const apiService = {
       return (data || []).map((row) => ({
         id: row.id,
         schoolId: row.school_id,
+        financialYear: row.financial_year || '2025-26',
         bundleSequenceNo: row.bundle_sequence_no,
         fullName: row.full_name,
         gender: row.gender,
@@ -158,6 +161,7 @@ export const apiService = {
       return (data || []).map((row) => ({
         id: row.id,
         schoolId: row.school_id,
+        financialYear: row.financial_year || '2025-26',
         sessionNumber: row.session_number,
         conductedDate: row.session_date || row.conducted_date || new Date().toISOString().split('T')[0],
         durationMinutes: row.duration_minutes || 45,

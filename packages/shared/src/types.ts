@@ -33,21 +33,23 @@ export interface UserProfile {
 
 export interface School {
   id: string;
-  organizationId?: string; // links school to TRST Direct, JPIP, or VOPA
+  financialYear?: string; // e.g. '2025-26', '2026-27'
+  organizationId?: string; // links school to TRST Direct or partner NGO
   organizationCode?: OrganizationCode;
-  name: string; // e.g. Hujurpaga
-  village: string; // e.g. Pune
+  name: string;
+  village: string;
   taluka: string;
   district: string;
   pinCode: string;
   programStartDate: string; // YYYY-MM-DD
-  representativeName: string; // e.g. Patil Madam
+  representativeName: string;
   representativeContact?: string;
   assignedTrainerId?: string;
   assignedTrainerName?: string;
   createdAt: string;
   totalStudentsCount?: number;
   completedSessionsCount?: number;
+  isActive?: boolean;
 }
 
 export type DocumentType = 'REQUEST_LETTER' | 'STAMPED_COMPLETION_SHEET' | 'OTHER';
@@ -55,6 +57,7 @@ export type DocumentType = 'REQUEST_LETTER' | 'STAMPED_COMPLETION_SHEET' | 'OTHE
 export interface SchoolDocument {
   id: string;
   schoolId: string;
+  financialYear?: string;
   documentType: DocumentType;
   title: string;
   fileUrl: string;
@@ -68,12 +71,14 @@ export type Gender = 'FEMALE' | 'MALE' | 'OTHER';
 export interface Student {
   id: string;
   schoolId: string;
+  financialYear?: string; // e.g. '2025-26'
   bundleSequenceNo: number; // S-1, S-2... 1:1 match with physical paper bundle
   fullName: string;
   gender: Gender;
   standard: string; // e.g. '8'
   division: string; // e.g. 'A'
   createdAt: string;
+  isActive?: boolean;
 }
 
 export type PaperType = 'MKMH' | 'MMAT' | 'ERT';
@@ -123,6 +128,7 @@ export interface AssessmentRecord {
 
 export interface StudentAssessmentPair {
   studentId: string;
+  financialYear?: string;
   studentName: string;
   bundleSequenceNo: number;
   gender: Gender;
@@ -146,6 +152,7 @@ export interface CurriculumSession {
 export interface SessionLog {
   id: string;
   schoolId: string;
+  financialYear?: string;
   sessionNumber: number;
   conductedDate: string;
   durationMinutes: number;

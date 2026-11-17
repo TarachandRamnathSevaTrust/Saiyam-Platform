@@ -11,6 +11,9 @@ export const Header: React.FC = () => {
     organizations,
     language,
     setLanguage,
+    financialYear,
+    setFinancialYear,
+    availableFinancialYears,
     selectedSchool,
     setSelectedSchool,
     schools,
@@ -61,6 +64,24 @@ export const Header: React.FC = () => {
               <Globe className="w-3.5 h-3.5 text-[#dfaf27]" />
               <span className="text-[11px] sm:text-xs">{language === 'mr' ? 'मराठी / EN' : 'EN / मराठी'}</span>
             </button>
+
+            {/* Financial Year (FY) Selector */}
+            <div className="relative">
+              <select
+                aria-label="Financial Year"
+                value={financialYear}
+                onChange={(e) => setFinancialYear(e.target.value)}
+                className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#dfaf27]/70 bg-[#1a2d57] text-[#f0da9a] hover:text-white py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-6 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none"
+                title="Select Financial Year (आर्थिक वर्ष)"
+              >
+                {availableFinancialYears.map((fy) => (
+                  <option key={fy} value={fy} className="bg-[#233d76] text-white font-bold">
+                    FY {fy}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3 h-3 text-[#dfaf27] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
 
             {/* Role Switcher Pill (Clearly shows Trainer Name & Organization) */}
             <div className="relative">

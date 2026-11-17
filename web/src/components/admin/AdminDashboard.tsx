@@ -34,21 +34,26 @@ export const AdminDashboard: React.FC = () => {
     organizations,
     selectedOrgFilter,
     setSelectedOrgFilter,
+    financialYear,
   } = useApp();
 
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
-  // Filter schools by selected organization
+  // Filter schools by financial year and selected organization
   const orgSchools = schools.filter((s) => {
+    const matchesFY = !s.financialYear || s.financialYear === financialYear;
+    if (!matchesFY) return false;
     if (selectedOrgFilter === 'ALL') return true;
     return (s.organizationCode || 'TRST_DIRECT') === selectedOrgFilter;
   });
 
   const orgSchoolIds = new Set(orgSchools.map((s) => s.id));
 
-  // Filter student pairs by organization and school
+  // Filter student pairs by financial year, organization and school
   const filteredPairs = assessmentPairs.filter((p) => {
+    const matchesFY = !p.financialYear || p.financialYear === financialYear;
+    if (!matchesFY) return false;
     const student = students.find((s) => s.id === p.studentId);
     if (selectedOrgFilter !== 'ALL') {
       if (!student || !orgSchoolIds.has(student.schoolId)) return false;
@@ -90,6 +95,9 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-3 py-1 rounded-md shadow-2xs">
               {language === 'mr' ? 'विश्वस्त डॅशबोर्ड (Trust Dashboard)' : 'Trust Executive Portal'}
+            </span>
+            <span className="text-xs bg-[#1a2d57] text-[#dfaf27] font-bold px-3 py-1 rounded-md border border-[#dfaf27]/40">
+              📅 {language === 'mr' ? `आर्थिक वर्ष: FY ${financialYear}` : `Financial Year: FY ${financialYear}`}
             </span>
             <span className="text-xs bg-[#1a2d57] text-[#f0da9a] font-semibold px-2.5 py-1 rounded-md border border-[#3b5998] flex items-center space-x-1">
               <ShieldCheck className="w-3.5 h-3.5 text-[#dfaf27]" />
