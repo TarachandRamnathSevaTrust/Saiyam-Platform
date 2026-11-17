@@ -7,6 +7,12 @@ import {
   Student,
 } from './types';
 
+/**
+ * Prorated Scoring Engine with Statistical Safeguard:
+ * - Scores students based on questions actually attempted: (Correct / Answered) * 100
+ * - Does not penalize students for innocent blanks
+ * - Requires at least 60% of the paper to be attempted; otherwise flagged as INCOMPLETE
+ */
 export function calculateAssessmentScore(
   responses: AssessmentResponse[],
   questions: Question[]
@@ -15,6 +21,7 @@ export function calculateAssessmentScore(
   answeredCount: number;
   correctCount: number;
   scorePercentage: number;
+  isIncomplete: boolean;
 } {
   const totalQuestions = questions.length;
   let answeredCount = 0;
@@ -37,14 +44,22 @@ export function calculateAssessmentScore(
     }
   }
 
+  // Minimum threshold: at least 60% questions attempted
+  const minRequiredAttempts = Math.ceil(totalQuestions * 0.6);
+  const isIncomplete = answeredCount < minRequiredAttempts;
+
+  // Prorated Score: (Correct / Answered) * 100
   const scorePercentage =
-    totalQuestions > 0 ? Number(((correctCount / totalQuestions) * 100).toFixed(2)) : 0;
+    answeredCount > 0
+      ? Number(((correctCount / answeredCount) * 100).toFixed(2))
+      : 0;
 
   return {
     totalQuestions,
     answeredCount,
     correctCount,
     scorePercentage,
+    isIncomplete,
   };
 }
 
@@ -93,7 +108,9 @@ export function formatRowsForExcelExport(pairs: StudentAssessmentPair[]) {
     'इयत्ता (Class)': p.standard,
     'तुकडी (Division)': p.division,
     'चाचणी प्रकार (Paper)': p.paperType,
+    'Pre उत्तरे / एकूण': p.preTest ? `${p.preTest.answeredCount} / ${p.preTest.totalQuestions}` : '—',
     'पूर्व चाचणी स्कोअर (Pre %)': p.preTest ? `${p.preTest.scorePercentage}%` : 'घेतली नाही',
+    'Post उत्तरे / एकूण': p.postTest ? `${p.postTest.answeredCount} / ${p.postTest.totalQuestions}` : '—',
     'उत्तर चाचणी स्कोअर (Post %)': p.postTest ? `${p.postTest.scorePercentage}%` : 'घेतली नाही',
     'फरक (Improvement Delta %)':
       p.improvementDelta !== undefined

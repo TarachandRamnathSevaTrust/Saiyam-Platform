@@ -11,6 +11,7 @@ import {
   PaperType,
   AssessmentRecord,
   formatRowsForExcelExport,
+  calculateAssessmentScore,
 } from '@saiyam/shared';
 import {
   INITIAL_USERS,
@@ -51,7 +52,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('saiyam_user');
-    return saved ? JSON.parse(saved) : INITIAL_USERS[1]; // Default to Field Trainer (matching old app)
+    return saved ? JSON.parse(saved) : INITIAL_USERS[1];
   });
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
@@ -159,32 +160,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     responses: { questionId: string; questionNumber: number; selectedOptionCode?: string }[]
   ) => {
     const paperQuestions = questions.filter((q) => q.paperType === paperType);
-    let correctCount = 0;
-    let answeredCount = 0;
 
-    const scoredResponses = responses.map((r) => {
-      const q = paperQuestions.find((pq) => pq.id === r.questionId);
-      const isAns = Boolean(r.selectedOptionCode);
-      if (isAns) answeredCount++;
-      const isCorrect = Boolean(q && q.correctOptionCode && q.correctOptionCode === r.selectedOptionCode);
-      if (isCorrect) correctCount++;
-      return { ...r, isCorrect };
-    });
-
-    const scorePercentage =
-      paperQuestions.length > 0 ? Number(((correctCount / paperQuestions.length) * 100).toFixed(2)) : 0;
+    // Compute score using Prorated Scoring Engine
+    const scoreResult = calculateAssessmentScore(responses, paperQuestions);
 
     const assessmentRecord: AssessmentRecord = {
       id: `${phase.toLowerCase()}-${Date.now()}`,
       studentId,
       paperType,
       phase,
-      totalQuestions: paperQuestions.length,
-      answeredCount,
-      correctCount,
-      scorePercentage,
+      totalQuestions: scoreResult.totalQuestions,
+      answeredCount: scoreResult.answeredCount,
+      correctCount: scoreResult.correctCount,
+      scorePercentage: scoreResult.scorePercentage,
       completedAt: new Date().toISOString(),
-      responses: scoredResponses,
+      responses: responses.map((r) => {
+        const q = paperQuestions.find((pq) => pq.id === r.questionId);
+        const isCorrect = Boolean(q && q.correctOptionCode && q.correctOptionCode === r.selectedOptionCode);
+        return { ...r, isCorrect };
+      }),
     };
 
     setAssessmentPairs((prev) =>
