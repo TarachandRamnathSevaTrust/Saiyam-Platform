@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Users, Plus, Check, UserPlus, Info, Hash } from 'lucide-react';
+import { Users, Plus, Check, UserPlus, Info, Hash, ArrowLeft } from 'lucide-react';
 import { Gender } from '@saiyam/shared';
 
-export const StudentRoster: React.FC = () => {
+interface Props {
+  onBack?: () => void;
+}
+
+export const StudentRoster: React.FC<Props> = ({ onBack }) => {
   const { selectedSchool, students, addStudent, language } = useApp();
 
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAdding, setIsAdding] = useState(true); // Open by default for fast entry
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState<Gender>('FEMALE');
   const [standard, setStandard] = useState('8');
@@ -14,15 +18,22 @@ export const StudentRoster: React.FC = () => {
 
   if (!selectedSchool) {
     return (
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center">
-        <p className="text-slate-500">
+      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
+        <p className="text-slate-600 font-semibold mb-3">
           {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
         </p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
+          >
+            ← शाळा निवडा (Back to Schools)
+          </button>
+        )}
       </div>
     );
   }
 
-  // Filter students for the selected school
   const schoolStudents = students
     .filter((s) => s.schoolId === selectedSchool.id)
     .sort((a, b) => a.bundleSequenceNo - b.bundleSequenceNo);
@@ -43,73 +54,73 @@ export const StudentRoster: React.FC = () => {
     });
 
     setFullName('');
-    // Keep standard and division for quick serial batch entry
   };
 
   return (
-    <div className="space-y-6">
-      {/* Physical Paper Bundle Instructions Banner (Matching Page 105 of Manual) */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4.5 text-amber-900 flex items-start space-x-3 shadow-2xs">
-        <div className="w-8 h-8 rounded-lg bg-amber-200/80 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+    <div className="space-y-5 max-w-4xl mx-auto">
+      {/* Back button & Title Bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+              title="Back"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {language === 'mr' ? 'विद्यार्थी नोंदणी' : 'Student Registration'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {selectedSchool.name} • {selectedSchool.village}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsAdding(!isAdding)}
+          className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+        >
+          <Plus className="w-4 h-4 text-[#dfaf27]" />
+          <span>{language === 'mr' ? 'नवीन विद्यार्थी' : 'Add Student'}</span>
+        </button>
+      </div>
+
+      {/* Physical Paper Bundle Alignment Banner (Matching Page 105 of Manual) */}
+      <div className="bg-[#f0da9a]/30 border border-[#dfaf27]/50 rounded-2xl p-4 text-[#233d76] flex items-start space-x-3 shadow-2xs">
+        <div className="w-7 h-7 rounded-lg bg-[#dfaf27]/40 text-[#233d76] flex items-center justify-center shrink-0 mt-0.5 font-bold">
           <Info className="w-4 h-4" />
         </div>
-        <div>
-          <h4 className="font-bold text-sm">
-            {language === 'mr'
-              ? 'महत्त्वाची सूचना: पूर्व चाचणी गठ्ठा क्रमानुसार नोंदणी'
-              : 'Important: Sequential Paper Bundle Alignment'}
-          </h4>
-          <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-            {language === 'mr'
-              ? 'पूर्व चाचणीच्या सांगितलेल्या क्रमाने लावलेला आणि नंबर लिहिलेला गठ्ठा घेऊन बसावे. त्यात जो क्रम आहे (S-1, S-2, S-3...) त्याच क्रमाने ही नोंदणी करावी, ज्यामुळे नंतर उत्तर चाचण्या भरताना चुका होणार नाहीत.'
-              : 'Arrange the physical test papers in numerical order. Register students in the exact same serial sequence (S-1, S-2...) so answer sheets match 1:1 with app records.'}
-          </p>
+        <div className="text-xs leading-relaxed">
+          <strong>{language === 'mr' ? 'सूचना: ' : 'Instruction: '}</strong>
+          {language === 'mr'
+            ? 'पूर्व चाचणीच्या क्रमाने लावलेला आणि नंबर लिहिलेला गठ्ठा घेऊन बसावे. गठ्ठ्याचा क्रम (S-1, S-2...) आणि app मधला क्रम सारखाच असावा.'
+            : 'Hold the numbered physical bundle of test sheets. Register students in the exact same serial order (S-1, S-2...).'}
         </div>
       </div>
 
-      {/* Roster Container */}
+      {/* Roster & Add Form Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-        {/* Header Bar */}
-        <div className="px-6 py-4.5 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-amber-600" />
-              <h3 className="font-bold text-base text-slate-900">
-                {language === 'mr' ? 'विद्यार्थी यादी (Student Roster)' : 'Enrolled Students'}
-              </h3>
-              <span className="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">
-                {schoolStudents.length} {language === 'mr' ? 'विद्यार्थी' : 'Students'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {selectedSchool.name} • {language === 'mr' ? 'इयत्ता:' : 'Grade:'} {standard}-{division}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setIsAdding(!isAdding)}
-            className="flex items-center space-x-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{language === 'mr' ? 'नवीन विद्यार्थी जोडा' : 'Add Student'}</span>
-          </button>
-        </div>
-
-        {/* Quick Add Form (Collapsible or Open) */}
+        {/* Quick Add Form (Matching Page 105: विद्यार्थी माहिती) */}
         {isAdding && (
           <form
             onSubmit={handleAddStudent}
-            className="bg-amber-50/50 p-5 border-b border-amber-100 animate-fadeIn"
+            className="bg-slate-50/70 p-5 border-b border-slate-200 animate-fadeIn"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-amber-900 flex items-center space-x-1.5">
-                <UserPlus className="w-4 h-4 text-amber-700" />
+              <span className="text-xs font-bold text-[#233d76] flex items-center space-x-1.5">
+                <UserPlus className="w-4 h-4 text-[#dfaf27]" />
                 <span>
-                  {language === 'mr' ? `नवीन विद्यार्थी नोंदणी (गठ्ठा क्र. S-${nextSequenceNo})` : `Add Student (Bundle Serial # S-${nextSequenceNo})`}
+                  {language === 'mr'
+                    ? `विद्यार्थी माहिती (गठ्ठा क्र. S-${nextSequenceNo})`
+                    : `Student Information (Serial # S-${nextSequenceNo})`}
                 </span>
               </span>
-              <span className="text-[11px] text-amber-700">
-                {language === 'mr' ? 'नाव लिहून Enter दाबा' : 'Type name and press Enter'}
+              <span className="text-[11px] text-slate-500">
+                {language === 'mr' ? 'माहिती भरून सेव्ह करा' : 'Fill details & press save'}
               </span>
             </div>
 
@@ -119,8 +130,8 @@ export const StudentRoster: React.FC = () => {
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
                   {language === 'mr' ? 'गठ्ठा क्र.' : 'Bundle #'}
                 </label>
-                <div className="w-full text-sm font-mono font-bold bg-white px-3 py-2 rounded-xl border border-slate-300 text-slate-700 flex items-center">
-                  <Hash className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                <div className="w-full text-sm font-mono font-bold bg-white px-3 py-2 rounded-xl border border-slate-300 text-[#233d76] flex items-center justify-center">
+                  <Hash className="w-3.5 h-3.5 mr-0.5 text-[#dfaf27]" />
                   S-{nextSequenceNo}
                 </div>
               </div>
@@ -136,12 +147,12 @@ export const StudentRoster: React.FC = () => {
                   placeholder={language === 'mr' ? 'उदा. अनघा कुलकर्णी' : 'e.g. Anagha Kulkarni'}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full text-sm bg-white px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                  className="w-full text-sm bg-white px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
                   autoFocus
                 />
               </div>
 
-              {/* Gender */}
+              {/* Gender (मुलगी / मुलगा from manual) */}
               <div className="sm:col-span-2">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
                   {language === 'mr' ? 'लिंग *' : 'Gender *'}
@@ -150,15 +161,14 @@ export const StudentRoster: React.FC = () => {
                   aria-label="Select Gender"
                   value={gender}
                   onChange={(e) => setGender(e.target.value as Gender)}
-                  className="w-full text-sm bg-white px-2.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden cursor-pointer"
+                  className="w-full text-sm bg-white px-2.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
                 >
-                  <option value="FEMALE">{language === 'mr' ? 'मुलगी' : 'Female'}</option>
-                  <option value="MALE">{language === 'mr' ? 'मुलगा' : 'Male'}</option>
-                  <option value="OTHER">{language === 'mr' ? 'इतर' : 'Other'}</option>
+                  <option value="FEMALE">{language === 'mr' ? 'मुलगी (Girl)' : 'Female'}</option>
+                  <option value="MALE">{language === 'mr' ? 'मुलगा (Boy)' : 'Male'}</option>
                 </select>
               </div>
 
-              {/* Standard */}
+              {/* Standard (इयत्ता) */}
               <div className="sm:col-span-1">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
                   {language === 'mr' ? 'इयत्ता' : 'Class'}
@@ -167,11 +177,11 @@ export const StudentRoster: React.FC = () => {
                   type="text"
                   value={standard}
                   onChange={(e) => setStandard(e.target.value)}
-                  className="w-full text-sm bg-white px-2 py-2 rounded-xl border border-slate-300 text-center"
+                  className="w-full text-sm bg-white px-2 py-2 rounded-xl border border-slate-300 text-center font-bold"
                 />
               </div>
 
-              {/* Division */}
+              {/* Division (तुकडी) */}
               <div className="sm:col-span-1">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
                   {language === 'mr' ? 'तुकडी' : 'Div'}
@@ -180,7 +190,7 @@ export const StudentRoster: React.FC = () => {
                   type="text"
                   value={division}
                   onChange={(e) => setDivision(e.target.value)}
-                  className="w-full text-sm bg-white px-2 py-2 rounded-xl border border-slate-300 text-center"
+                  className="w-full text-sm bg-white px-2 py-2 rounded-xl border border-slate-300 text-center font-bold"
                 />
               </div>
 
@@ -188,52 +198,61 @@ export const StudentRoster: React.FC = () => {
               <div className="sm:col-span-1 flex items-end">
                 <button
                   type="submit"
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-xl shadow-xs flex items-center justify-center cursor-pointer transition-colors"
-                  title="Save Student"
+                  className="w-full bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold p-2.5 rounded-xl shadow-xs flex items-center justify-center cursor-pointer transition-colors"
+                  title="सेव्ह करा (Save)"
                 >
-                  <Check className="w-5 h-5" />
+                  <Check className="w-4 h-4 text-[#dfaf27]" />
                 </button>
               </div>
             </div>
           </form>
         )}
 
-        {/* Student List Table */}
+        {/* Student List (Matching Page 106: विद्यार्थी - यादी) */}
+        <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex justify-between items-center">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            {language === 'mr' ? 'विद्यार्थी - यादी' : 'Student List'}
+          </span>
+          <span className="text-xs bg-[#233d76] text-white font-bold px-2.5 py-0.5 rounded-full">
+            {schoolStudents.length} {language === 'mr' ? 'नोंदवलेले' : 'Registered'}
+          </span>
+        </div>
+
         <div className="divide-y divide-slate-100">
           {schoolStudents.length === 0 ? (
-            <div className="p-12 text-center text-slate-500">
+            <div className="p-10 text-center text-slate-500">
               <Users className="w-8 h-8 mx-auto text-slate-300 mb-2" />
               <p className="text-sm font-semibold text-slate-700">
-                {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवले नाहीत' : 'No students added yet'}
+                {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवलेले नाहीत' : 'No students added yet'}
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 {language === 'mr'
-                  ? 'वरील बटण दाबून पूर्व चाचणी गठ्ठ्यातील विद्यार्थ्यांची नोंदणी सुरू करा.'
-                  : 'Click the button above to begin registering student papers.'}
+                  ? 'वरील फॉर्ममध्ये नाव लिहून "सेव्ह" करा.'
+                  : 'Enter student details in the form above and click save.'}
               </p>
             </div>
           ) : (
             schoolStudents.map((student) => (
               <div
                 key={student.id}
-                className="px-6 py-3.5 flex items-center justify-between hover:bg-slate-50/80 transition-colors"
+                className="px-6 py-3 flex items-center justify-between hover:bg-slate-50/80 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <span className="font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+                  <span className="font-mono text-xs font-bold bg-[#f0da9a]/50 text-[#233d76] px-2.5 py-1 rounded-lg border border-[#dfaf27]/40">
                     S-{student.bundleSequenceNo}
                   </span>
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">{student.fullName}</h4>
                     <span className="text-xs text-slate-500">
-                      {student.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {language === 'mr' ? 'इयत्ता' : 'Grade'}{' '}
+                      {student.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {language === 'mr' ? 'इयत्ता' : 'Class'}{' '}
                       {student.standard}-{student.division}
                     </span>
                   </div>
                 </div>
 
-                <div className="text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full font-medium border border-emerald-100">
-                  {language === 'mr' ? 'नोंदणी पूर्ण' : 'Registered'}
-                </div>
+                <span className="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                  {language === 'mr' ? 'नोंद झाली' : 'Saved'}
+                </span>
               </div>
             ))
           )}

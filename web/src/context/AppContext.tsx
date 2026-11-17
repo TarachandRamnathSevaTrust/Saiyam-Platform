@@ -4,7 +4,6 @@ import {
   School,
   Student,
   UserProfile,
-  UserRole,
   StudentAssessmentPair,
   SessionLog,
   DashboardStats,
@@ -19,7 +18,6 @@ import {
   INITIAL_STUDENTS,
   INITIAL_ASSESSMENT_PAIRS,
   INITIAL_SESSION_LOGS,
-  INITIAL_DASHBOARD_STATS,
 } from '../lib/mockData';
 import { INITIAL_QUESTIONS } from '@saiyam/shared';
 
@@ -39,7 +37,7 @@ interface AppContextType {
     studentId: string,
     paperType: PaperType,
     phase: 'PRE' | 'POST',
-    responses: { questionId: string; questionNumber: number; selectedOption: any }[]
+    responses: { questionId: string; questionNumber: number; selectedOptionCode?: string }[]
   ) => void;
   sessionLogs: SessionLog[];
   saveSessionLog: (logData: Omit<SessionLog, 'id' | 'createdAt'>) => void;
@@ -51,24 +49,69 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<UserProfile>(INITIAL_USERS[0]); // default Trust Admin
-  const [language, setLanguage] = useState<'mr' | 'en'>('mr'); // default Marathi to match the manual
-  const [schools, setSchools] = useState<School[]>(INITIAL_SCHOOLS);
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(INITIAL_SCHOOLS[0]);
-  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
-  const [assessmentPairs, setAssessmentPairs] = useState<StudentAssessmentPair[]>(INITIAL_ASSESSMENT_PAIRS);
-  const [sessionLogs, setSessionLogs] = useState<SessionLog[]>(INITIAL_SESSION_LOGS);
-  const [dashboardStats] = useState<DashboardStats>(INITIAL_DASHBOARD_STATS);
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('saiyam_user');
+    return saved ? JSON.parse(saved) : INITIAL_USERS[1]; // Default to Field Trainer (matching old app)
+  });
+
+  const [language, setLanguage] = useState<'mr' | 'en'>('mr');
+
+  const [schools, setSchools] = useState<School[]>(() => {
+    const saved = localStorage.getItem('saiyam_schools');
+    return saved ? JSON.parse(saved) : INITIAL_SCHOOLS;
+  });
+
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(() => {
+    const saved = localStorage.getItem('saiyam_selected_school');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [students, setStudents] = useState<Student[]>(() => {
+    const saved = localStorage.getItem('saiyam_students');
+    return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
+  });
+
+  const [assessmentPairs, setAssessmentPairs] = useState<StudentAssessmentPair[]>(() => {
+    const saved = localStorage.getItem('saiyam_assessment_pairs');
+    return saved ? JSON.parse(saved) : INITIAL_ASSESSMENT_PAIRS;
+  });
+
+  const [sessionLogs, setSessionLogs] = useState<SessionLog[]>(() => {
+    const saved = localStorage.getItem('saiyam_session_logs');
+    return saved ? JSON.parse(saved) : INITIAL_SESSION_LOGS;
+  });
+
   const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
+
+  // Sync state to local storage
+  useEffect(() => {
+    localStorage.setItem('saiyam_user', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_schools', JSON.stringify(schools));
+  }, [schools]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_selected_school', JSON.stringify(selectedSchool));
+  }, [selectedSchool]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_students', JSON.stringify(students));
+  }, [students]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_assessment_pairs', JSON.stringify(assessmentPairs));
+  }, [assessmentPairs]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_session_logs', JSON.stringify(sessionLogs));
+  }, [sessionLogs]);
 
   const switchUser = (userId: string) => {
     const user = INITIAL_USERS.find((u) => u.id === userId);
     if (user) {
       setCurrentUser(user);
-      if (user.role === 'FIELD_TRAINER') {
-        const assigned = schools.find((s) => s.assignedTrainerId === user.id) || schools[0];
-        setSelectedSchool(assigned || null);
-      }
     }
   };
 
@@ -93,7 +136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setStudents((prev) => [...prev, newStudent]);
 
-    // Create blank assessment pairs for all 3 papers (MKMH, MMAT, ERT)
+    // Create initial pairs for all 3 papers (MKMH, MMAT, ERT)
     const newPairs: StudentAssessmentPair[] = (['MKMH', 'MMAT', 'ERT'] as PaperType[]).map((pType) => ({
       studentId: newStudent.id,
       studentName: newStudent.fullName,
@@ -113,7 +156,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     studentId: string,
     paperType: PaperType,
     phase: 'PRE' | 'POST',
-    responses: { questionId: string; questionNumber: number; selectedOption: any }[]
+    responses: { questionId: string; questionNumber: number; selectedOptionCode?: string }[]
   ) => {
     const paperQuestions = questions.filter((q) => q.paperType === paperType);
     let correctCount = 0;
@@ -121,9 +164,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const scoredResponses = responses.map((r) => {
       const q = paperQuestions.find((pq) => pq.id === r.questionId);
-      const isAns = r.selectedOption && r.selectedOption !== 'BLANK';
+      const isAns = Boolean(r.selectedOptionCode);
       if (isAns) answeredCount++;
-      const isCorrect = Boolean(q && q.correctOption && q.correctOption === r.selectedOption);
+      const isCorrect = Boolean(q && q.correctOptionCode && q.correctOptionCode === r.selectedOptionCode);
       if (isCorrect) correctCount++;
       return { ...r, isCorrect };
     });
@@ -191,7 +234,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return [newLog, ...filtered];
     });
 
-    // Update school session count
     setSchools((prev) =>
       prev.map((s) => {
         if (s.id === logData.schoolId) {
@@ -219,8 +261,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Saiyam Impact Report');
 
-    const fileName = `Saiyam_Assessment_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `TRST_Saiyam_Impact_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
+  };
+
+  // Real-time calculated dashboard stats
+  const dashboardStats: DashboardStats = {
+    totalFieldTrainers: 1,
+    totalSchools: schools.length,
+    totalStudents: students.length,
+    totalSessionsConducted: sessionLogs.length,
+    attendanceRate:
+      sessionLogs.length > 0
+        ? Number(
+            (
+              sessionLogs.reduce((acc, l) => acc + l.totalAttendance, 0) /
+              Math.max(1, sessionLogs.length * 50) *
+              100
+            ).toFixed(1)
+          )
+        : 0,
   };
 
   return (

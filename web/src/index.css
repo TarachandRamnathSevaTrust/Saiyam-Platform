@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-trust-blue: #233d76;
+  --color-trust-blue-dark: #1b2f5c;
+  --color-trust-blue-light: #2e4d94;
+  --color-trust-yellow: #dfaf27;
+  --color-trust-yellow-dark: #b88d18;
+  --color-trust-yellow-light: #f0da9a;
+}
+
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 antialiased;

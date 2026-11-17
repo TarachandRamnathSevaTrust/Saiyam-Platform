@@ -7,10 +7,6 @@ import {
   Student,
 } from './types';
 
-/**
- * Calculates raw score and percentage for an assessment submission.
- * Properly accounts for blanks and unanswered questions.
- */
 export function calculateAssessmentScore(
   responses: AssessmentResponse[],
   questions: Question[]
@@ -27,10 +23,10 @@ export function calculateAssessmentScore(
   const questionMap = new Map(questions.map((q) => [q.id, q]));
 
   for (const resp of responses) {
-    if (resp.selectedOption && resp.selectedOption !== 'BLANK') {
+    if (resp.selectedOptionCode) {
       answeredCount++;
       const q = questionMap.get(resp.questionId);
-      if (q && q.correctOption && q.correctOption === resp.selectedOption) {
+      if (q && q.correctOptionCode && q.correctOptionCode === resp.selectedOptionCode) {
         correctCount++;
         resp.isCorrect = true;
       } else {
@@ -52,10 +48,6 @@ export function calculateAssessmentScore(
   };
 }
 
-/**
- * Automatically binds a student's Pre-Test and Post-Test for a given paper type
- * and computes the exact improvement delta and percentage shift.
- */
 export function computeStudentPair(
   student: Student,
   paperType: PaperType,
@@ -93,56 +85,20 @@ export function computeStudentPair(
   };
 }
 
-/**
- * Aggregates a cohort of students to calculate overall paper performance.
- * Gives TRST executive leadership real-time statistical insight.
- */
-export function aggregateCohortStats(pairs: StudentAssessmentPair[]) {
-  const completedPairs = pairs.filter((p) => p.preTest && p.postTest);
-  const total = pairs.length;
-  const completed = completedPairs.length;
-
-  if (completed === 0) {
-    return {
-      totalStudents: total,
-      completedCount: 0,
-      averagePreScore: 0,
-      averagePostScore: 0,
-      averageImprovementDelta: 0,
-    };
-  }
-
-  const sumPre = completedPairs.reduce((acc, p) => acc + (p.preTest?.scorePercentage || 0), 0);
-  const sumPost = completedPairs.reduce((acc, p) => acc + (p.postTest?.scorePercentage || 0), 0);
-  const sumDelta = completedPairs.reduce((acc, p) => acc + (p.improvementDelta || 0), 0);
-
-  return {
-    totalStudents: total,
-    completedCount: completed,
-    averagePreScore: Number((sumPre / completed).toFixed(2)),
-    averagePostScore: Number((sumPost / completed).toFixed(2)),
-    averageImprovementDelta: Number((sumDelta / completed).toFixed(2)),
-  };
-}
-
-/**
- * Prepares clean rows for the Consolidated Excel Export.
- * Formats data exactly as TRST researchers and stakeholders expect.
- */
 export function formatRowsForExcelExport(pairs: StudentAssessmentPair[]) {
   return pairs.map((p) => ({
-    'Bundle Serial #': `S-${p.bundleSequenceNo}`,
-    'Student Name': p.studentName,
-    'Gender': p.gender === 'FEMALE' ? 'मुलगी (Female)' : 'मुलगा (Male)',
-    'Standard': p.standard,
-    'Division': p.division,
-    'Paper Code': p.paperType,
-    'Pre-Test Score (%)': p.preTest ? `${p.preTest.scorePercentage}%` : 'Not Taken',
-    'Post-Test Score (%)': p.postTest ? `${p.postTest.scorePercentage}%` : 'Not Taken',
-    'Improvement Delta (%)':
+    'गठ्ठा अनुक्रमांक (Bundle #)': `S-${p.bundleSequenceNo}`,
+    'विद्यार्थ्याचे नाव (Name)': p.studentName,
+    'लिंग (Gender)': p.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा',
+    'इयत्ता (Class)': p.standard,
+    'तुकडी (Division)': p.division,
+    'चाचणी प्रकार (Paper)': p.paperType,
+    'पूर्व चाचणी स्कोअर (Pre %)': p.preTest ? `${p.preTest.scorePercentage}%` : 'घेतली नाही',
+    'उत्तर चाचणी स्कोअर (Post %)': p.postTest ? `${p.postTest.scorePercentage}%` : 'घेतली नाही',
+    'फरक (Improvement Delta %)':
       p.improvementDelta !== undefined
         ? `${p.improvementDelta > 0 ? '+' : ''}${p.improvementDelta}%`
-        : 'N/A',
-    'Status': p.status.replace('_', ' '),
+        : '—',
+    'स्थिती (Status)': p.status === 'ALL_COMPLETED' ? 'दोन्ही चाचण्या पूर्ण' : 'पूर्व चाचणी पूर्ण',
   }));
 }

@@ -40,12 +40,12 @@ export interface SchoolDocument {
   uploadedAt: string;
 }
 
-export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+export type Gender = 'FEMALE' | 'MALE' | 'OTHER';
 
 export interface Student {
   id: string;
   schoolId: string;
-  bundleSequenceNo: number; // S-1, S-2... 1:1 match with physical test papers stack
+  bundleSequenceNo: number; // S-1, S-2... 1:1 match with physical paper bundle
   fullName: string;
   gender: Gender;
   standard: string; // e.g. '8'
@@ -55,7 +55,12 @@ export interface Student {
 
 export type PaperType = 'MKMH' | 'MMAT' | 'ERT';
 export type AssessmentPhase = 'PRE' | 'POST';
-export type AnswerOption = 'CORRECT' | 'WRONG' | 'DONT_KNOW' | 'BLANK';
+
+export interface QuestionOption {
+  code: string;
+  labelMr: string;
+  labelEn: string;
+}
 
 export interface Question {
   id: string;
@@ -63,15 +68,15 @@ export interface Question {
   questionNumber: number;
   textMr: string;
   textEn: string;
-  options: AnswerOption[];
-  correctOption?: AnswerOption;
+  options: QuestionOption[];
+  correctOptionCode?: string;
   category?: string;
 }
 
 export interface AssessmentResponse {
   questionId: string;
   questionNumber: number;
-  selectedOption: AnswerOption;
+  selectedOptionCode?: string; // e.g. 'CORRECT', 'WRONG', 'ALWAYS', 'SOMETIMES', or undefined for BLANK
   isCorrect?: boolean;
 }
 
@@ -140,16 +145,10 @@ export interface SessionMedia {
   uploadedAt: string;
 }
 
-// Executive KPI & Analytics Summary
 export interface DashboardStats {
   totalFieldTrainers: number;
   totalSchools: number;
   totalStudents: number;
   totalSessionsConducted: number;
-  attendanceRate: number; // percentage
-  averageImprovement: {
-    MKMH: number; // percentage increase
-    MMAT: number; // percentage increase
-    ERT: number;  // percentage increase
-  };
+  attendanceRate: number;
 }

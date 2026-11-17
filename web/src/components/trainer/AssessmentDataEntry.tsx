@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PaperType, AnswerOption } from '@saiyam/shared';
+import { PaperType } from '@saiyam/shared';
 import {
-  FileText,
-  CheckCircle,
-  HelpCircle,
-  XCircle,
-  User,
-  Save,
   Check,
   RotateCcw,
   Sparkles,
+  ArrowLeft,
+  ChevronRight,
+  Save,
 } from 'lucide-react';
 
-export const AssessmentDataEntry: React.FC = () => {
+interface Props {
+  onBack?: () => void;
+}
+
+export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
   const {
     selectedSchool,
     students,
@@ -25,20 +26,26 @@ export const AssessmentDataEntry: React.FC = () => {
 
   const [phase, setPhase] = useState<'PRE' | 'POST'>('PRE');
   const [selectedPaper, setSelectedPaper] = useState<PaperType>('MMAT');
-  const [selectedStudentId, setSelectedStudentId] = useState<string>(
-    students[0]?.id || ''
-  );
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
 
-  // Local state for answers being entered for the active student & paper
-  const [answers, setAnswers] = useState<Record<string, AnswerOption>>({});
+  // Local state for answers being entered
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   if (!selectedSchool) {
     return (
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center">
-        <p className="text-slate-500">
+      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
+        <p className="text-slate-600 font-semibold mb-3">
           {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
         </p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
+          >
+            ← शाळा निवडा (Back to Schools)
+          </button>
+        )}
       </div>
     );
   }
@@ -47,26 +54,21 @@ export const AssessmentDataEntry: React.FC = () => {
     .filter((s) => s.schoolId === selectedSchool.id)
     .sort((a, b) => a.bundleSequenceNo - b.bundleSequenceNo);
 
-  const activeStudent = schoolStudents.find((s) => s.id === selectedStudentId) || schoolStudents[0];
+  const activeStudent =
+    schoolStudents.find((s) => s.id === selectedStudentId) || schoolStudents[0];
   const paperQuestions = questions.filter((q) => q.paperType === selectedPaper);
 
-  // Load existing answers if already taken
-  const currentPair = assessmentPairs.find(
-    (p) => p.studentId === activeStudent?.id && p.paperType === selectedPaper
-  );
-  const activeRecord = phase === 'PRE' ? currentPair?.preTest : currentPair?.postTest;
-
-  // Toggle answer selection (Fixes the old app bug where clicking once locked it!)
-  const handleSelectOption = (questionId: string, option: AnswerOption) => {
+  // Toggle answer selection (Clicking once selects; clicking again UNSELECTS it!)
+  const handleSelectOption = (questionId: string, optionCode: string) => {
     setAnswers((prev) => {
-      // If already selected, clicking it again unselects it (sets to BLANK)!
       const current = prev[questionId];
-      if (current === option) {
+      if (current === optionCode) {
+        // Unselect (clear back to blank)
         const copy = { ...prev };
         delete copy[questionId];
         return copy;
       }
-      return { ...prev, [questionId]: option };
+      return { ...prev, [questionId]: optionCode };
     });
   };
 
@@ -76,7 +78,7 @@ export const AssessmentDataEntry: React.FC = () => {
     const payload = paperQuestions.map((q) => ({
       questionId: q.id,
       questionNumber: q.questionNumber,
-      selectedOption: answers[q.id] || ('BLANK' as AnswerOption),
+      selectedOptionCode: answers[q.id],
     }));
 
     saveAssessmentSubmission(activeStudent.id, selectedPaper, phase, payload);
@@ -85,32 +87,67 @@ export const AssessmentDataEntry: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Phase Switcher (Pre vs Post) */}
-      <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-2xs flex">
+    <div className="space-y-5 max-w-5xl mx-auto">
+      {/* Top Header & Back Button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+              title="Back"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {language === 'mr' ? 'पूर्व / उत्तर चाचण्या (चाचणी काम)' : 'Pre & Post Assessments'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {selectedSchool.name} • {selectedSchool.village}
+            </p>
+          </div>
+        </div>
+
+        {/* Bug Fix Indicator */}
+        <div className="hidden sm:flex items-center space-x-1.5 text-xs text-[#233d76] bg-[#f0da9a]/50 px-3 py-1 rounded-full border border-[#dfaf27]/40 font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-[#dfaf27]" />
+          <span>{language === 'mr' ? 'क्लिक करून पर्याय बदलावा किंवा रद्द करावा' : 'Click to unselect / change freely'}</span>
+        </div>
+      </div>
+
+      {/* Phase Switcher (सत्राच्या आधी vs सत्राच्या नंतर from Page 106 of Manual) */}
+      <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-2xs flex">
         <button
-          onClick={() => setPhase('PRE')}
-          className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all cursor-pointer ${
+          onClick={() => {
+            setPhase('PRE');
+            setAnswers({});
+          }}
+          className={`flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
             phase === 'PRE'
-              ? 'bg-amber-600 text-white shadow-xs'
+              ? 'bg-[#233d76] text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          {language === 'mr' ? '१. सत्राच्या आधी (पूर्व चाचणी / Pre-Test)' : '1. Pre-Session (Baseline)'}
+          {language === 'mr' ? 'सत्राच्या आधी (पूर्व चाचणी)' : '1. Pre-Test (Baseline)'}
         </button>
         <button
-          onClick={() => setPhase('POST')}
-          className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all cursor-pointer ${
+          onClick={() => {
+            setPhase('POST');
+            setAnswers({});
+          }}
+          className={`flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
             phase === 'POST'
-              ? 'bg-blue-700 text-white shadow-xs'
+              ? 'bg-[#dfaf27] text-[#233d76] shadow-xs font-black'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          {language === 'mr' ? '२. सत्राच्या नंतर (उत्तर चाचणी / Post-Test)' : '2. Post-Session (Evaluation)'}
+          {language === 'mr' ? 'सत्राच्या नंतर (उत्तर चाचणी)' : '2. Post-Test (Outcome)'}
         </button>
       </div>
 
-      {/* 3 Papers Tabs (MKMH, MMAT, ERT) */}
+      {/* 3 Papers Tabs (Matching Page 106 in Manual) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Paper 1: MKMH */}
         <button
@@ -120,13 +157,13 @@ export const AssessmentDataEntry: React.FC = () => {
           }}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'MKMH'
-              ? 'bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20'
+              ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-xs font-bold text-blue-700 uppercase">चाचणी १ / Paper 1</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-1">माझे ज्ञान, माझे आरोग्य (MKMH)</h4>
-          <p className="text-xs text-slate-500 mt-0.5">My Knowledge, My Health</p>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी १ / Paper 1</span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">माझे ज्ञान, माझे आरोग्य चाचणी</h4>
+          <span className="text-[10px] text-slate-500 block mt-1">३ पर्याय: बरोबर / चूक / माहीत नाही</span>
         </button>
 
         {/* Paper 2: MMAT */}
@@ -137,13 +174,13 @@ export const AssessmentDataEntry: React.FC = () => {
           }}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'MMAT'
-              ? 'bg-amber-50/80 border-amber-500 ring-2 ring-amber-500/20'
+              ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-xs font-bold text-amber-700 uppercase">चाचणी २ / Paper 2</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-1">समज व गैरसमज (MMAT)</h4>
-          <p className="text-xs text-slate-500 mt-0.5">Myths & Misconceptions</p>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी २ / Paper 2</span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">व्यसनाधीनता समज व गैरसमज</h4>
+          <span className="text-[10px] text-slate-500 block mt-1">३ पर्याय: बरोबर / चूक / सांगता येत नाही</span>
         </button>
 
         {/* Paper 3: ERT */}
@@ -154,189 +191,196 @@ export const AssessmentDataEntry: React.FC = () => {
           }}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'ERT'
-              ? 'bg-purple-50/80 border-purple-500 ring-2 ring-purple-500/20'
+              ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-xs font-bold text-purple-700 uppercase">चाचणी ३ / Paper 3</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-1">स्व-भावना नियमन (ERT)</h4>
-          <p className="text-xs text-slate-500 mt-0.5">Emotional Regulation Test</p>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी ३ / Paper 3</span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">स्व-भावना नियमन चाचणी</h4>
+          <span className="text-[10px] text-slate-500 block mt-1">४ पर्याय: नेहमी / बऱ्याच वेळा / कधी कधी / कधीच नाही</span>
         </button>
       </div>
 
-      {/* Main Data Entry Area: Student Selector on Left + Questions on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Student List Sidebar (Matching serial paper stack order) */}
+      {/* Main Screen: Student List on Left + Questions on Right (Matching Page 107 of Old App) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Students Sidebar (Sequential Order S-1, S-2...) */}
         <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-          <div className="p-4 bg-slate-50 border-b border-slate-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              {language === 'mr' ? 'विद्यार्थी निवडा (गठ्ठा क्रमाने)' : 'Select Student (Bundle Order)'}
+          <div className="p-3.5 bg-slate-50 border-b border-slate-200">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              {language === 'mr' ? 'विद्यार्थी निवडा (क्रमाने)' : 'Select Student (By Bundle)'}
             </h4>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              {schoolStudents.length} {language === 'mr' ? 'नोंदणीकृत' : 'enrolled'}
-            </p>
           </div>
 
           <div className="max-h-[500px] overflow-y-auto divide-y divide-slate-100">
-            {schoolStudents.map((st) => {
-              const isSelected = activeStudent?.id === st.id;
-              const pair = assessmentPairs.find((p) => p.studentId === st.id && p.paperType === selectedPaper);
-              const hasTakenPhase = phase === 'PRE' ? Boolean(pair?.preTest) : Boolean(pair?.postTest);
+            {schoolStudents.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवले नाहीत' : 'No students found'}
+              </div>
+            ) : (
+              schoolStudents.map((st) => {
+                const isSelected = activeStudent?.id === st.id;
+                const pair = assessmentPairs.find(
+                  (p) => p.studentId === st.id && p.paperType === selectedPaper
+                );
+                const hasTaken =
+                  phase === 'PRE' ? Boolean(pair?.preTest) : Boolean(pair?.postTest);
 
-              return (
-                <button
-                  key={st.id}
-                  onClick={() => {
-                    setSelectedStudentId(st.id);
-                    setAnswers({});
-                  }}
-                  className={`w-full text-left p-3.5 flex items-center justify-between transition-colors cursor-pointer ${
-                    isSelected ? 'bg-amber-50/90 border-l-4 border-amber-600' : 'hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <span className="font-mono text-xs font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-700">
-                      S-{st.bundleSequenceNo}
-                    </span>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 block truncate">{st.fullName}</span>
-                      <span className="text-[11px] text-slate-500">
-                        {st.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {st.standard}-{st.division}
+                return (
+                  <button
+                    key={st.id}
+                    onClick={() => {
+                      setSelectedStudentId(st.id);
+                      setAnswers({});
+                    }}
+                    className={`w-full text-left p-3.5 flex items-center justify-between transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#f0da9a]/40 border-l-4 border-[#233d76]'
+                        : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <span className="font-mono text-xs font-bold bg-[#233d76] text-white px-2 py-0.5 rounded">
+                        S-{st.bundleSequenceNo}
                       </span>
+                      <div>
+                        <span className="text-xs font-bold text-slate-900 block truncate">
+                          {st.fullName}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {st.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {hasTakenPhase && (
-                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                      <Check className="w-3 h-3" />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                    {hasTaken ? (
+                      <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                        <Check className="w-3 h-3" />
+                      </span>
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Question-by-Question Form */}
+        {/* Question Answering View (Matching Page 107 of Old App) */}
         <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-2xs p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-2">
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-mono text-xs font-bold bg-slate-100 px-2.5 py-1 rounded-md text-slate-800">
-                  S-{activeStudent?.bundleSequenceNo}
-                </span>
-                <h3 className="font-bold text-base text-slate-900">{activeStudent?.fullName}</h3>
-              </div>
-              <span className="text-xs text-slate-500 mt-1 block">
-                {phase === 'PRE' ? 'सत्राच्या आधी (Pre-Test)' : 'सत्राच्या नंतर (Post-Test)'} • {selectedPaper}
-              </span>
-            </div>
-
-            {/* Old App Bug Fix Banner */}
-            <div className="flex items-center space-x-1 text-[11px] text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{language === 'mr' ? 'पर्याय बदलता येतो / अनसिलेक्ट होतो' : 'Click to unselect / change freely'}</span>
-            </div>
-          </div>
-
-          {/* Question List */}
-          <div className="space-y-5 my-6">
-            {paperQuestions.map((q) => {
-              const selected = answers[q.id];
-
-              return (
-                <div key={q.id} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80">
-                  <div className="flex items-start justify-between">
-                    <p className="text-sm font-semibold text-slate-800 leading-relaxed">
-                      <strong className="text-amber-800 mr-1.5 font-bold">प्र. {q.questionNumber}.</strong>
-                      {language === 'mr' ? q.textMr : q.textEn}
-                    </p>
-
-                    {/* Clear button if selected */}
-                    {selected && (
-                      <button
-                        onClick={() => handleSelectOption(q.id, selected)}
-                        className="text-[11px] text-slate-400 hover:text-rose-600 flex items-center ml-2 cursor-pointer transition-colors"
-                        title="Clear answer"
-                      >
-                        <RotateCcw className="w-3 h-3 mr-0.5" />
-                        रद्द
-                      </button>
-                    )}
+          {activeStudent ? (
+            <>
+              {/* Active Student Top Info */}
+              <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono text-xs font-bold bg-[#233d76] text-white px-2.5 py-0.5 rounded">
+                      S-{activeStudent.bundleSequenceNo}
+                    </span>
+                    <h3 className="font-bold text-base text-slate-900">{activeStudent.fullName}</h3>
                   </div>
-
-                  {/* 3 Radio Options */}
-                  <div className="grid grid-cols-3 gap-2.5 mt-3.5">
-                    {/* Option: बरोबर (Correct) */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectOption(q.id, 'CORRECT')}
-                      className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
-                        selected === 'CORRECT'
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs ring-2 ring-emerald-500/20'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100/70'
-                      }`}
-                    >
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      <span>{language === 'mr' ? 'बरोबर' : 'Correct'}</span>
-                    </button>
-
-                    {/* Option: चूक (Wrong) */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectOption(q.id, 'WRONG')}
-                      className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
-                        selected === 'WRONG'
-                          ? 'bg-rose-600 text-white border-rose-600 shadow-xs ring-2 ring-rose-500/20'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100/70'
-                      }`}
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      <span>{language === 'mr' ? 'चूक' : 'Wrong'}</span>
-                    </button>
-
-                    {/* Option: माहित नाही (Don't Know) */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectOption(q.id, 'DONT_KNOW')}
-                      className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
-                        selected === 'DONT_KNOW'
-                          ? 'bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-500/20'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100/70'
-                      }`}
-                    >
-                      <HelpCircle className="w-3.5 h-3.5" />
-                      <span>{language === 'mr' ? 'माहित नाही' : "Don't Know"}</span>
-                    </button>
-                  </div>
+                  <span className="text-xs text-slate-500 mt-1 block">
+                    {phase === 'PRE' ? 'सत्राच्या आधी (Pre-Test)' : 'सत्राच्या नंतर (Post-Test)'} • {selectedPaper}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
 
-          {/* Save Action Bar */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-500">
-              {Object.keys(answers).length} / {paperQuestions.length}{' '}
-              {language === 'mr' ? 'प्रश्नांची उत्तरे भरली' : 'questions answered'}
-            </span>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-[#233d76]">
+                    {Object.keys(answers).length} / {paperQuestions.length} उत्तर दिले
+                  </span>
+                </div>
+              </div>
 
-            <div className="flex items-center space-x-3">
-              {saveSuccess && (
-                <span className="text-xs font-bold text-emerald-700 flex items-center space-x-1 animate-pulse">
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span>{language === 'mr' ? 'यशस्वीरित्या सेव्ह झाले!' : 'Saved successfully!'}</span>
+              {/* Dynamic Question List */}
+              <div className="space-y-5 my-6">
+                {paperQuestions.map((q) => {
+                  const selectedCode = answers[q.id];
+
+                  return (
+                    <div key={q.id} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200">
+                      <div className="flex items-start justify-between">
+                        <p className="text-sm font-semibold text-slate-800 leading-relaxed">
+                          <strong className="text-[#233d76] mr-1.5 font-bold">
+                            प्र. {q.questionNumber}.
+                          </strong>
+                          {language === 'mr' ? q.textMr : q.textEn}
+                        </p>
+
+                        {/* Clear/Unselect button */}
+                        {selectedCode && (
+                          <button
+                            onClick={() => handleSelectOption(q.id, selectedCode)}
+                            className="text-[11px] text-slate-400 hover:text-rose-600 flex items-center ml-2 cursor-pointer transition-colors"
+                            title="पर्याय रद्द करा (Clear)"
+                          >
+                            <RotateCcw className="w-3 h-3 mr-0.5" />
+                            रद्द
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Dynamic Option Buttons (Auto-adapts to 3 or 4 options!) */}
+                      <div
+                        className={`grid gap-2.5 mt-3.5 ${
+                          q.options.length === 4
+                            ? 'grid-cols-2 sm:grid-cols-4'
+                            : 'grid-cols-3'
+                        }`}
+                      >
+                        {q.options.map((opt) => {
+                          const isOptSelected = selectedCode === opt.code;
+
+                          return (
+                            <button
+                              key={opt.code}
+                              type="button"
+                              onClick={() => handleSelectOption(q.id, opt.code)}
+                              className={`py-2 px-2.5 rounded-lg text-xs font-bold border flex items-center justify-center transition-all cursor-pointer ${
+                                isOptSelected
+                                  ? 'bg-[#233d76] text-white border-[#233d76] shadow-xs ring-2 ring-[#233d76]/20'
+                                  : 'bg-white text-slate-700 border-slate-200 hover:bg-[#f0da9a]/30'
+                              }`}
+                            >
+                              <span>{language === 'mr' ? opt.labelMr : opt.labelEn}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Save Button Bar */}
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs text-slate-500">
+                  {language === 'mr'
+                    ? 'विद्यार्थ्याने सोडवलेल्या उत्तरांची नोंद तपासा'
+                    : 'Verify student answers before saving'}
                 </span>
-              )}
-              <button
-                onClick={handleSave}
-                className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Test Data'}</span>
-              </button>
+
+                <div className="flex items-center space-x-3">
+                  {saveSuccess && (
+                    <span className="text-xs font-bold text-emerald-700 flex items-center space-x-1 animate-pulse">
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span>{language === 'mr' ? 'यशस्वीरित्या सेव्ह झाले!' : 'Saved successfully!'}</span>
+                    </span>
+                  )}
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 text-[#dfaf27]" />
+                    <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Test Data'}</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="p-12 text-center text-slate-400 text-xs">
+              {language === 'mr' ? 'डावीकडून विद्यार्थी निवडा' : 'Select a student on the left'}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

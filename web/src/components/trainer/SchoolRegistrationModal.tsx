@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Building2, Calendar, MapPin, User, Save } from 'lucide-react';
+import { X, Building2, Save } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -29,14 +29,14 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
     }
 
     addSchool({
-      name,
-      village,
-      taluka,
-      district,
-      pinCode,
+      name: name.trim(),
+      village: village.trim(),
+      taluka: taluka.trim(),
+      district: district.trim(),
+      pinCode: pinCode.trim(),
       programStartDate,
-      representativeName,
-      representativeContact,
+      representativeName: representativeName.trim(),
+      representativeContact: representativeContact.trim(),
       assignedTrainerId: currentUser.id,
       assignedTrainerName: currentUser.fullName,
     });
@@ -45,25 +45,25 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-[#233d76]/40 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
-        {/* Header */}
-        <div className="bg-amber-600 px-6 py-4 text-white flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-amber-200" />
-            <h3 className="font-bold text-lg">
-              {language === 'mr' ? 'शाळा / संस्था नोंदणी' : 'Register School / Institute'}
+        {/* Header with Trust Blue */}
+        <div className="bg-[#233d76] px-6 py-4 text-white flex justify-between items-center">
+          <div className="flex items-center space-x-2.5">
+            <Building2 className="w-5 h-5 text-[#dfaf27]" />
+            <h3 className="font-bold text-base">
+              {language === 'mr' ? 'शाळा / संस्था नोंदणी' : 'School / Institute Registration'}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-amber-100 hover:text-white p-1 rounded-lg hover:bg-amber-700/50 transition-colors cursor-pointer"
+            className="text-slate-300 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Form Body */}
+        {/* Form Body (Matching Page 104 in Old Manual) */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* School Name */}
           <div>
@@ -76,7 +76,8 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
               placeholder={language === 'mr' ? 'उदा. हुजूरपागा शाळा' : 'e.g. Hujurpaga High School'}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+              className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
+              autoFocus
             />
           </div>
 
@@ -91,7 +92,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 required
                 value={village}
                 onChange={(e) => setVillage(e.target.value)}
-                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
               />
             </div>
             <div>
@@ -103,7 +104,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 required
                 value={taluka}
                 onChange={(e) => setTaluka(e.target.value)}
-                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
               />
             </div>
           </div>
@@ -118,7 +119,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 required
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
               />
             </div>
             <div>
@@ -130,7 +131,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 required
                 value={pinCode}
                 onChange={(e) => setPinCode(e.target.value)}
-                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
               />
             </div>
           </div>
@@ -145,14 +146,14 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
               required
               value={programStartDate}
               onChange={(e) => setProgramStartDate(e.target.value)}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden cursor-pointer"
+              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
             />
           </div>
 
           {/* School Representative */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              {language === 'mr' ? 'शाळा/संस्थेच्या प्रतिनिधीचे नाव *' : 'School Representative / POC Name *'}
+              {language === 'mr' ? 'शाळा/संस्थेच्या प्रतिनिधीचे नाव *' : 'School Representative Name *'}
             </label>
             <input
               type="text"
@@ -160,7 +161,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
               placeholder={language === 'mr' ? 'उदा. पाटील मॅडम / जोशी सर' : 'e.g. Patil Madam'}
               value={representativeName}
               onChange={(e) => setRepresentativeName(e.target.value)}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
             />
           </div>
 
@@ -174,24 +175,24 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
               placeholder="+91 98220 00000"
               value={representativeContact}
               onChange={(e) => setRepresentativeContact(e.target.value)}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 flex items-center justify-end space-x-3">
+          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               {language === 'mr' ? 'रद्द करा' : 'Cancel'}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+              className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4 text-[#dfaf27]" />
               <span>{language === 'mr' ? 'सेव्ह करा' : 'Save School'}</span>
             </button>
           </div>
