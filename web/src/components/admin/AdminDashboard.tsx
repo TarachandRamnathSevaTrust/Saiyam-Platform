@@ -90,25 +90,25 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Top Hero Banner with Official TRST Brand Guidelines */}
-      <div className="bg-[#233d76] rounded-2xl p-6 sm:p-8 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-3 py-1 rounded-md shadow-2xs">
+      <div className="bg-[#233d76] rounded-2xl p-4 sm:p-7 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
+        <div className="space-y-2 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-[10px] sm:text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md shadow-2xs">
               {language === 'mr' ? 'विश्वस्त डॅशबोर्ड (Trust Dashboard)' : 'Trust Executive Portal'}
             </span>
-            <span className="text-xs bg-[#1a2d57] text-[#dfaf27] font-bold px-3 py-1 rounded-md border border-[#dfaf27]/40">
+            <span className="text-[10px] sm:text-xs bg-[#1a2d57] text-[#dfaf27] font-bold px-2.5 py-1 rounded-md border border-[#dfaf27]/40">
               📅 {language === 'mr' ? `आर्थिक वर्ष: FY ${financialYear}` : `Financial Year: FY ${financialYear}`}
             </span>
-            <span className="text-xs bg-[#1a2d57] text-[#f0da9a] font-semibold px-2.5 py-1 rounded-md border border-[#3b5998] flex items-center space-x-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#dfaf27]" />
-              <span>DPDP Act (2023) Protected</span>
+            <span className="text-[10px] sm:text-xs bg-[#1a2d57] text-[#f0da9a] font-semibold px-2 py-1 rounded-md border border-[#3b5998] flex items-center space-x-1">
+              <ShieldCheck className="w-3 h-3 text-[#dfaf27]" />
+              <span>DPDP Act Protected</span>
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold trust-heading tracking-tight">
+          <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold trust-heading tracking-tight leading-snug">
             {language === 'mr' ? 'संयम प्रकल्प - प्रगती व प्रभाव निरीक्षण' : 'Saiyam Program - Executive Monitoring'}
           </h1>
-          <p className="text-[#f0da9a] text-xs sm:text-sm font-medium">
+          <p className="text-[#f0da9a] text-[11px] sm:text-sm font-medium">
             Initiative By : Tarachand Ramnath Seva Trust (TRST), Pune
           </p>
         </div>
@@ -116,10 +116,10 @@ export const AdminDashboard: React.FC = () => {
         {/* 1-Click Clean Excel Export */}
         <button
           onClick={() => exportToExcel(selectedSchoolFilter !== 'ALL' ? selectedSchoolFilter : undefined)}
-          className="flex items-center space-x-2.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold px-6 py-3.5 rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0"
+          className="w-full sm:w-auto justify-center flex items-center space-x-2 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold px-5 py-3 rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0"
         >
-          <Download className="w-5 h-5 text-[#233d76] stroke-[2.5]" />
-          <span className="text-sm font-bold">
+          <Download className="w-4 h-4 text-[#233d76] stroke-[2.5]" />
+          <span className="text-xs sm:text-sm font-bold">
             {language === 'mr' ? 'स्वयंचलित एक्सेल डाऊनलोड (.xlsx)' : 'Download Clean Excel (.xlsx)'}
           </span>
         </button>

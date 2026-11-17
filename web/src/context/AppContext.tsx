@@ -26,6 +26,9 @@ import {
 import { INITIAL_QUESTIONS } from '@saiyam/shared';
 
 interface AppContextType {
+  isLoggedIn: boolean;
+  login: (user: UserProfile) => void;
+  logout: () => void;
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
   users: UserProfile[];
@@ -105,6 +108,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_USERS;
   });
 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem('saiyam_logged_in_v10') === 'true';
+  });
+
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('saiyam_user_v10');
     if (saved) {
@@ -115,6 +122,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return INITIAL_USERS[0];
   });
+
+  const login = (user: UserProfile) => {
+    setCurrentUser(user);
+    setIsLoggedIn(true);
+    localStorage.setItem('saiyam_logged_in_v10', 'true');
+    localStorage.setItem('saiyam_user_v10', JSON.stringify(user));
+  };
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('saiyam_logged_in_v10');
+    setSelectedSchool(null);
+  };
 
   const availableFinancialYears = ['2024-25', '2025-26', '2026-27'];
   const [financialYear, setFinancialYear] = useState<string>(() => {
@@ -201,6 +221,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const user = users.find((u) => u.id === userId);
     if (user) {
       setCurrentUser(user);
+      setIsLoggedIn(true);
+      localStorage.setItem('saiyam_logged_in_v10', 'true');
       setSelectedSchool(null);
     }
   };
@@ -446,6 +468,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider
       value={{
+        isLoggedIn,
+        login,
+        logout,
         currentUser,
         switchUser,
         users,

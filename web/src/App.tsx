@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from './context/AppContext';
 import { Header } from './components/layout/Header';
+import { LoginPage } from './components/auth/LoginPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { GovernancePanel } from './components/admin/GovernancePanel';
 import { SchoolList } from './components/trainer/SchoolList';
@@ -20,14 +21,32 @@ import {
 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { currentUser, language, selectedSchool } = useApp();
+  const { isLoggedIn, currentUser, language, selectedSchool } = useApp();
 
-  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+  const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<string>(
     isTrustAdmin ? 'DASHBOARD' : 'SCHOOLS'
   );
+
+  // Sync activeTab when role changes
+  useEffect(() => {
+    if (isTrustAdmin) {
+      if (activeTab !== 'DASHBOARD' && activeTab !== 'GOVERNANCE' && activeTab !== 'SCHOOLS') {
+        setActiveTab('DASHBOARD');
+      }
+    } else {
+      if (activeTab === 'DASHBOARD' || activeTab === 'GOVERNANCE') {
+        setActiveTab('SCHOOLS');
+      }
+    }
+  }, [isTrustAdmin]);
+
+  // If not logged in, show the official Login Page first!
+  if (!isLoggedIn) {
+    return <LoginPage />;
+  }
 
   const requiresSchool =
     !isTrustAdmin &&
@@ -35,7 +54,7 @@ export const App: React.FC = () => {
     selectedSchool === null;
 
   return (
-    <div className="min-h-screen bg-[#f4f6fa] flex flex-col font-sans pb-16 sm:pb-0">
+    <div className="min-h-screen bg-[#f4f6fa] flex flex-col font-sans">
       <Header />
 
       {/* Desktop Navigation Sub-Header (Full Width & Clean Margins) */}
@@ -148,8 +167,8 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Viewport: Full Width with Generous Margins */}
-      <main className="w-full px-4 sm:px-8 lg:px-12 py-6 sm:py-8 flex-1">
+      {/* Main Content Viewport: Full Width with Generous Margins & Safe Area Bottom */}
+      <main className="w-full px-3 sm:px-8 lg:px-12 py-4 sm:py-8 flex-1 pb-24 sm:pb-8">
         {requiresSchool ? (
           <div className="space-y-4 max-w-5xl mx-auto">
             <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-2xl p-4 sm:p-5 text-[#233d76] flex items-center space-x-3.5 shadow-2xs">
@@ -175,84 +194,84 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-lg">
+      {/* Mobile Bottom Navigation Bar (Optimized for All Phone Screens) */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-xl pb-[max(env(safe-area-inset-bottom),6px)]">
         {isTrustAdmin ? (
-          <div className="grid grid-cols-3 h-14">
+          <div className="grid grid-cols-3 h-15">
             <button
               onClick={() => setActiveTab('DASHBOARD')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'DASHBOARD' ? 'text-[#233d76] font-bold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                activeTab === 'DASHBOARD' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
               }`}
             >
               <LayoutDashboard className={`w-5 h-5 ${activeTab === 'DASHBOARD' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px]">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
+              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
             </button>
             <button
               onClick={() => setActiveTab('GOVERNANCE')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'GOVERNANCE' ? 'text-[#233d76] font-bold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                activeTab === 'GOVERNANCE' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
               }`}
             >
               <ShieldCheck className={`w-5 h-5 ${activeTab === 'GOVERNANCE' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px]">{language === 'mr' ? 'प्रशासन' : 'Admin'}</span>
+              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'प्रशासन' : 'Admin'}</span>
             </button>
             <button
               onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-bold' : 'text-slate-500'
-              }`}
-            >
-              <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px]">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-5 h-14">
-            <button
-              onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
                 activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
               }`}
             >
+              <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-5 h-15">
+            <button
+              onClick={() => setActiveTab('SCHOOLS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+              }`}
+            >
               <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+              <span className="text-[9px] font-bold">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
             </button>
             <button
               onClick={() => setActiveTab('STUDENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'STUDENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                activeTab === 'STUDENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
               <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
+              <span className="text-[9px] font-bold">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
             </button>
             <button
               onClick={() => setActiveTab('ASSESSMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
               <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
+              <span className="text-[9px] font-bold">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
             </button>
             <button
               onClick={() => setActiveTab('SESSIONS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'SESSIONS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                activeTab === 'SESSIONS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
               <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'सत्रे' : 'Sessions'}</span>
+              <span className="text-[9px] font-bold">{language === 'mr' ? '२५ सत्रे' : 'Sessions'}</span>
             </button>
             <button
               onClick={() => setActiveTab('DOCUMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
-                activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
               <FileText className={`w-4 h-4 ${activeTab === 'DOCUMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
+              <span className="text-[9px] font-bold">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
             </button>
           </div>
         )}
