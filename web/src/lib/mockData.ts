@@ -10,21 +10,13 @@ import {
 // ZERO hardcoded organizations: 100% dynamic and managed by TRST
 export const INITIAL_ORGANIZATIONS: Organization[] = [];
 
-// System roles for switching between views (No hardcoded individuals)
+// System roles for switching between views (Zero hardcoded individuals or trainers)
 export const INITIAL_USERS: UserProfile[] = [
   {
     id: 'u-trust-admin',
-    fullName: 'Trust Executive (Trustee / Admin)',
+    fullName: 'Trust Executive (विश्वस्त / Admin)',
     email: 'admin@trst.org.in',
     role: 'TRUST_ADMIN',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
-  {
-    id: 'u-field-trainer',
-    fullName: 'Field Trainer (क्षेत्र प्रशिक्षक)',
-    email: 'trainer@trst.org.in',
-    role: 'FIELD_TRAINER',
     isActive: true,
     createdAt: '2026-01-01',
   },

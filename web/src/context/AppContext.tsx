@@ -66,21 +66,22 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Aggressive sanitization of browser storage to purge all obsolete cache with Kadolkar / Anagha / JPIP / VOPA
+// Aggressive sanitization of browser storage to purge all obsolete caches & past mocks
 const purgeObsoleteStorage = () => {
   try {
     const keys = Object.keys(localStorage);
     for (const key of keys) {
       if (key.startsWith('saiyam_')) {
         const val = localStorage.getItem(key) || '';
+        // If not on current schema namespace v10, or contains any legacy mock names
         if (
+          !key.endsWith('_v10') ||
           val.includes('Kadolkar') ||
           val.includes('Anagha') ||
           val.includes('u-trainer-trst') ||
-          key.includes('_v2') ||
-          key.includes('_v3') ||
-          key.includes('_v4') ||
-          key.includes('_v5')
+          val.includes('u-field-trainer') ||
+          val.includes('JPIP') ||
+          val.includes('VOPA')
         ) {
           localStorage.removeItem(key);
         }
@@ -94,7 +95,7 @@ purgeObsoleteStorage();
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('saiyam_users_v7');
+    const saved = localStorage.getItem('saiyam_users_v10');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -105,7 +106,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('saiyam_user_v7');
+    const saved = localStorage.getItem('saiyam_user_v10');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -117,16 +118,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const availableFinancialYears = ['2024-25', '2025-26', '2026-27'];
   const [financialYear, setFinancialYear] = useState<string>(() => {
-    return localStorage.getItem('saiyam_fy_v8') || '2025-26';
+    return localStorage.getItem('saiyam_fy_v10') || '2025-26';
   });
 
   useEffect(() => {
-    localStorage.setItem('saiyam_fy_v8', financialYear);
+    localStorage.setItem('saiyam_fy_v10', financialYear);
   }, [financialYear]);
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
   const [organizations, setOrganizations] = useState<Organization[]>(() => {
-    const saved = localStorage.getItem('saiyam_organizations_v7');
+    const saved = localStorage.getItem('saiyam_organizations_v10');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -137,63 +138,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('ALL');
 
   const [schools, setSchools] = useState<School[]>(() => {
-    const saved = localStorage.getItem('saiyam_schools_v7');
+    const saved = localStorage.getItem('saiyam_schools_v10');
     return saved ? JSON.parse(saved) : INITIAL_SCHOOLS;
   });
 
   const [selectedSchool, setSelectedSchool] = useState<School | null>(() => {
-    const saved = localStorage.getItem('saiyam_selected_school_v7');
+    const saved = localStorage.getItem('saiyam_selected_school_v10');
     return saved ? JSON.parse(saved) : null;
   });
 
   const [students, setStudents] = useState<Student[]>(() => {
-    const saved = localStorage.getItem('saiyam_students_v7');
+    const saved = localStorage.getItem('saiyam_students_v10');
     return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
   });
 
   const [assessmentPairs, setAssessmentPairs] = useState<StudentAssessmentPair[]>(() => {
-    const saved = localStorage.getItem('saiyam_assessment_pairs_v7');
+    const saved = localStorage.getItem('saiyam_assessment_pairs_v10');
     return saved ? JSON.parse(saved) : INITIAL_ASSESSMENT_PAIRS;
   });
 
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>(() => {
-    const saved = localStorage.getItem('saiyam_session_logs_v7');
+    const saved = localStorage.getItem('saiyam_session_logs_v10');
     return saved ? JSON.parse(saved) : INITIAL_SESSION_LOGS;
   });
 
   const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
 
-  // Sync state to versioned local storage
+  // Sync state to versioned local storage (v10)
   useEffect(() => {
-    localStorage.setItem('saiyam_user_v7', JSON.stringify(currentUser));
+    localStorage.setItem('saiyam_user_v10', JSON.stringify(currentUser));
   }, [currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_schools_v7', JSON.stringify(schools));
+    localStorage.setItem('saiyam_schools_v10', JSON.stringify(schools));
   }, [schools]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_selected_school_v7', JSON.stringify(selectedSchool));
+    localStorage.setItem('saiyam_selected_school_v10', JSON.stringify(selectedSchool));
   }, [selectedSchool]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_students_v7', JSON.stringify(students));
+    localStorage.setItem('saiyam_students_v10', JSON.stringify(students));
   }, [students]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_assessment_pairs_v7', JSON.stringify(assessmentPairs));
+    localStorage.setItem('saiyam_assessment_pairs_v10', JSON.stringify(assessmentPairs));
   }, [assessmentPairs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_session_logs_v7', JSON.stringify(sessionLogs));
+    localStorage.setItem('saiyam_session_logs_v10', JSON.stringify(sessionLogs));
   }, [sessionLogs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_organizations_v7', JSON.stringify(organizations));
+    localStorage.setItem('saiyam_organizations_v10', JSON.stringify(organizations));
   }, [organizations]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_users_v7', JSON.stringify(users));
+    localStorage.setItem('saiyam_users_v10', JSON.stringify(users));
   }, [users]);
 
   const switchUser = (userId: string) => {

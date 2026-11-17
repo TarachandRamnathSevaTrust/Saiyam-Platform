@@ -42,7 +42,8 @@ export const GovernancePanel: React.FC = () => {
     language,
   } = useApp();
 
-  const [activeSubTab, setActiveSubTab] = useState<'TRAINERS' | 'ORGS' | 'ALLOCATIONS'>('TRAINERS');
+  // Organizations is FIRST as per natural hierarchy (Org -> Trainer -> School)
+  const [activeSubTab, setActiveSubTab] = useState<'ORGS' | 'TRAINERS' | 'ALLOCATIONS'>('ORGS');
 
   // --- Add Organization Form State ---
   const [isAddingOrg, setIsAddingOrg] = useState(false);
@@ -210,8 +211,8 @@ export const GovernancePanel: React.FC = () => {
           </h1>
           <p className="text-xs text-[#f0da9a] mt-0.5">
             {language === 'mr'
-              ? 'संस्था ➔ क्षेत्र प्रशिक्षक (Supabase Auth) ➔ शाळा ➔ विद्यार्थी थेट मॅपिंग.'
-              : 'Strict Data Lineage: Organization ➔ Field Trainer (Supabase Auth Profile) ➔ Schools ➔ Students.'}
+              ? '१. संस्था ➔ २. क्षेत्र प्रशिक्षक (Supabase Auth) ➔ ३. शाळा ➔ ४. विद्यार्थी थेट मॅपिंग.'
+              : 'Strict Data Lineage: 1. Organization ➔ 2. Field Facilitators ➔ 3. School Allocations ➔ 4. Students.'}
           </p>
         </div>
 
@@ -296,23 +297,8 @@ export const GovernancePanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub Tabs */}
+      {/* Sub Tabs: 1. Implementing Organizations, 2. Field Facilitators, 3. School Allocations */}
       <div className="flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
-        <button
-          onClick={() => setActiveSubTab('TRAINERS')}
-          className={`flex items-center space-x-2 pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-            activeSubTab === 'TRAINERS'
-              ? 'border-[#233d76] text-[#233d76]'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Users className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? '१. क्षेत्र प्रशिक्षक व्यवस्थापन' : '1. Field Facilitators'}</span>
-          <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
-            {fieldTrainers.length}
-          </span>
-        </button>
-
         <button
           onClick={() => setActiveSubTab('ORGS')}
           className={`flex items-center space-x-2 pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
@@ -322,9 +308,24 @@ export const GovernancePanel: React.FC = () => {
           }`}
         >
           <Building2 className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? '२. संस्था व भागीदार' : '2. Implementing Organizations'}</span>
+          <span>{language === 'mr' ? '१. संस्था व भागीदार (Organizations)' : '1. Implementing Organizations'}</span>
           <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
             {organizations.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('TRAINERS')}
+          className={`flex items-center space-x-2 pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'TRAINERS'
+              ? 'border-[#233d76] text-[#233d76]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Users className="w-4 h-4 text-[#dfaf27]" />
+          <span>{language === 'mr' ? '२. क्षेत्र प्रशिक्षक व्यवस्थापन' : '2. Field Facilitators'}</span>
+          <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
+            {fieldTrainers.length}
           </span>
         </button>
 
@@ -345,7 +346,290 @@ export const GovernancePanel: React.FC = () => {
       </div>
 
       {/* ============================================================== */}
-      {/* TAB 1: FIELD TRAINERS MANAGEMENT                               */}
+      {/* TAB 1: ORGANIZATIONS MANAGEMENT (FIRST IN HIERARCHY)           */}
+      {/* ============================================================== */}
+      {activeSubTab === 'ORGS' && (
+        <div className="space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-base text-slate-900 trust-heading">
+                {language === 'mr' ? 'नोंदणीकृत संस्था व भागीदार' : 'Implementing Organizations Directory'}
+              </h3>
+              <p className="text-xs text-slate-500">
+                {language === 'mr'
+                  ? 'सर्व भागीदार स्वयंसेवी संस्था, संस्था कोड व प्रतिनिधींची नोंद येथे थेट करा.'
+                  : 'Manage partner NGOs, unique codes, and coordination points dynamically.'}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                if (isAddingOrg) {
+                  handleResetOrgForm();
+                } else {
+                  setIsAddingOrg(true);
+                }
+              }}
+              className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>
+                {isAddingOrg
+                  ? language === 'mr' ? 'फॉर्म बंद करा' : 'Close Form'
+                  : language === 'mr' ? '+ नवीन संस्था जोडा' : '+ Add Organization'}
+              </span>
+            </button>
+          </div>
+
+          {/* Add / Edit Org Form */}
+          {isAddingOrg && (
+            <form onSubmit={handleSaveOrg} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center space-x-2">
+                  <Building2 className="w-4 h-4 text-[#233d76]" />
+                  <h4 className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
+                    {editingOrgId
+                      ? language === 'mr' ? 'संस्थेची माहिती बदला' : 'Edit Organization'
+                      : language === 'mr' ? 'नवीन संस्थेची माहिती भरा' : 'Add New Organization Details'}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetOrgForm}
+                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'संस्थेचे नाव (मराठी) *' : 'Name (Marathi) *'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={orgNameMr}
+                    onChange={(e) => setOrgNameMr(e.target.value)}
+                    placeholder={language === 'mr' ? 'उदा. सामाजिक संस्था...' : 'e.g. Partner NGO...'}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'Organization Name (English)' : 'Name (English)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={orgNameEn}
+                    onChange={(e) => setOrgNameEn(e.target.value)}
+                    placeholder="e.g. Partner Foundation..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'संस्था कोड (Unique Code) *' : 'Organization Code *'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={orgCode}
+                    onChange={(e) => setOrgCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. NGO_1, FOUNDATION..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-mono uppercase focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'संस्थेचा प्रकार (Type)' : 'Type'}
+                  </label>
+                  <select
+                    value={orgType}
+                    onChange={(e) => setOrgType(e.target.value as any)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  >
+                    <option value="IN_HOUSE">🏛️ In-House (TRST Direct)</option>
+                    <option value="PARTNER_NGO">🤝 Partner NGO</option>
+                    <option value="ACADEMIC_INSTITUTE">📘 Academic / Research Institute</option>
+                    <option value="GOVERNMENT">🏛️ Government Body</option>
+                    <option value="OTHER">🌐 Other Partner</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'संपर्क प्रतिनिधी (Lead Person)' : 'Lead Person'}
+                  </label>
+                  <input
+                    type="text"
+                    value={orgContactPerson}
+                    onChange={(e) => setOrgContactPerson(e.target.value)}
+                    placeholder={language === 'mr' ? 'उदा. समन्वयक नाव...' : 'e.g. Coordinator Name...'}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'मोबाईल / फोन नंबर' : 'Phone'}
+                  </label>
+                  <input
+                    type="tel"
+                    value={orgContactPhone}
+                    onChange={(e) => setOrgContactPhone(e.target.value)}
+                    placeholder="+91 98000 00000"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="font-bold text-slate-700 block mb-1">
+                    {language === 'mr' ? 'ईमेल आयडी' : 'Email'}
+                  </label>
+                  <input
+                    type="email"
+                    value={orgContactEmail}
+                    onChange={(e) => setOrgContactEmail(e.target.value)}
+                    placeholder="contact@organization.org"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1 text-xs">
+                  {language === 'mr' ? 'वर्णन व कार्यक्षेत्र (Description)' : 'Description & Scope'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={orgDescription}
+                  onChange={(e) => setOrgDescription(e.target.value)}
+                  placeholder={language === 'mr' ? 'उदा. कार्यक्षेत्र, उद्दिष्टे...' : 'e.g. Geographic scope, mission...'}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleResetOrgForm}
+                  className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  {language === 'mr' ? 'रद्द करा' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 text-xs font-bold rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-white shadow-xs cursor-pointer"
+                >
+                  {editingOrgId
+                    ? language === 'mr' ? 'बदल जतन करा' : 'Update Organization'
+                    : language === 'mr' ? 'संस्था जतन करा' : 'Save Organization'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Organizations Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {organizations.length === 0 ? (
+              <div className="col-span-full p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
+                {language === 'mr'
+                  ? 'अद्याप कोणतीही संस्था जोडलेली नाही. वर "+ नवीन संस्था जोडा" बटणावर क्लिक करा.'
+                  : 'No organizations registered yet. Click "+ Add Organization" above.'}
+              </div>
+            ) : (
+              organizations.map((org) => {
+                const linkedSchools = schools.filter((s) => (s.organizationCode || '') === org.code);
+                const linkedSchoolIds = new Set(linkedSchools.map((s) => s.id));
+                const linkedStudents = students.filter((st) => linkedSchoolIds.has(st.schoolId));
+                const linkedTrainers = users.filter((u) => (u.organizationCode || '') === org.code);
+
+                return (
+                  <div
+                    key={org.id}
+                    className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-[#dfaf27] transition-all flex flex-col justify-between shadow-2xs space-y-3"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-mono font-black text-xs bg-[#233d76] text-white px-2 py-0.5 rounded">
+                          {org.code}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded">
+                          {org.orgType}
+                        </span>
+                      </div>
+
+                      <h4 className="font-bold text-sm text-slate-900">{org.nameMr}</h4>
+                      <div className="text-[11px] text-slate-400">{org.nameEn}</div>
+
+                      {org.description && (
+                        <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+                          {org.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 space-y-2 text-xs">
+                      {org.contactPerson && (
+                        <div className="text-slate-600 font-semibold flex items-center space-x-1.5">
+                          <span className="text-[#dfaf27]">👤</span>
+                          <span>{org.contactPerson}</span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-3 gap-1 py-1 px-2 bg-slate-50 rounded-lg text-center text-[11px] font-bold text-[#233d76]">
+                        <div>
+                          <div className="text-sm font-black">{linkedTrainers.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'प्रशिक्षक' : 'Trainers'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black">{linkedSchools.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'शाळा' : 'Schools'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black">{linkedStudents.length}</div>
+                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleOpenEditOrg(org)}
+                          className="text-xs text-[#233d76] hover:underline flex items-center space-x-1 cursor-pointer font-bold"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>{language === 'mr' ? 'बदला' : 'Edit'}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(language === 'mr' ? `खात्री करा: ${org.nameMr} संस्था काढून टाकायची आहे का?` : `Are you sure you want to delete ${org.nameMr}?`)) {
+                              deleteOrganization(org.id);
+                              triggerNotify(language === 'mr' ? 'संस्था हटवली!' : 'Organization deleted!');
+                            }
+                          }}
+                          className="text-xs text-rose-600 hover:underline flex items-center space-x-1 cursor-pointer font-bold"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{language === 'mr' ? 'हटवा' : 'Delete'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* TAB 2: FIELD TRAINERS MANAGEMENT (SECOND IN HIERARCHY)         */}
       {/* ============================================================== */}
       {activeSubTab === 'TRAINERS' && (
         <div className="space-y-5">
@@ -639,289 +923,6 @@ export const GovernancePanel: React.FC = () => {
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* TAB 2: ORGANIZATIONS MANAGEMENT                                */}
-      {/* ============================================================== */}
-      {activeSubTab === 'ORGS' && (
-        <div className="space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'नोंदणीकृत संस्था व भागीदार' : 'Implementing Organizations Directory'}
-              </h3>
-              <p className="text-xs text-slate-500">
-                {language === 'mr'
-                  ? 'सर्व भागीदार स्वयंसेवी संस्था, संस्था कोड व प्रतिनिधींची नोंद येथे थेट करा.'
-                  : 'Manage partner NGOs, unique codes, and coordination points dynamically.'}
-              </p>
-            </div>
-
-            <button
-              onClick={() => {
-                if (isAddingOrg) {
-                  handleResetOrgForm();
-                } else {
-                  setIsAddingOrg(true);
-                }
-              }}
-              className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>
-                {isAddingOrg
-                  ? language === 'mr' ? 'फॉर्म बंद करा' : 'Close Form'
-                  : language === 'mr' ? '+ नवीन संस्था जोडा' : '+ Add Organization'}
-              </span>
-            </button>
-          </div>
-
-          {/* Add / Edit Org Form */}
-          {isAddingOrg && (
-            <form onSubmit={handleSaveOrg} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4 text-[#233d76]" />
-                  <h4 className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
-                    {editingOrgId
-                      ? language === 'mr' ? 'संस्थेची माहिती बदला' : 'Edit Organization'
-                      : language === 'mr' ? 'नवीन संस्थेची माहिती भरा' : 'Add New Organization Details'}
-                  </h4>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleResetOrgForm}
-                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्थेचे नाव (मराठी) *' : 'Name (Marathi) *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={orgNameMr}
-                    onChange={(e) => setOrgNameMr(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. सामाजिक संस्था...' : 'e.g. Partner NGO...'}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                    autoFocus
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'Organization Name (English)' : 'Name (English)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={orgNameEn}
-                    onChange={(e) => setOrgNameEn(e.target.value)}
-                    placeholder="e.g. Partner Foundation..."
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्था कोड (Unique Code) *' : 'Organization Code *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={orgCode}
-                    onChange={(e) => setOrgCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. NGO_1, FOUNDATION..."
-                    className="w-full p-2.5 rounded-xl border border-slate-200 font-mono uppercase focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्थेचा प्रकार (Type)' : 'Type'}
-                  </label>
-                  <select
-                    value={orgType}
-                    onChange={(e) => setOrgType(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  >
-                    <option value="IN_HOUSE">🏛️ In-House (TRST Direct)</option>
-                    <option value="PARTNER_NGO">🤝 Partner NGO</option>
-                    <option value="ACADEMIC_INSTITUTE">📘 Academic / Research Institute</option>
-                    <option value="GOVERNMENT">🏛️ Government Body</option>
-                    <option value="OTHER">🌐 Other Partner</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संपर्क प्रतिनिधी (Lead Person)' : 'Lead Person'}
-                  </label>
-                  <input
-                    type="text"
-                    value={orgContactPerson}
-                    onChange={(e) => setOrgContactPerson(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. समन्वयक नाव...' : 'e.g. Coordinator Name...'}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'मोबाईल / फोन नंबर' : 'Phone'}
-                  </label>
-                  <input
-                    type="tel"
-                    value={orgContactPhone}
-                    onChange={(e) => setOrgContactPhone(e.target.value)}
-                    placeholder="+91 98000 00000"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'ईमेल आयडी' : 'Email'}
-                  </label>
-                  <input
-                    type="email"
-                    value={orgContactEmail}
-                    onChange={(e) => setOrgContactEmail(e.target.value)}
-                    placeholder="contact@organization.org"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1 text-xs">
-                  {language === 'mr' ? 'वर्णन व कार्यक्षेत्र (Description)' : 'Description & Scope'}
-                </label>
-                <textarea
-                  rows={2}
-                  value={orgDescription}
-                  onChange={(e) => setOrgDescription(e.target.value)}
-                  placeholder={language === 'mr' ? 'उदा. कार्यक्षेत्र, उद्दिष्टे...' : 'e.g. Geographic scope, mission...'}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleResetOrgForm}
-                  className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 cursor-pointer"
-                >
-                  {language === 'mr' ? 'रद्द करा' : 'Cancel'}
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 text-xs font-bold rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-white shadow-xs cursor-pointer"
-                >
-                  {editingOrgId
-                    ? language === 'mr' ? 'बदल जतन करा' : 'Update Organization'
-                    : language === 'mr' ? 'संस्था जतन करा' : 'Save Organization'}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Organizations Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {organizations.length === 0 ? (
-              <div className="col-span-full p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
-                {language === 'mr'
-                  ? 'अद्याप कोणतीही संस्था जोडलेली नाही. वर "+ नवीन संस्था जोडा" बटणावर क्लिक करा.'
-                  : 'No organizations registered yet. Click "+ Add Organization" above.'}
-              </div>
-            ) : (
-              organizations.map((org) => {
-                const linkedSchools = schools.filter((s) => (s.organizationCode || '') === org.code);
-                const linkedSchoolIds = new Set(linkedSchools.map((s) => s.id));
-                const linkedStudents = students.filter((st) => linkedSchoolIds.has(st.schoolId));
-                const linkedTrainers = users.filter((u) => (u.organizationCode || '') === org.code);
-
-                return (
-                  <div
-                    key={org.id}
-                    className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-[#dfaf27] transition-all flex flex-col justify-between shadow-2xs space-y-3"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-mono font-black text-xs bg-[#233d76] text-white px-2 py-0.5 rounded">
-                          {org.code}
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded">
-                          {org.orgType}
-                        </span>
-                      </div>
-
-                      <h4 className="font-bold text-sm text-slate-900">{org.nameMr}</h4>
-                      <div className="text-[11px] text-slate-400">{org.nameEn}</div>
-
-                      {org.description && (
-                        <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                          {org.description}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 space-y-2 text-xs">
-                      {org.contactPerson && (
-                        <div className="text-slate-600 font-semibold flex items-center space-x-1.5">
-                          <span className="text-[#dfaf27]">👤</span>
-                          <span>{org.contactPerson}</span>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-3 gap-1 py-1 px-2 bg-slate-50 rounded-lg text-center text-[11px] font-bold text-[#233d76]">
-                        <div>
-                          <div className="text-sm font-black">{linkedTrainers.length}</div>
-                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'प्रशिक्षक' : 'Trainers'}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-black">{linkedSchools.length}</div>
-                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'शाळा' : 'Schools'}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-black">{linkedStudents.length}</div>
-                          <div className="text-[10px] text-slate-500">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</div>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 flex justify-end space-x-2">
-                        <button
-                          onClick={() => handleOpenEditOrg(org)}
-                          className="text-xs text-[#233d76] hover:underline flex items-center space-x-1 cursor-pointer font-bold"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                          <span>{language === 'mr' ? 'बदला' : 'Edit'}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(language === 'mr' ? `खात्री करा: ${org.nameMr} संस्था काढून टाकायची आहे का?` : `Are you sure you want to delete ${org.nameMr}?`)) {
-                              deleteOrganization(org.id);
-                              triggerNotify(language === 'mr' ? 'संस्था हटवली!' : 'Organization deleted!');
-                            }
-                          }}
-                          className="text-xs text-rose-600 hover:underline flex items-center space-x-1 cursor-pointer font-bold"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>{language === 'mr' ? 'हटवा' : 'Delete'}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
           </div>
         </div>
       )}
