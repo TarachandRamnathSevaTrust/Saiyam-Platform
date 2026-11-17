@@ -11,7 +11,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
   const { addSchool, currentUser, organizations, language } = useApp();
 
   const [organizationCode, setOrganizationCode] = useState(
-    currentUser.organizationCode || 'TRST_DIRECT'
+    currentUser.organizationCode || (organizations[0]?.code || '')
   );
   const [name, setName] = useState('');
   const [village, setVillage] = useState('Pune');
@@ -69,23 +69,26 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
         {/* Form Body (Matching Page 104 in Old Manual) */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-          {/* Implementing Organization Assignment */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              {language === 'mr' ? 'अंमलबजावणी संस्था (Implementing Organization) *' : 'Organization *'}
-            </label>
-            <select
-              value={organizationCode}
-              onChange={(e) => setOrganizationCode(e.target.value)}
-              className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-[#233d76] bg-slate-50 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
-            >
-              {organizations.map((org) => (
-                <option key={org.id} value={org.code}>
-                  {org.nameMr} ({org.code})
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Implementing Organization Assignment (shown only when organizations exist) */}
+          {organizations.length > 0 && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                {language === 'mr' ? 'अंमलबजावणी संस्था (Implementing Organization)' : 'Organization'}
+              </label>
+              <select
+                value={organizationCode}
+                onChange={(e) => setOrganizationCode(e.target.value)}
+                className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-[#233d76] bg-slate-50 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
+              >
+                <option value="">{language === 'mr' ? '-- संस्था निवडा (पर्यायी) --' : '-- Select Organization (Optional) --'}</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.code}>
+                    {org.nameMr} ({org.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* School Name */}
           <div>

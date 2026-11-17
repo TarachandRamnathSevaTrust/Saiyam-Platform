@@ -24,7 +24,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
   const [activeSessionNumber, setActiveSessionNumber] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'LOG' | 'MEDIA'>('LOG');
 
-  // Form state (Matching Page 109 of Manual)
+  // Form state
   const [conductedDate, setConductedDate] = useState(new Date().toISOString().split('T')[0]);
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [girlsPresent, setGirlsPresent] = useState(0);
@@ -54,9 +54,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
     );
   }
 
-  const activeSession: CurriculumSession =
-    ALL_25_SESSIONS.find((s: CurriculumSession) => s.sessionNumber === activeSessionNumber) ||
-    ALL_25_SESSIONS[0];
+  // Dynamic 25 Sessions generated dynamically without hardcoded fake titles
+  const allSessionSlots = Array.from({ length: 25 }, (_, i) => ({
+    sessionNumber: i + 1,
+    titleMr: `सत्र ${i + 1}`,
+    titleEn: `Session ${i + 1}`,
+  }));
+
+  const activeSession = allSessionSlots.find((s) => s.sessionNumber === activeSessionNumber) || allSessionSlots[0];
 
   const existingLog = sessionLogs.find(
     (l) => l.schoolId === selectedSchool.id && l.sessionNumber === activeSessionNumber
@@ -142,7 +147,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
           </div>
 
           <div className="max-h-[580px] overflow-y-auto divide-y divide-slate-100">
-            {ALL_25_SESSIONS.map((sess: CurriculumSession) => {
+            {allSessionSlots.map((sess) => {
               const isLogged = sessionLogs.some(
                 (l) => l.schoolId === selectedSchool.id && l.sessionNumber === sess.sessionNumber
               );
@@ -165,7 +170,9 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
                     <span className="text-xs font-bold text-slate-900 block truncate">
                       {language === 'mr' ? sess.titleMr : sess.titleEn}
                     </span>
-                    <span className="text-[11px] text-slate-500 line-clamp-1">{sess.description}</span>
+                    <span className="text-[11px] text-slate-400">
+                      {isLogged ? 'नोंद पूर्ण' : 'नोंद बाकी'}
+                    </span>
                   </div>
 
                   <div className="shrink-0">

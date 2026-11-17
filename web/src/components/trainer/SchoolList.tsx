@@ -127,9 +127,11 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <div>
                       <div className="flex items-center space-x-2">
                         <h3 className="font-bold text-base text-slate-900 trust-heading">{school.name}</h3>
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-[#233d76]/10 text-[#233d76]">
-                          {school.organizationCode || 'TRST_DIRECT'}
-                        </span>
+                        {school.organizationCode && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-[#233d76]/10 text-[#233d76]">
+                            {school.organizationCode}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center text-xs text-slate-500 space-x-2 mt-0.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />

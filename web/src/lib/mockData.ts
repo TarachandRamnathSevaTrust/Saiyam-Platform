@@ -7,46 +7,30 @@ import {
   Organization,
 } from '@saiyam/shared';
 
-// Base In-House Organization (TRST). All other partner organizations are dynamically added by TRST.
-export const INITIAL_ORGANIZATIONS: Organization[] = [
-  {
-    id: 'org-trst',
-    code: 'TRST_DIRECT',
-    nameMr: 'ताराचंद रामनाथ सेवा ट्रस्ट (TRST)',
-    nameEn: 'Tarachand Ramnath Seva Trust (TRST Direct)',
-    orgType: 'IN_HOUSE',
-    description: 'TRST in-house field facilitators conducting direct classroom sessions and paper bundles.',
-    contactPerson: 'Anagha Kadolkar',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
-];
+// ZERO hardcoded organizations: 100% dynamic and managed by TRST
+export const INITIAL_ORGANIZATIONS: Organization[] = [];
 
-// Official verified TRST logins only (No synthetic partner users)
+// System roles for switching between views (No hardcoded individuals)
 export const INITIAL_USERS: UserProfile[] = [
   {
-    id: 'u-admin',
-    fullName: 'Trust Executive (Darshan / Trustee)',
+    id: 'u-trust-admin',
+    fullName: 'Trust Executive (Trustee / Admin)',
     email: 'admin@trst.org.in',
     role: 'TRUST_ADMIN',
-    phone: '+91 82620 38734',
     isActive: true,
     createdAt: '2026-01-01',
   },
   {
-    id: 'u-trainer-trst',
-    fullName: 'Anagha Kadolkar (TRST Field Trainer)',
-    email: 'anagha@trst.org.in',
+    id: 'u-field-trainer',
+    fullName: 'Field Trainer (क्षेत्र प्रशिक्षक)',
+    email: 'trainer@trst.org.in',
     role: 'FIELD_TRAINER',
-    organizationId: 'org-trst',
-    organizationCode: 'TRST_DIRECT',
-    phone: '+91 98220 00000',
     isActive: true,
     createdAt: '2026-01-01',
   },
 ];
 
-// Clean initial state: zero synthetic data
+// ZERO hardcoded schools, students, pairs, or logs: 100% dynamic
 export const INITIAL_SCHOOLS: School[] = [];
 export const INITIAL_STUDENTS: Student[] = [];
 export const INITIAL_ASSESSMENT_PAIRS: StudentAssessmentPair[] = [];

@@ -502,38 +502,31 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-5 space-y-4 text-xs">
-              {/* Phase 1 */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#233d76]">टप्पा १: पायाभूत जीवनकौशल्ये</span>
-                  <span className="text-[10px] font-bold bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm">सत्र १ ते ७</span>
+            <div className="mt-5 space-y-3.5 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-[#233d76]">
+                    {language === 'mr' ? 'सत्र प्रगती (Session Progress)' : 'Session Progress'}
+                  </span>
+                  <span className="font-mono font-bold text-[#233d76] bg-[#f0da9a]/60 px-2.5 py-0.5 rounded">
+                    {sessionLogs.length} / 25
+                  </span>
                 </div>
-                <p className="text-slate-600 text-[11px] mt-1.5 leading-relaxed">
-                  प्रस्तावना, पूर्व चाचणी, पंचकोश संकल्पना, आत्मप्रतिष्ठा, शारीरिक आरोग्य व पोषण.
-                </p>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-[#233d76] h-full transition-all"
+                    style={{ width: `${Math.min(100, (sessionLogs.length / 25) * 100)}%` }}
+                  />
+                </div>
               </div>
 
-              {/* Phase 2 */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#233d76]">टप्पा २: व्यसनाधीनता व आरोग्य</span>
-                  <span className="text-[10px] font-bold bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm">सत्र ८ ते १६</span>
-                </div>
-                <p className="text-slate-600 text-[11px] mt-1.5 leading-relaxed">
-                  व्यसनांचे दुष्परिणाम (तंबाखू, दारू, सिगारेट), स्क्रीन/डिजिटल व्यसन, मित्र व समवयस्क दबाव, नकार देण्याचे कौशल्य.
-                </p>
-              </div>
-
-              {/* Phase 3 */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#233d76]">टप्पा ३: भावना नियमन व निर्णय</span>
-                  <span className="text-[10px] font-bold bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm">सत्र १७ ते २५</span>
-                </div>
-                <p className="text-slate-600 text-[11px] mt-1.5 leading-relaxed">
-                  भावनांची ओळख, राग व ताणतणाव नियमन, निर्णयक्षमता, ध्येय निश्चिती, उत्तर चाचण्या व समारोप.
-                </p>
+              <div className="p-3.5 rounded-xl bg-[#f0da9a]/30 border border-[#dfaf27]/40 text-slate-700 leading-relaxed text-[11px]">
+                <strong className="text-[#233d76] block mb-1">
+                  {language === 'mr' ? '२५ सत्रांची अधिकृत रचना:' : 'Official 25 Sessions Index:'}
+                </strong>
+                {language === 'mr'
+                  ? 'TRST शैक्षणिक टीमकडून २५ सत्रांची अधिकृत अनुक्रमणिका व उद्दिष्टे प्राप्त होताच ती थेट डेटाबेसद्वारे येथे अपडेट होतील. कोणताही डमी मजकूर भरला जाणार नाही.'
+                  : 'Awaiting verified 25-session syllabus and objectives from the TRST team. No synthetic descriptions are populated.'}
               </div>
             </div>
           </div>

@@ -179,7 +179,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newSchool: School = {
       ...schoolData,
       id: `sch-${Date.now()}`,
-      organizationCode: currentUser.organizationCode || 'TRST_DIRECT',
+      organizationCode: schoolData.organizationCode || currentUser.organizationCode,
       createdAt: new Date().toISOString().split('T')[0],
       totalStudentsCount: 0,
       completedSessionsCount: 0,

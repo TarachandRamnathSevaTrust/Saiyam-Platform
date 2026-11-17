@@ -72,14 +72,16 @@ export const Header: React.FC = () => {
               >
                 {users.map((user) => {
                   const userOrg = organizations.find((o) => o.code === user.organizationCode);
-                  const orgTag = userOrg ? userOrg.nameMr : user.organizationCode || 'TRST Direct';
+                  const orgTag = userOrg ? ` (${userOrg.nameMr})` : '';
 
-                  let label = '';
-                  if (user.role === 'TRUST_ADMIN') {
-                    label = language === 'mr' ? '👑 विश्वस्त (Trust Admin)' : '👑 Trust Admin (TRST)';
-                  } else {
-                    label = `👤 ${user.fullName} (${orgTag})`;
-                  }
+                  const label =
+                    user.role === 'TRUST_ADMIN'
+                      ? language === 'mr'
+                        ? '👑 विश्वस्त (Trust Admin)'
+                        : '👑 Trust Admin'
+                      : language === 'mr'
+                      ? `👤 क्षेत्र प्रशिक्षक (Field Trainer)${orgTag}`
+                      : `👤 Field Trainer${orgTag}`;
 
                   return (
                     <option key={user.id} value={user.id} className="bg-[#233d76] text-white py-1">
@@ -98,13 +100,13 @@ export const Header: React.FC = () => {
           <div className="bg-[#1a2d57] border-t border-[#345396] px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#f0da9a]">
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm shrink-0">
-                {organizations.find((o) => o.code === currentUser.organizationCode)?.nameMr ||
-                  currentUser.organizationCode ||
-                  'TRST Direct'}
+                {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer'}
               </span>
-              <span className="text-white font-semibold truncate">
-                {currentUser.fullName}
-              </span>
+              {organizations.find((o) => o.code === currentUser.organizationCode) && (
+                <span className="text-white text-xs font-semibold">
+                  {organizations.find((o) => o.code === currentUser.organizationCode)?.nameMr}
+                </span>
+              )}
             </div>
 
             {selectedSchool ? (

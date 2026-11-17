@@ -296,65 +296,83 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
 
               {/* Dynamic Question List */}
               <div className="space-y-5 my-6">
-                {paperQuestions.map((q) => {
-                  const selectedCode = answers[q.id];
-
-                  return (
-                    <div key={q.id} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200">
-                      <div className="flex items-start justify-between">
-                        <p className="text-sm font-semibold text-slate-800 leading-relaxed">
-                          <strong className="text-[#233d76] mr-1.5 font-bold">
-                            प्र. {q.questionNumber}.
-                          </strong>
-                          {language === 'mr' ? q.textMr : q.textEn}
-                        </p>
-
-                        {/* Clear/Unselect button */}
-                        {selectedCode && (
-                          <button
-                            onClick={() => handleSelectOption(q.id, selectedCode)}
-                            className="text-[11px] text-slate-400 hover:text-rose-600 flex items-center ml-2 cursor-pointer transition-colors"
-                            title="पर्याय रद्द करा (Clear)"
-                          >
-                            <RotateCcw className="w-3 h-3 mr-0.5" />
-                            रद्द
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Dynamic Option Buttons (Auto-adapts to 3 or 4 options!) */}
-                      <div
-                        className={`grid gap-2.5 mt-3.5 ${
-                          q.options.length === 4
-                            ? 'grid-cols-2 sm:grid-cols-4'
-                            : 'grid-cols-3'
-                        }`}
-                      >
-                        {q.options.map((opt) => {
-                          const isOptSelected = selectedCode === opt.code;
-
-                          return (
-                            <button
-                              key={opt.code}
-                              type="button"
-                              disabled={isTrustAdmin}
-                              onClick={() => handleSelectOption(q.id, opt.code)}
-                              className={`py-2 px-2.5 rounded-lg text-xs font-bold border flex items-center justify-center transition-all ${
-                                isTrustAdmin ? 'cursor-default' : 'cursor-pointer'
-                              } ${
-                                isOptSelected
-                                  ? 'bg-[#233d76] text-white border-[#233d76] shadow-xs ring-2 ring-[#233d76]/20'
-                                  : 'bg-white text-slate-700 border-slate-200 hover:bg-[#f0da9a]/30'
-                              }`}
-                            >
-                              <span>{language === 'mr' ? opt.labelMr : opt.labelEn}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                {paperQuestions.length === 0 ? (
+                  <div className="p-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <div className="w-12 h-12 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto mb-3">
+                      <Sparkles className="w-6 h-6 text-[#233d76]" />
                     </div>
-                  );
-                })}
+                    <h4 className="font-bold text-slate-800 text-sm">
+                      {language === 'mr'
+                        ? `${selectedPaper} चाचणीचे प्रश्न लोड होण्याची प्रतीक्षा आहे`
+                        : `Awaiting official ${selectedPaper} questions`}
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                      {language === 'mr'
+                        ? 'TRST शैक्षणिक टीमकडून अधिकृत ~९० प्रश्न व गुणांकन (marks weightage) प्राप्त झाल्यानंतर ते येथे थेट दिसतील. सिस्टिममध्ये कोणताही डमी प्रश्न भरला जाणार नाही.'
+                        : 'Once official questions and marks weightage are loaded from the TRST team, they will appear here dynamically. No synthetic questions are populated.'}
+                    </p>
+                  </div>
+                ) : (
+                  paperQuestions.map((q) => {
+                    const selectedCode = answers[q.id];
+
+                    return (
+                      <div key={q.id} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200">
+                        <div className="flex items-start justify-between">
+                          <p className="text-sm font-semibold text-slate-800 leading-relaxed">
+                            <strong className="text-[#233d76] mr-1.5 font-bold">
+                              प्र. {q.questionNumber}.
+                            </strong>
+                            {language === 'mr' ? q.textMr : q.textEn}
+                          </p>
+
+                          {/* Clear/Unselect button */}
+                          {selectedCode && (
+                            <button
+                              onClick={() => handleSelectOption(q.id, selectedCode)}
+                              className="text-[11px] text-slate-400 hover:text-rose-600 flex items-center ml-2 cursor-pointer transition-colors"
+                              title="पर्याय रद्द करा (Clear)"
+                            >
+                              <RotateCcw className="w-3 h-3 mr-0.5" />
+                              रद्द
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Dynamic Option Buttons (Auto-adapts to 3 or 4 options!) */}
+                        <div
+                          className={`grid gap-2.5 mt-3.5 ${
+                            q.options.length === 4
+                              ? 'grid-cols-2 sm:grid-cols-4'
+                              : 'grid-cols-3'
+                          }`}
+                        >
+                          {q.options.map((opt) => {
+                            const isOptSelected = selectedCode === opt.code;
+
+                            return (
+                              <button
+                                key={opt.code}
+                                type="button"
+                                disabled={isTrustAdmin}
+                                onClick={() => handleSelectOption(q.id, opt.code)}
+                                className={`py-2 px-2.5 rounded-lg text-xs font-bold border flex items-center justify-center transition-all ${
+                                  isTrustAdmin ? 'cursor-default' : 'cursor-pointer'
+                                } ${
+                                  isOptSelected
+                                    ? 'bg-[#233d76] text-white border-[#233d76] shadow-xs ring-2 ring-[#233d76]/20'
+                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-[#f0da9a]/30'
+                                }`}
+                              >
+                                <span>{language === 'mr' ? opt.labelMr : opt.labelEn}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {/* Save Button Bar */}
