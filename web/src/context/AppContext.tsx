@@ -145,7 +145,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('saiyam_fy_v10', financialYear);
   }, [financialYear]);
 
-  const [language, setLanguage] = useState<'mr' | 'en'>('mr');
+  const [language, setLanguage] = useState<'mr' | 'en'>(() => {
+    return (localStorage.getItem('saiyam_lang_v10') as 'mr' | 'en') || 'en';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_lang_v10', language);
+  }, [language]);
   const [organizations, setOrganizations] = useState<Organization[]>(() => {
     const saved = localStorage.getItem('saiyam_organizations_v10');
     if (saved) {

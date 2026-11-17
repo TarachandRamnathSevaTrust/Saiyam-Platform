@@ -30,23 +30,25 @@ export const Header: React.FC = () => {
           {/* Logo & Platform Name */}
           <div className="flex items-center space-x-2 sm:space-x-3.5">
             <div className="bg-white rounded-xl p-1 sm:p-1.5 flex items-center justify-center shadow-sm shrink-0 border border-white/20">
-              <img
-                src="/saiyam-logo.png"
-                alt="संयम"
-                className="h-8 sm:h-11 w-auto object-contain"
-              />
+              <div className="bg-[#233d76] rounded-lg px-2 py-1 text-center">
+                <span className="font-black text-xs sm:text-sm text-[#dfaf27] tracking-wider uppercase">
+                  {language === 'mr' ? 'संयम' : 'SAIYAM'}
+                </span>
+              </div>
             </div>
             <div className="leading-tight">
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <span className="font-bold text-sm sm:text-xl tracking-tight text-white trust-heading">
-                  संयम (SAIYAM)
+                  {language === 'mr' ? 'संयम' : 'SAIYAM'}
                 </span>
                 <span className="text-[9px] sm:text-[11px] bg-[#dfaf27] text-[#233d76] font-black px-1.5 sm:px-2 py-0.5 rounded-sm shadow-2xs">
-                  TRST
+                  {language === 'mr' ? 'टीआरएसटी' : 'TRST'}
                 </span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-[#f0da9a] font-medium hidden sm:block mt-0.5">
-                Initiative By : Tarachand Ramnath Seva Trust, Pune
+                {language === 'mr'
+                  ? 'ताराचंद रामनाथ सेवा ट्रस्ट, पुणे'
+                  : 'Tarachand Ramnath Seva Trust, Pune'}
               </p>
             </div>
           </div>
@@ -61,12 +63,14 @@ export const Header: React.FC = () => {
 
             {/* Language Switcher */}
             <button
-              onClick={() => setLanguage(language === 'mr' ? 'en' : 'mr')}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white hover:bg-[#2d4c91] transition-colors cursor-pointer shadow-2xs"
+              onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
+              className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-[#f0da9a] hover:bg-[#2d4c91] transition-colors cursor-pointer shadow-2xs"
               title="Toggle Language"
             >
               <Globe className="w-3.5 h-3.5 text-[#dfaf27]" />
-              <span className="text-[10px] sm:text-xs">{language === 'mr' ? 'मराठी / EN' : 'EN / मराठी'}</span>
+              <span className="text-[10px] sm:text-xs font-bold">
+                {language === 'en' ? 'मराठी' : 'English'}
+              </span>
             </button>
 
             {/* Financial Year (FY) Selector (Desktop) */}

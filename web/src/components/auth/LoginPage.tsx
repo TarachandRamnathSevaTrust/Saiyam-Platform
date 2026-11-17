@@ -12,8 +12,6 @@ import {
   Sparkles,
   Lock,
   Mail,
-  CheckCircle2,
-  Calendar,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -23,9 +21,6 @@ export const LoginPage: React.FC = () => {
     organizations,
     language,
     setLanguage,
-    financialYear,
-    setFinancialYear,
-    availableFinancialYears,
   } = useApp();
 
   const [email, setEmail] = useState('');
@@ -55,7 +50,9 @@ export const LoginPage: React.FC = () => {
       const isTrainer = email.includes('trainer') || email.includes('field');
       const newUser: UserProfile = {
         id: `user-${Date.now()}`,
-        fullName: isTrainer ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'विश्वस्त प्रतिनिधी (Trust Executive)',
+        fullName: isTrainer 
+          ? (language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Facilitator (Trainer)')
+          : (language === 'mr' ? 'विश्वस्त प्रतिनिधी (Trust Executive)' : 'Trust Executive (Admin)'),
         email: email.trim(),
         role: isTrainer ? 'FIELD_TRAINER' : 'TRUST_ADMIN',
         isActive: true,
@@ -69,7 +66,7 @@ export const LoginPage: React.FC = () => {
   const handleDemoAdmin = () => {
     const adminUser = users.find((u) => u.role === 'TRUST_ADMIN') || {
       id: 'u-trust-admin',
-      fullName: 'Trust Executive (विश्वस्त / Admin)',
+      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी (Admin)' : 'Trust Executive (Admin)',
       email: 'admin@trst.org.in',
       role: 'TRUST_ADMIN',
       isActive: true,
@@ -80,17 +77,15 @@ export const LoginPage: React.FC = () => {
 
   // Demo 2: Field Trainer
   const handleDemoTrainer = () => {
-    // If a trainer was registered in Governance, prefer that
     const existingTrainer = users.find((u) => u.role === 'FIELD_TRAINER');
     if (existingTrainer) {
       login(existingTrainer);
       return;
     }
 
-    // Default demo trainer
     const demoTrainer: UserProfile = {
       id: 'demo-field-trainer',
-      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Facilitator (Demo)',
+      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Facilitator (Trainer)',
       email: 'trainer@trst.org.in',
       role: 'FIELD_TRAINER',
       organizationCode: organizations[0]?.code || 'TRST_DIRECT',
@@ -116,7 +111,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex flex-col justify-between p-3 sm:p-6 lg:p-8">
-      {/* Top Navbar */}
+      {/* Top Navbar: Clean & Free of Any Filter */}
       <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2">
         <div className="flex items-center space-x-2 text-xs text-[#f0da9a]">
           <ShieldCheck className="w-4 h-4 text-[#dfaf27]" />
@@ -124,32 +119,16 @@ export const LoginPage: React.FC = () => {
           <span className="font-semibold sm:hidden">DPDP Act Protected</span>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Financial Year Selector */}
-          <div className="relative">
-            <select
-              aria-label="Financial Year"
-              value={financialYear}
-              onChange={(e) => setFinancialYear(e.target.value)}
-              className="text-[11px] font-bold rounded-lg border border-[#dfaf27]/60 bg-[#16274d] text-[#f0da9a] py-1.5 px-2.5 focus:outline-hidden cursor-pointer"
-            >
-              {availableFinancialYears.map((fy) => (
-                <option key={fy} value={fy} className="bg-[#233d76] text-white">
-                  FY {fy}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Language Toggle */}
-          <button
-            onClick={() => setLanguage(language === 'mr' ? 'en' : 'mr')}
-            className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-bold rounded-lg border border-[#3b5998] bg-[#16274d] text-white hover:bg-[#203a73] transition-colors cursor-pointer"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#dfaf27]" />
-            <span className="text-[11px] font-bold">{language === 'mr' ? 'मराठी / EN' : 'EN / मराठी'}</span>
-          </button>
-        </div>
+        {/* Language Toggle: Clear one-click toggle */}
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
+          className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-[#dfaf27]/60 bg-[#16274d] text-white hover:bg-[#203a73] transition-colors cursor-pointer shadow-xs"
+        >
+          <Globe className="w-3.5 h-3.5 text-[#dfaf27]" />
+          <span className="text-[11px] font-bold text-[#f0da9a]">
+            {language === 'en' ? 'मराठी मध्ये पहा' : 'View in English'}
+          </span>
+        </button>
       </div>
 
       {/* Main Login Card */}
@@ -157,18 +136,22 @@ export const LoginPage: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
           {/* Header Banner */}
           <div className="bg-[#233d76] text-white p-6 sm:p-7 text-center relative border-b-4 border-[#dfaf27]">
-            <div className="w-16 h-16 bg-white rounded-2xl p-2 mx-auto mb-3 shadow-md flex items-center justify-center">
-              <img
-                src="/saiyam-logo.png"
-                alt="संयम"
-                className="h-12 w-auto object-contain"
-              />
+            {/* Dynamic Box: Shows SAIYAM in English, or संयम in Marathi */}
+            <div className="w-16 h-16 bg-white rounded-2xl p-1.5 mx-auto mb-3 shadow-md border-2 border-[#dfaf27] flex items-center justify-center">
+              <div className="w-full h-full rounded-xl bg-[#233d76] flex items-center justify-center shadow-inner">
+                <span className="font-black text-xs sm:text-sm text-[#dfaf27] tracking-wider uppercase">
+                  {language === 'mr' ? 'संयम' : 'SAIYAM'}
+                </span>
+              </div>
             </div>
-            <div className="inline-flex items-center space-x-1.5 bg-[#dfaf27] text-[#233d76] font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1">
-              <span>TRST PUNE</span>
+
+            <div className="inline-flex items-center space-x-1.5 bg-[#dfaf27] text-[#233d76] font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1.5 shadow-2xs">
+              <span>{language === 'mr' ? 'टीआरएसटी पुणे' : 'TRST PUNE'}</span>
             </div>
-            <h1 className="text-2xl font-bold trust-heading text-white">
-              संयम (SAIYAM)
+
+            {/* Dynamic Title (No mixed names) */}
+            <h1 className="text-2xl font-bold trust-heading text-white tracking-tight">
+              {language === 'mr' ? 'संयम प्रकल्प' : 'SAIYAM PLATFORM'}
             </h1>
             <p className="text-xs text-[#f0da9a] mt-1 font-medium">
               {language === 'mr'
@@ -176,7 +159,9 @@ export const LoginPage: React.FC = () => {
                 : 'Adolescent Anti-Addiction Initiative'}
             </p>
             <p className="text-[11px] text-slate-300 mt-0.5">
-              ताराचंद रामनाथ सेवा ट्रस्ट (TRST), पुणे
+              {language === 'mr'
+                ? 'ताराचंद रामनाथ सेवा ट्रस्ट (TRST), पुणे'
+                : 'Tarachand Ramnath Seva Trust (TRST), Pune'}
             </p>
           </div>
 
@@ -359,19 +344,23 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Financial Year Indicator & Trust Copyright */}
-        <div className="text-center text-slate-300 text-xs mt-4 space-y-1">
-          <div>
-            <span className="font-bold text-[#dfaf27]">आर्थिक वर्ष : FY {financialYear}</span>
-            <span className="mx-2">•</span>
-            <span>ताराचंद रामनाथ सेवा ट्रस्ट</span>
-          </div>
+        {/* Trust Signature */}
+        <div className="text-center text-slate-300 text-xs mt-4">
+          <span>
+            {language === 'mr'
+              ? 'ताराचंद रामनाथ सेवा ट्रस्ट (TRST), पुणे'
+              : 'Tarachand Ramnath Seva Trust (TRST), Pune'}
+          </span>
         </div>
       </div>
 
       {/* Footer info */}
       <div className="text-center text-[11px] text-slate-400 py-2">
-        <span>संयम (Saiyam) Platform v1.0 • Android Native & Web PWA</span>
+        <span>
+          {language === 'mr'
+            ? 'संयम प्लॅटफॉर्म v1.0 • Android Native व Web PWA'
+            : 'Saiyam Platform v1.0 • Android Native & Web PWA'}
+        </span>
       </div>
     </div>
   );
