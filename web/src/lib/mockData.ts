@@ -7,44 +7,22 @@ import {
   Organization,
 } from '@saiyam/shared';
 
-// Official implementing organizations under Saiyam
+// Base In-House Organization (TRST). All other partner organizations are dynamically added by TRST.
 export const INITIAL_ORGANIZATIONS: Organization[] = [
   {
     id: 'org-trst',
     code: 'TRST_DIRECT',
-    nameMr: 'ताराचंद रामनाथ सेवा ट्रस्ट (थेट)',
-    nameEn: 'TRST Direct (In-House Team)',
+    nameMr: 'ताराचंद रामनाथ सेवा ट्रस्ट (TRST)',
+    nameEn: 'Tarachand Ramnath Seva Trust (TRST Direct)',
     orgType: 'IN_HOUSE',
     description: 'TRST in-house field facilitators conducting direct classroom sessions and paper bundles.',
     contactPerson: 'Anagha Kadolkar',
     isActive: true,
     createdAt: '2026-01-01',
   },
-  {
-    id: 'org-jpip',
-    code: 'JPIP',
-    nameMr: 'ज्ञान प्रबोधिनी संशोधन संस्था (JPIP)',
-    nameEn: 'Jnana Prabodhini (JPIP)',
-    orgType: 'PARTNER_NGO',
-    description: 'Academic partner managing ~14-25 field trainers across designated school clusters.',
-    contactPerson: 'Sandhya Tai (JPIP)',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
-  {
-    id: 'org-vopa',
-    code: 'VOPA',
-    nameMr: 'व्होपा (Vowels of People Association)',
-    nameEn: 'VOPA (Vowels of People Association)',
-    orgType: 'PARTNER_NGO',
-    description: 'Digital education partner implementing Saiyam through dedicated school batches.',
-    contactPerson: 'VOPA Program Lead',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
 ];
 
-// Pre-configured official system logins with organization scoping
+// Official verified TRST logins only (No synthetic partner users)
 export const INITIAL_USERS: UserProfile[] = [
   {
     id: 'u-admin',
@@ -57,7 +35,7 @@ export const INITIAL_USERS: UserProfile[] = [
   },
   {
     id: 'u-trainer-trst',
-    fullName: 'Anagha Kadolkar (TRST Direct Trainer)',
+    fullName: 'Anagha Kadolkar (TRST Field Trainer)',
     email: 'anagha@trst.org.in',
     role: 'FIELD_TRAINER',
     organizationId: 'org-trst',
@@ -66,31 +44,9 @@ export const INITIAL_USERS: UserProfile[] = [
     isActive: true,
     createdAt: '2026-01-01',
   },
-  {
-    id: 'u-trainer-jpip',
-    fullName: 'JPIP Field Trainer (ज्ञान प्रबोधिनी)',
-    email: 'jpip.trainer@prabodhini.org',
-    role: 'FIELD_TRAINER',
-    organizationId: 'org-jpip',
-    organizationCode: 'JPIP',
-    phone: '+91 98221 11111',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
-  {
-    id: 'u-trainer-vopa',
-    fullName: 'VOPA Coordinator (व्होपा)',
-    email: 'coord@vopa.org',
-    role: 'FIELD_TRAINER',
-    organizationId: 'org-vopa',
-    organizationCode: 'VOPA',
-    phone: '+91 98222 22222',
-    isActive: true,
-    createdAt: '2026-01-01',
-  },
 ];
 
-// Zero dummy data: Clean initial state ready for real field data entry
+// Clean initial state: zero synthetic data
 export const INITIAL_SCHOOLS: School[] = [];
 export const INITIAL_STUDENTS: Student[] = [];
 export const INITIAL_ASSESSMENT_PAIRS: StudentAssessmentPair[] = [];

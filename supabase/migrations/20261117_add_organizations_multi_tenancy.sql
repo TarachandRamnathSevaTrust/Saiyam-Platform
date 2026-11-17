@@ -17,11 +17,9 @@ CREATE TABLE IF NOT EXISTS public.organizations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Pre-seed the 3 official implementing partners discussed in the Trust strategy
+-- Pre-seed only TRST Direct. Partner organizations are added dynamically by TRST.
 INSERT INTO public.organizations (code, name_mr, name_en, org_type, description, contact_person) VALUES
-('TRST_DIRECT', 'ताराचंद रामनाथ सेवा ट्रस्ट (थेट)', 'TRST Direct (In-House)', 'IN_HOUSE', 'TRST internal field facilitation team conducting direct school sessions and test bundles.', 'Anagha Kadolkar'),
-('JPIP', 'ज्ञान प्रबोधिनी संशोधन संस्था (JPIP)', 'Jnana Prabodhini (JPIP)', 'PARTNER_NGO', 'Academic & research partner managing 14-25 field trainers across designated school clusters.', 'Sandhya Tai / JPIP Coord'),
-('VOPA', 'व्होपा (Vowels of People Association)', 'VOPA (Vowels of People Association)', 'PARTNER_NGO', 'Digital education partner implementing Saiyam through dedicated school batches.', 'VOPA Program Lead')
+('TRST_DIRECT', 'ताराचंद रामनाथ सेवा ट्रस्ट (थेट)', 'Tarachand Ramnath Seva Trust (TRST Direct)', 'IN_HOUSE', 'TRST internal field facilitation team conducting direct school sessions and test bundles.', 'Anagha Kadolkar')
 ON CONFLICT (code) DO UPDATE SET
     name_mr = EXCLUDED.name_mr,
     name_en = EXCLUDED.name_en;

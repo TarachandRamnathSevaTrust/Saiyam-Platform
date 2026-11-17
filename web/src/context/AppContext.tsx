@@ -61,19 +61,28 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('saiyam_users');
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
+    const saved = localStorage.getItem('saiyam_users_v3');
+    if (saved) return JSON.parse(saved);
+    localStorage.removeItem('saiyam_users');
+    return INITIAL_USERS;
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('saiyam_user');
-    return saved ? JSON.parse(saved) : INITIAL_USERS[1];
+    const saved = localStorage.getItem('saiyam_user_v3');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.id === 'u-admin' || parsed.id === 'u-trainer-trst') return parsed;
+    }
+    localStorage.removeItem('saiyam_user');
+    return INITIAL_USERS[1];
   });
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
   const [organizations, setOrganizations] = useState<Organization[]>(() => {
-    const saved = localStorage.getItem('saiyam_organizations');
-    return saved ? JSON.parse(saved) : INITIAL_ORGANIZATIONS;
+    const saved = localStorage.getItem('saiyam_organizations_v3');
+    if (saved) return JSON.parse(saved);
+    localStorage.removeItem('saiyam_organizations');
+    return INITIAL_ORGANIZATIONS;
   });
   const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('ALL');
 
@@ -106,7 +115,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sync state to local storage
   useEffect(() => {
-    localStorage.setItem('saiyam_user', JSON.stringify(currentUser));
+    localStorage.setItem('saiyam_user_v3', JSON.stringify(currentUser));
   }, [currentUser]);
 
   useEffect(() => {
@@ -130,11 +139,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [sessionLogs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_organizations', JSON.stringify(organizations));
+    localStorage.setItem('saiyam_organizations_v3', JSON.stringify(organizations));
   }, [organizations]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_users', JSON.stringify(users));
+    localStorage.setItem('saiyam_users_v3', JSON.stringify(users));
   }, [users]);
 
   const switchUser = (userId: string) => {
