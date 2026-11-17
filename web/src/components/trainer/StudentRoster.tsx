@@ -8,9 +8,10 @@ interface Props {
 }
 
 export const StudentRoster: React.FC<Props> = ({ onBack }) => {
-  const { selectedSchool, students, addStudent, language } = useApp();
+  const { selectedSchool, students, addStudent, language, currentUser } = useApp();
 
-  const [isAdding, setIsAdding] = useState(true); // Open by default for fast entry
+  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+  const [isAdding, setIsAdding] = useState(!isTrustAdmin);
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState<Gender>('FEMALE');
   const [standard, setStandard] = useState('8');
@@ -80,14 +81,34 @@ export const StudentRoster: React.FC<Props> = ({ onBack }) => {
           </div>
         </div>
 
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? 'नवीन विद्यार्थी' : 'Add Student'}</span>
-        </button>
+        {!isTrustAdmin ? (
+          <button
+            onClick={() => setIsAdding(!isAdding)}
+            className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4 text-[#dfaf27]" />
+            <span>{language === 'mr' ? 'नवीन विद्यार्थी' : 'Add Student'}</span>
+          </button>
+        ) : (
+          <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1.5 rounded-lg border border-[#dfaf27]/40">
+            {language === 'mr' ? 'विश्वस्त निरीक्षण (Read-Only)' : 'Trust Audit Mode'}
+          </span>
+        )}
       </div>
+
+      {/* Trust Admin Read-Only Notice */}
+      {isTrustAdmin && (
+        <div className="bg-[#233d76] text-white p-3 rounded-xl flex items-center justify-between text-xs">
+          <span className="font-semibold">
+            {language === 'mr'
+              ? '👁️ विश्वस्त निरीक्षण मोड: आपण विद्यार्थ्यांची यादी तपासत आहात. केवळ क्षेत्र प्रशिक्षक प्रत्यक्ष नोंदणी करू शकतात.'
+              : '👁️ Trust Audit View: Reviewing registered students. Only field trainers can register students on-ground.'}
+          </span>
+          <span className="font-mono text-[#f0da9a] font-bold">
+            {schoolStudents.length} {language === 'mr' ? 'विद्यार्थी' : 'students'}
+          </span>
+        </div>
+      )}
 
       {/* Physical Paper Bundle Alignment Banner (Matching Page 105 of Manual) */}
       <div className="bg-[#f0da9a]/30 border border-[#dfaf27]/50 rounded-2xl p-4 text-[#233d76] flex items-start space-x-3 shadow-2xs">
@@ -105,7 +126,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack }) => {
       {/* Roster & Add Form Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {/* Quick Add Form (Matching Page 105: विद्यार्थी माहिती) */}
-        {isAdding && (
+        {!isTrustAdmin && isAdding && (
           <form
             onSubmit={handleAddStudent}
             className="bg-slate-50/70 p-5 border-b border-slate-200 animate-fadeIn"

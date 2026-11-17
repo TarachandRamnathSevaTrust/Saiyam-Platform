@@ -18,8 +18,9 @@ interface Props {
 }
 
 export const SessionLogger: React.FC<Props> = ({ onBack }) => {
-  const { selectedSchool, sessionLogs, saveSessionLog, language } = useApp();
+  const { selectedSchool, sessionLogs, saveSessionLog, language, currentUser } = useApp();
 
+  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const [activeSessionNumber, setActiveSessionNumber] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'LOG' | 'MEDIA'>('LOG');
 
@@ -337,13 +338,19 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
                   </span>
                 )}
 
-                <button
-                  type="submit"
-                  className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
-                >
-                  <Save className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Log'}</span>
-                </button>
+                {!isTrustAdmin ? (
+                  <button
+                    type="submit"
+                    className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 text-[#dfaf27]" />
+                    <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Log'}</span>
+                  </button>
+                ) : (
+                  <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-4 py-2 rounded-xl border border-[#dfaf27]/40">
+                    {language === 'mr' ? 'केवळ वाचन (Read-Only)' : 'Audit View Only'}
+                  </span>
+                )}
               </div>
             </form>
           )}
@@ -363,13 +370,17 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
                   <Camera className="w-6 h-6 mx-auto text-[#233d76] mb-1.5" />
                   <span className="text-xs font-bold text-slate-800 block">फोटो (Photos)</span>
                   <span className="text-[11px] text-slate-500 block mb-2">{uploadedPhotos.length} / 4 फोटो</span>
-                  <button
-                    type="button"
-                    onClick={handleSimulatePhotoUpload}
-                    className="w-full text-xs font-bold bg-[#233d76] text-white py-1.5 px-2 rounded-lg shadow-2xs transition-colors cursor-pointer hover:bg-[#1b2f5c]"
-                  >
-                    + फोटो जोडा
-                  </button>
+                  {!isTrustAdmin ? (
+                    <button
+                      type="button"
+                      onClick={handleSimulatePhotoUpload}
+                      className="w-full text-xs font-bold bg-[#233d76] text-white py-1.5 px-2 rounded-lg shadow-2xs transition-colors cursor-pointer hover:bg-[#1b2f5c]"
+                    >
+                      + फोटो जोडा
+                    </button>
+                  ) : (
+                    <span className="text-[11px] text-slate-400 font-semibold block py-1">पाहण्यासाठी उपलब्ध</span>
+                  )}
                 </div>
 
                 {/* Video Upload Card */}

@@ -71,6 +71,8 @@ export interface Question {
   options: QuestionOption[];
   correctOptionCode?: string;
   category?: string;
+  marks?: number; // Custom weightage marks per question (supports decimals e.g. 1.0, 2.0, 0.5)
+  scoringRubric?: Record<string, number>; // For Likert/frequency scales: e.g. { ALWAYS: 3, OFTEN: 2, SOMETIMES: 1, NEVER: 0 }
 }
 
 export interface AssessmentResponse {
@@ -78,6 +80,7 @@ export interface AssessmentResponse {
   questionNumber: number;
   selectedOptionCode?: string; // e.g. 'CORRECT', 'WRONG', 'ALWAYS', 'SOMETIMES', or undefined for BLANK
   isCorrect?: boolean;
+  pointsAwarded?: number;
 }
 
 export interface AssessmentRecord {

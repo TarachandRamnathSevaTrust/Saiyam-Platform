@@ -21,50 +21,78 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
   const { schools, selectedSchool, setSelectedSchool, language, currentUser } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Top Trainer Bar (Matching Page 104 of Old App) */}
-      <div className="bg-[#233d76] text-white p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <span className="text-[11px] font-bold text-[#dfaf27] uppercase tracking-wider block">
-            {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer'}
-          </span>
-          <h2 className="text-lg font-bold">{currentUser.fullName}</h2>
+    <div className="space-y-6 max-w-6xl mx-auto">
+      {/* Top Trainer Bar (Only shown for Field Trainers who conduct visits) */}
+      {!isTrustAdmin ? (
+        <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <span className="text-xs font-bold text-[#dfaf27] uppercase tracking-wider block">
+              {language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Trainer'}
+            </span>
+            <h2 className="text-lg font-bold trust-heading mt-0.5">{currentUser.fullName}</h2>
+          </div>
+
+          {/* Only Field Trainers can add schools */}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-2 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>{language === 'mr' ? 'नोंदणी करा (Register School)' : 'Register School'}</span>
+          </button>
         </div>
+      ) : (
+        /* Trust Admin View: Pure Audit & Monitoring Header (NO Add School button) */
+        <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span className="text-xs font-bold text-[#dfaf27] uppercase tracking-wider block">
+              {language === 'mr' ? 'विश्वस्त निरीक्षण (Audit & Monitoring)' : 'Trust Supervision'}
+            </span>
+            <h2 className="text-lg font-bold trust-heading mt-0.5">
+              {language === 'mr' ? 'क्षेत्रातील सर्व नोंदणीकृत शाळा' : 'Field Schools Roster'}
+            </h2>
+          </div>
+          <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-3 py-1 rounded-full border border-[#dfaf27]/40">
+            {schools.length} {language === 'mr' ? 'शाळा सक्रिय' : 'Active Schools'}
+          </span>
+        </div>
+      )}
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>{language === 'mr' ? 'नोंदणी करा (Register School)' : 'Register School'}</span>
-        </button>
-      </div>
-
-      {/* If No Schools Registered Yet (Matching Page 104 empty state) */}
+      {/* If No Schools Registered Yet */}
       {schools.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center shadow-2xs">
           <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-3">
             <Frown className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-slate-800">
-            {language === 'mr' ? 'अद्याप कोणतीही शाळा/संस्था नोंदवलेली नाही...' : 'No school/institute registered yet...'}
+          <h3 className="text-base font-bold text-slate-800 trust-heading">
+            {language === 'mr' ? 'अद्याप कोणतीही शाळा/संस्था नोंदवलेली नाही...' : 'No school registered yet...'}
           </h3>
           <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-            {language === 'mr'
-              ? 'सत्रे घेण्यापूर्वी तुम्ही ज्या शाळेत जाणार आहात त्या शाळेची नोंदणी करण्यासाठी खालील बटणावर क्लिक करा.'
-              : 'Before conducting sessions, click the button below to register the school you are visiting.'}
+            {isTrustAdmin
+              ? language === 'mr'
+                ? 'क्षेत्र प्रशिक्षकांनी प्रत्यक्ष शाळेत जाऊन नोंदणी केल्यानंतर ती येथे दिसेल.'
+                : 'Schools will appear here once field trainers register them during visits.'
+              : language === 'mr'
+                ? 'सत्रे घेण्यापूर्वी तुम्ही ज्या शाळेत जाणार आहात त्या शाळेची नोंदणी करा.'
+                : 'Before conducting sessions, register the school you are visiting.'}
           </p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="mt-5 inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{language === 'mr' ? 'नोंदणी करा' : 'Register Now'}</span>
-          </button>
+
+          {/* Only show Register button to Field Trainers */}
+          {!isTrustAdmin && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-5 inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-[#dfaf27]" />
+              <span>{language === 'mr' ? 'नोंदणी करा' : 'Register Now'}</span>
+            </button>
+          )}
         </div>
       ) : (
-        /* Registered Schools Cards (Matching Page 105 of Old App) */
+        /* Schools Cards */
         <div className="space-y-5">
           {schools.map((school) => {
             const isSelected = selectedSchool?.id === school.id;
@@ -88,7 +116,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       <Building2 className="w-5 h-5 text-[#dfaf27]" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-base text-slate-900">{school.name}</h3>
+                      <h3 className="font-bold text-base text-slate-900 trust-heading">{school.name}</h3>
                       <div className="flex items-center text-xs text-slate-500 space-x-2 mt-0.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
                         <span>
@@ -108,9 +136,8 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                   </div>
                 </div>
 
-                {/* 4 Action Buttons Exactly as shown in Page 105 of Old App */}
+                {/* 4 Action / Inspection Buttons */}
                 <div className="p-4 bg-white grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {/* 1. विद्यार्थी नोंदणी (Student Registration) */}
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
@@ -122,14 +149,13 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       <Users className="w-4 h-4 text-[#233d76]" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'विद्यार्थी नोंदणी' : 'Student Roster'}
+                      {language === 'mr' ? 'विद्यार्थी यादी' : 'Student Roster'}
                     </span>
                     <span className="text-[10px] text-slate-500 mt-0.5">
-                      {language === 'mr' ? 'गठ्ठा क्रमाने' : 'Sequential Order'}
+                      {isTrustAdmin ? 'तपासा (View)' : 'गठ्ठा क्रमाने'}
                     </span>
                   </button>
 
-                  {/* 2. पूर्व / उत्तर चाचण्या (Pre/Post Tests) */}
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
@@ -146,7 +172,6 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <span className="text-[10px] text-slate-500 mt-0.5">३ पेपर्स (MKMH, MMAT, ERT)</span>
                   </button>
 
-                  {/* 3. सत्र नोंदी (Session Records) */}
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
@@ -163,7 +188,6 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <span className="text-[10px] text-slate-500 mt-0.5">२५ सत्रे व मिडिया</span>
                   </button>
 
-                  {/* 4. कागदपत्रे अपलोड (Documents Upload) */}
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
@@ -175,9 +199,9 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       <FileText className="w-4 h-4 text-[#233d76]" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'कागदपत्रे अपलोड' : 'Upload Docs'}
+                      {language === 'mr' ? 'कागदपत्रे पुरावे' : 'Documents'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">शाळा सही व शिक्का</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">सही व शिक्का</span>
                   </button>
                 </div>
               </div>
@@ -186,7 +210,10 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
         </div>
       )}
 
-      <SchoolRegistrationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* Registration Modal only callable by Field Trainers */}
+      {!isTrustAdmin && (
+        <SchoolRegistrationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 };

@@ -7,8 +7,9 @@ interface Props {
 }
 
 export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
-  const { selectedSchool, language } = useApp();
+  const { selectedSchool, language, currentUser } = useApp();
 
+  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const [requestLetterUploaded, setRequestLetterUploaded] = useState(false);
   const [stampedSheetUploaded, setStampedSheetUploaded] = useState(false);
 
@@ -96,25 +97,35 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   <span className="text-[11px] text-emerald-700">अपलोड पूर्ण (Uploaded)</span>
                 </div>
               </div>
-              <button
-                onClick={() => setRequestLetterUploaded(false)}
-                className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
-              >
-                काढून टाका
-              </button>
+              {!isTrustAdmin && (
+                <button
+                  onClick={() => setRequestLetterUploaded(false)}
+                  className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
+                >
+                  काढून टाका
+                </button>
+              )}
             </div>
           ) : (
             <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors">
               <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
               <p className="text-xs font-semibold text-slate-700">
-                {language === 'mr' ? 'फोटो किंवा फाईल अपलोडसाठी क्लिक करा' : 'Click to upload photo or PDF'}
+                {isTrustAdmin
+                  ? language === 'mr'
+                    ? 'अद्याप संमतीपत्र अपलोड झालेले नाही'
+                    : 'Awaiting permission letter upload'
+                  : language === 'mr'
+                  ? 'फोटो किंवा फाईल अपलोडसाठी क्लिक करा'
+                  : 'Click to upload photo or PDF'}
               </p>
-              <button
-                onClick={() => setRequestLetterUploaded(true)}
-                className="mt-3 text-xs bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold py-1.5 px-4 rounded-lg cursor-pointer"
-              >
-                {language === 'mr' ? 'अपलोड करा' : 'Upload File'}
-              </button>
+              {!isTrustAdmin && (
+                <button
+                  onClick={() => setRequestLetterUploaded(true)}
+                  className="mt-3 text-xs bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold py-1.5 px-4 rounded-lg cursor-pointer"
+                >
+                  {language === 'mr' ? 'अपलोड करा' : 'Upload File'}
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -146,25 +157,35 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   <span className="text-[11px] text-emerald-700">अपलोड पूर्ण (Uploaded)</span>
                 </div>
               </div>
-              <button
-                onClick={() => setStampedSheetUploaded(false)}
-                className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
-              >
-                काढून टाका
-              </button>
+              {!isTrustAdmin && (
+                <button
+                  onClick={() => setStampedSheetUploaded(false)}
+                  className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
+                >
+                  काढून टाका
+                </button>
+              )}
             </div>
           ) : (
             <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors">
               <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
               <p className="text-xs font-semibold text-slate-700">
-                {language === 'mr' ? 'फोटो किंवा फाईल अपलोडसाठी क्लिक करा' : 'Click to upload photo or PDF'}
+                {isTrustAdmin
+                  ? language === 'mr'
+                    ? 'अद्याप सही-शिक्का पत्रक अपलोड झालेले नाही'
+                    : 'Awaiting completion sheet upload'
+                  : language === 'mr'
+                  ? 'फोटो किंवा फाईल अपलोडसाठी क्लिक करा'
+                  : 'Click to upload photo or PDF'}
               </p>
-              <button
-                onClick={() => setStampedSheetUploaded(true)}
-                className="mt-3 text-xs bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold py-1.5 px-4 rounded-lg cursor-pointer"
-              >
-                {language === 'mr' ? 'अपलोड करा' : 'Upload File'}
-              </button>
+              {!isTrustAdmin && (
+                <button
+                  onClick={() => setStampedSheetUploaded(true)}
+                  className="mt-3 text-xs bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold py-1.5 px-4 rounded-lg cursor-pointer"
+                >
+                  {language === 'mr' ? 'अपलोड करा' : 'Upload File'}
+                </button>
+              )}
             </div>
           )}
         </div>

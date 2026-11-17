@@ -7,19 +7,25 @@
   --color-trust-yellow: #dfaf27;
   --color-trust-yellow-dark: #b88d18;
   --color-trust-yellow-light: #f0da9a;
-  --font-serif: "Philosopher", "Times New Roman", serif;
+  --font-serif: "Philosopher", "Tiro Devanagari Marathi", "Times New Roman", serif;
   --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-marathi: "Tiro Devanagari Marathi", "Plus Jakarta Sans", sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-[#f4f6fa] text-slate-900 antialiased;
-    font-family: var(--font-sans);
+    background-color: #f4f6fa;
+    color: #0f172a;
+    font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, .trust-heading {
-    font-family: var(--font-serif);
+  h1, h2, h3, h4, .trust-heading {
+    font-family: "Philosopher", "Tiro Devanagari Marathi", "Times New Roman", serif;
     letter-spacing: -0.01em;
+  }
+
+  .font-marathi {
+    font-family: "Tiro Devanagari Marathi", "Plus Jakarta Sans", sans-serif;
   }
 }

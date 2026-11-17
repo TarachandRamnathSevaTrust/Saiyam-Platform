@@ -21,26 +21,51 @@ export function calculateAssessmentScore(
   answeredCount: number;
   correctCount: number;
   scorePercentage: number;
+  totalPointsScored: number;
+  maxPossiblePoints: number;
+  attemptedPoints: number;
   isIncomplete: boolean;
 } {
   const totalQuestions = questions.length;
   let answeredCount = 0;
   let correctCount = 0;
+  let totalPointsScored = 0;
+  let maxPossiblePoints = 0;
+  let attemptedPoints = 0;
 
   const questionMap = new Map(questions.map((q) => [q.id, q]));
 
+  for (const q of questions) {
+    maxPossiblePoints += (q.marks ?? 1);
+  }
+
   for (const resp of responses) {
+    const q = questionMap.get(resp.questionId);
+    const qWeight = q?.marks ?? 1;
+
     if (resp.selectedOptionCode) {
       answeredCount++;
-      const q = questionMap.get(resp.questionId);
-      if (q && q.correctOptionCode && q.correctOptionCode === resp.selectedOptionCode) {
+      attemptedPoints += qWeight;
+
+      // Likert rubric weighted scoring (e.g. ERT paper)
+      if (q?.scoringRubric && resp.selectedOptionCode in q.scoringRubric) {
+        const rubricPoints = q.scoringRubric[resp.selectedOptionCode];
+        resp.pointsAwarded = rubricPoints;
+        totalPointsScored += rubricPoints;
+        resp.isCorrect = rubricPoints > 0;
+        if (resp.isCorrect) correctCount++;
+      } else if (q && q.correctOptionCode && q.correctOptionCode === resp.selectedOptionCode) {
         correctCount++;
         resp.isCorrect = true;
+        resp.pointsAwarded = qWeight;
+        totalPointsScored += qWeight;
       } else {
         resp.isCorrect = false;
+        resp.pointsAwarded = 0;
       }
     } else {
       resp.isCorrect = false;
+      resp.pointsAwarded = 0;
     }
   }
 
@@ -48,10 +73,10 @@ export function calculateAssessmentScore(
   const minRequiredAttempts = Math.ceil(totalQuestions * 0.6);
   const isIncomplete = answeredCount < minRequiredAttempts;
 
-  // Prorated Score: (Correct / Answered) * 100
+  // Prorated Score: (totalPointsScored / attemptedPoints) * 100
   const scorePercentage =
-    answeredCount > 0
-      ? Number(((correctCount / answeredCount) * 100).toFixed(2))
+    attemptedPoints > 0
+      ? Number(((totalPointsScored / attemptedPoints) * 100).toFixed(2))
       : 0;
 
   return {
@@ -59,6 +84,9 @@ export function calculateAssessmentScore(
     answeredCount,
     correctCount,
     scorePercentage,
+    totalPointsScored: Number(totalPointsScored.toFixed(2)),
+    maxPossiblePoints: Number(maxPossiblePoints.toFixed(2)),
+    attemptedPoints: Number(attemptedPoints.toFixed(2)),
     isIncomplete,
   };
 }

@@ -22,7 +22,10 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
     saveAssessmentSubmission,
     assessmentPairs,
     language,
+    currentUser,
   } = useApp();
+
+  const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
 
   const [phase, setPhase] = useState<'PRE' | 'POST'>('PRE');
   const [selectedPaper, setSelectedPaper] = useState<PaperType>('MMAT');
@@ -334,8 +337,11 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
                             <button
                               key={opt.code}
                               type="button"
+                              disabled={isTrustAdmin}
                               onClick={() => handleSelectOption(q.id, opt.code)}
-                              className={`py-2 px-2.5 rounded-lg text-xs font-bold border flex items-center justify-center transition-all cursor-pointer ${
+                              className={`py-2 px-2.5 rounded-lg text-xs font-bold border flex items-center justify-center transition-all ${
+                                isTrustAdmin ? 'cursor-default' : 'cursor-pointer'
+                              } ${
                                 isOptSelected
                                   ? 'bg-[#233d76] text-white border-[#233d76] shadow-xs ring-2 ring-[#233d76]/20'
                                   : 'bg-white text-slate-700 border-slate-200 hover:bg-[#f0da9a]/30'
@@ -354,7 +360,11 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
               {/* Save Button Bar */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
-                  {language === 'mr'
+                  {isTrustAdmin
+                    ? language === 'mr'
+                      ? '👁️ विश्वस्त केवळ नोंदी तपासू शकतात (नोंदी बदलता येत नाहीत)'
+                      : '👁️ Trust Audit View: Inspection only (read-only mode)'
+                    : language === 'mr'
                     ? 'विद्यार्थ्याने सोडवलेल्या उत्तरांची नोंद तपासा'
                     : 'Verify student answers before saving'}
                 </span>
@@ -366,13 +376,19 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
                       <span>{language === 'mr' ? 'यशस्वीरित्या सेव्ह झाले!' : 'Saved successfully!'}</span>
                     </span>
                   )}
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Save className="w-4 h-4 text-[#dfaf27]" />
-                    <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Test Data'}</span>
-                  </button>
+                  {!isTrustAdmin ? (
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+                    >
+                      <Save className="w-4 h-4 text-[#dfaf27]" />
+                      <span>{language === 'mr' ? 'सेव्ह करा' : 'Save Test Data'}</span>
+                    </button>
+                  ) : (
+                    <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-4 py-2 rounded-xl border border-[#dfaf27]/40">
+                      {language === 'mr' ? 'केवळ वाचन (Read-Only)' : 'Audit View Only'}
+                    </span>
+                  )}
                 </div>
               </div>
             </>
