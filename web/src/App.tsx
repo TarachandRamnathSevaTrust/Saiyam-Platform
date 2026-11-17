@@ -15,24 +15,31 @@ import {
   BookOpen,
   FileText,
   ShieldCheck,
+  AlertCircle,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { currentUser, language } = useApp();
+  const { currentUser, language, selectedSchool } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
 
-  // Navigation tab (defaults to SCHOOLS for trainer, DASHBOARD for admin)
+  // Navigation tab
   const [activeTab, setActiveTab] = useState<string>(
     isTrustAdmin ? 'DASHBOARD' : 'SCHOOLS'
   );
 
+  // If trainer has not selected a school yet, prompt them to pick a school
+  const requiresSchool =
+    !isTrustAdmin &&
+    activeTab !== 'SCHOOLS' &&
+    selectedSchool === null;
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans pb-16 sm:pb-0">
       <Header />
 
-      {/* Navigation Sub-Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
+      {/* Desktop Navigation Sub-Header (Hidden on Mobile) */}
+      <div className="hidden sm:block bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-2 sm:space-x-3 overflow-x-auto py-2.5">
             {isTrustAdmin ? (
@@ -62,7 +69,7 @@ export const App: React.FC = () => {
                 </button>
               </>
             ) : (
-              /* Field Trainer Navigation: Exact same 4 options as Page 105 of Old App */
+              /* Field Trainer Desktop Navigation */
               <>
                 <button
                   onClick={() => setActiveTab('SCHOOLS')}
@@ -129,23 +136,119 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Screen Viewport */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
-        {/* Trust Admin Dashboard */}
-        {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
+      {/* Main Content Viewport */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full">
+        {/* If school is required but not selected yet, show helpful selection banner & school list */}
+        {requiresSchool ? (
+          <div className="space-y-4 max-w-4xl mx-auto">
+            <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-xl p-4 text-[#233d76] flex items-center space-x-3 shadow-2xs">
+              <AlertCircle className="w-5 h-5 text-[#233d76] shrink-0" />
+              <div className="text-xs sm:text-sm font-semibold">
+                {language === 'mr'
+                  ? 'कृपया आधी खालीलपैकी शाळा निवडा किंवा नवीन शाळा नोंदणी करा.'
+                  : 'Please select a school below or register a new one to continue.'}
+              </div>
+            </div>
+            <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />
+          </div>
+        ) : (
+          <>
+            {/* Trust Admin Dashboard */}
+            {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
 
-        {/* Schools List View */}
-        {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
+            {/* Schools List View */}
+            {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
 
-        {/* Field Trainer Core Modules */}
-        {activeTab === 'STUDENTS' && <StudentRoster onBack={() => setActiveTab('SCHOOLS')} />}
-        {activeTab === 'ASSESSMENTS' && <AssessmentDataEntry onBack={() => setActiveTab('SCHOOLS')} />}
-        {activeTab === 'SESSIONS' && <SessionLogger onBack={() => setActiveTab('SCHOOLS')} />}
-        {activeTab === 'DOCUMENTS' && <DocumentUpload onBack={() => setActiveTab('SCHOOLS')} />}
+            {/* Field Trainer Core Modules */}
+            {activeTab === 'STUDENTS' && <StudentRoster onBack={() => setActiveTab('SCHOOLS')} />}
+            {activeTab === 'ASSESSMENTS' && <AssessmentDataEntry onBack={() => setActiveTab('SCHOOLS')} />}
+            {activeTab === 'SESSIONS' && <SessionLogger onBack={() => setActiveTab('SCHOOLS')} />}
+            {activeTab === 'DOCUMENTS' && <DocumentUpload onBack={() => setActiveTab('SCHOOLS')} />}
+          </>
+        )}
       </main>
 
-      {/* Footer strictly adhering to Trust branding guidelines */}
-      <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+      {/* Mobile Bottom Navigation Bar (Native App Style for Phone Screen) */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-lg">
+        {isTrustAdmin ? (
+          <div className="grid grid-cols-2 h-14">
+            <button
+              onClick={() => setActiveTab('DASHBOARD')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'DASHBOARD' ? 'text-[#233d76] font-bold' : 'text-slate-500'
+              }`}
+            >
+              <LayoutDashboard className={`w-5 h-5 ${activeTab === 'DASHBOARD' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('SCHOOLS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-bold' : 'text-slate-500'
+              }`}
+            >
+              <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+            </button>
+          </div>
+        ) : (
+          /* Trainer 5 Bottom Tabs */
+          <div className="grid grid-cols-5 h-14">
+            <button
+              onClick={() => setActiveTab('SCHOOLS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('STUDENTS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'STUDENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('ASSESSMENTS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('SESSIONS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'SESSIONS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'सत्रे' : 'Sessions'}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('DOCUMENTS')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <FileText className={`w-4 h-4 ${activeTab === 'DOCUMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Footer */}
+      <footer className="hidden sm:block bg-white border-t border-slate-200 py-5 mt-10 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span className="font-medium text-[#233d76]">
             Initiative By : Tarachand Ramnath Seva Trust (TRST). All rights reserved.
