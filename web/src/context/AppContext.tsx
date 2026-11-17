@@ -28,9 +28,13 @@ import { INITIAL_QUESTIONS } from '@saiyam/shared';
 interface AppContextType {
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
+  users: UserProfile[];
   language: 'mr' | 'en';
   setLanguage: (lang: 'mr' | 'en') => void;
   organizations: Organization[];
+  addOrganization: (orgData: Omit<Organization, 'id' | 'createdAt' | 'isActive'>) => Organization;
+  updateOrganization: (id: string, orgData: Partial<Organization>) => void;
+  deleteOrganization: (id: string) => void;
   selectedOrgFilter: string;
   setSelectedOrgFilter: (orgCode: string) => void;
   schools: School[];
@@ -56,13 +60,21 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [users, setUsers] = useState<UserProfile[]>(() => {
+    const saved = localStorage.getItem('saiyam_users');
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
+
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('saiyam_user');
     return saved ? JSON.parse(saved) : INITIAL_USERS[1];
   });
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
-  const [organizations] = useState<Organization[]>(INITIAL_ORGANIZATIONS);
+  const [organizations, setOrganizations] = useState<Organization[]>(() => {
+    const saved = localStorage.getItem('saiyam_organizations');
+    return saved ? JSON.parse(saved) : INITIAL_ORGANIZATIONS;
+  });
   const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('ALL');
 
   const [schools, setSchools] = useState<School[]>(() => {
@@ -117,11 +129,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('saiyam_session_logs', JSON.stringify(sessionLogs));
   }, [sessionLogs]);
 
+  useEffect(() => {
+    localStorage.setItem('saiyam_organizations', JSON.stringify(organizations));
+  }, [organizations]);
+
+  useEffect(() => {
+    localStorage.setItem('saiyam_users', JSON.stringify(users));
+  }, [users]);
+
   const switchUser = (userId: string) => {
-    const user = INITIAL_USERS.find((u) => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     if (user) {
       setCurrentUser(user);
+      setSelectedSchool(null);
     }
+  };
+
+  const addOrganization = (orgData: Omit<Organization, 'id' | 'createdAt' | 'isActive'>): Organization => {
+    const newOrg: Organization = {
+      ...orgData,
+      id: `org-${Date.now()}`,
+      isActive: true,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setOrganizations((prev) => [...prev, newOrg]);
+    return newOrg;
+  };
+
+  const updateOrganization = (id: string, orgData: Partial<Organization>) => {
+    setOrganizations((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, ...orgData } : o))
+    );
+  };
+
+  const deleteOrganization = (id: string) => {
+    setOrganizations((prev) => prev.filter((o) => o.id !== id));
   };
 
   const addSchool = (schoolData: Omit<School, 'id' | 'createdAt'>): School => {
@@ -291,9 +333,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         currentUser,
         switchUser,
+        users,
         language,
         setLanguage,
         organizations,
+        addOrganization,
+        updateOrganization,
+        deleteOrganization,
         selectedOrgFilter,
         setSelectedOrgFilter,
         schools,

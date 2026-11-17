@@ -1,15 +1,19 @@
 export type UserRole = 'TRUST_ADMIN' | 'FIELD_TRAINER' | 'HEAD_TRAINER' | 'ORG_COORDINATOR';
 
-export type OrganizationCode = 'TRST_DIRECT' | 'JPIP' | 'VOPA';
+export type OrganizationCode = string;
 
 export interface Organization {
   id: string;
-  code: OrganizationCode;
+  code: string; // Dynamic identifier (e.g. TRST_DIRECT, JPIP, VOPA, or newly created org)
   nameMr: string;
   nameEn: string;
-  orgType: 'IN_HOUSE' | 'PARTNER_NGO' | 'ACADEMIC_INSTITUTE';
+  orgType: 'IN_HOUSE' | 'PARTNER_NGO' | 'ACADEMIC_INSTITUTE' | 'GOVERNMENT' | 'OTHER';
   description?: string;
   contactPerson?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  isActive: boolean;
+  createdAt: string;
   trainerCount?: number;
   schoolCount?: number;
 }

@@ -4,7 +4,17 @@ import { INITIAL_USERS } from '../../lib/mockData';
 import { Globe, School as SchoolIcon, ChevronDown, ShieldCheck } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { currentUser, switchUser, language, setLanguage, selectedSchool, setSelectedSchool, schools } = useApp();
+  const {
+    currentUser,
+    switchUser,
+    users,
+    organizations,
+    language,
+    setLanguage,
+    selectedSchool,
+    setSelectedSchool,
+    schools,
+  } = useApp();
 
   return (
     <header className="bg-[#233d76] text-white sticky top-0 z-40 shadow-md">
@@ -52,19 +62,31 @@ export const Header: React.FC = () => {
               <span className="text-[11px] sm:text-xs">{language === 'mr' ? 'मराठी / EN' : 'EN / मराठी'}</span>
             </button>
 
-            {/* Role Switcher Pill */}
+            {/* Role Switcher Pill (Clearly shows Trainer Name & Organization) */}
             <div className="relative">
               <select
                 aria-label="Switch User or Role"
                 value={currentUser.id}
                 onChange={(e) => switchUser(e.target.value)}
-                className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white py-1.5 sm:py-2 pl-2 sm:pl-3 pr-7 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none"
+                className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white py-1.5 sm:py-2 pl-2 sm:pl-3 pr-7 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none max-w-[170px] sm:max-w-[240px] truncate"
               >
-                {INITIAL_USERS.map((user) => (
-                  <option key={user.id} value={user.id} className="bg-[#233d76] text-white">
-                    {user.role === 'TRUST_ADMIN' ? '👑 Trust Admin' : '👤 क्षेत्र प्रशिक्षक'}
-                  </option>
-                ))}
+                {users.map((user) => {
+                  const userOrg = organizations.find((o) => o.code === user.organizationCode);
+                  const orgTag = userOrg ? userOrg.nameMr : user.organizationCode || 'TRST Direct';
+
+                  let label = '';
+                  if (user.role === 'TRUST_ADMIN') {
+                    label = language === 'mr' ? '👑 विश्वस्त (Trust Admin)' : '👑 Trust Admin (TRST)';
+                  } else {
+                    label = `👤 ${user.fullName} (${orgTag})`;
+                  }
+
+                  return (
+                    <option key={user.id} value={user.id} className="bg-[#233d76] text-white py-1">
+                      {label}
+                    </option>
+                  );
+                })}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-[#dfaf27] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -73,33 +95,37 @@ export const Header: React.FC = () => {
 
         {/* Active School Sub-Bar for Field Trainer */}
         {currentUser.role === 'FIELD_TRAINER' && (
-          <div className="bg-[#1a2d57] border-t border-[#345396] px-4 py-2 flex items-center justify-between text-xs text-[#f0da9a]">
+          <div className="bg-[#1a2d57] border-t border-[#345396] px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#f0da9a]">
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm shrink-0">
+                {organizations.find((o) => o.code === currentUser.organizationCode)?.nameMr ||
+                  currentUser.organizationCode ||
+                  'TRST Direct'}
+              </span>
+              <span className="text-white font-semibold truncate">
+                {currentUser.fullName}
+              </span>
+            </div>
+
             {selectedSchool ? (
-              <>
-                <div className="flex items-center space-x-2 truncate">
-                  <SchoolIcon className="w-4 h-4 text-[#dfaf27] shrink-0" />
-                  <span className="truncate">
-                    <strong>{language === 'mr' ? 'शाळा:' : 'School:'}</strong> {selectedSchool.name} ({selectedSchool.village})
-                  </span>
-                </div>
+              <div className="flex items-center space-x-2 truncate">
+                <SchoolIcon className="w-3.5 h-3.5 text-[#dfaf27] shrink-0" />
+                <span className="truncate text-slate-200">
+                  <strong>{language === 'mr' ? 'शाळा:' : 'School:'}</strong> {selectedSchool.name}
+                </span>
                 {schools.length > 1 && (
                   <button
                     onClick={() => setSelectedSchool(null)}
-                    className="text-xs text-white underline hover:text-[#dfaf27] shrink-0 font-bold ml-4 cursor-pointer"
+                    className="text-xs text-[#dfaf27] underline hover:text-white shrink-0 font-bold ml-2 cursor-pointer"
                   >
-                    {language === 'mr' ? 'शाळा बदला' : 'Change School'}
+                    {language === 'mr' ? 'बदला' : 'Change'}
                   </button>
                 )}
-              </>
-            ) : (
-              <div className="flex items-center justify-between w-full">
-                <span className="text-slate-300 italic text-xs">
-                  {language === 'mr' ? 'शाळा निवडलेली नाही' : 'No school selected'}
-                </span>
-                <span className="text-xs bg-[#dfaf27] text-[#233d76] font-extrabold px-2.5 py-0.5 rounded-sm">
-                  {language === 'mr' ? 'आधी शाळा निवडा' : 'Select School'}
-                </span>
               </div>
+            ) : (
+              <span className="text-slate-300 italic text-[11px]">
+                {language === 'mr' ? 'सत्रे घेण्यासाठी शाळा निवडा' : 'Select a school to conduct sessions'}
+              </span>
             )}
           </div>
         )}

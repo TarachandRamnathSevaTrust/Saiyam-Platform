@@ -17,6 +17,8 @@ export const INITIAL_ORGANIZATIONS: Organization[] = [
     orgType: 'IN_HOUSE',
     description: 'TRST in-house field facilitators conducting direct classroom sessions and paper bundles.',
     contactPerson: 'Anagha Kadolkar',
+    isActive: true,
+    createdAt: '2026-01-01',
   },
   {
     id: 'org-jpip',
@@ -26,6 +28,8 @@ export const INITIAL_ORGANIZATIONS: Organization[] = [
     orgType: 'PARTNER_NGO',
     description: 'Academic partner managing ~14-25 field trainers across designated school clusters.',
     contactPerson: 'Sandhya Tai (JPIP)',
+    isActive: true,
+    createdAt: '2026-01-01',
   },
   {
     id: 'org-vopa',
@@ -35,6 +39,8 @@ export const INITIAL_ORGANIZATIONS: Organization[] = [
     orgType: 'PARTNER_NGO',
     description: 'Digital education partner implementing Saiyam through dedicated school batches.',
     contactPerson: 'VOPA Program Lead',
+    isActive: true,
+    createdAt: '2026-01-01',
   },
 ];
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { OrganizationManagementModal } from './OrganizationManagementModal';
 import {
   Users,
   Building2,
@@ -18,6 +19,7 @@ import {
   Layers,
   Sparkles,
   Info,
+  Settings,
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -35,6 +37,7 @@ export const AdminDashboard: React.FC = () => {
   } = useApp();
 
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
   // Filter schools by selected organization
   const orgSchools = schools.filter((s) => {
@@ -114,7 +117,7 @@ export const AdminDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Organization Multi-Tenancy Switcher Bar (TRST Direct | JPIP | VOPA) */}
+      {/* Organization Multi-Tenancy Switcher Bar (Fully Dynamic & TRST Managed) */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
@@ -152,10 +155,19 @@ export const AdminDashboard: React.FC = () => {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                <span>{org.code === 'TRST_DIRECT' ? '🏛️' : org.code === 'JPIP' ? '📘' : '🤝'}</span>
-                <span>{org.code === 'TRST_DIRECT' ? 'TRST Direct' : org.code}</span>
+                <span>{org.nameMr}</span>
               </button>
             ))}
+
+            {/* TRST Organization Management Modal Trigger */}
+            <button
+              onClick={() => setIsOrgModalOpen(true)}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f0da9a]/60 hover:bg-[#dfaf27] text-[#233d76] border border-[#dfaf27] transition-all cursor-pointer shadow-2xs ml-auto sm:ml-2"
+              title="संस्था जोडा किंवा व्यवस्थापन करा"
+            >
+              <Settings className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'संस्था व्यवस्थापन' : 'Manage Orgs'}</span>
+            </button>
           </div>
         </div>
 
@@ -167,8 +179,12 @@ export const AdminDashboard: React.FC = () => {
                 {activeOrg.code}
               </span>
               <span className="font-semibold">{activeOrg.nameMr}</span>
-              <span className="hidden sm:inline text-slate-400">•</span>
-              <span className="text-[11px] text-slate-600 hidden sm:inline">{activeOrg.description}</span>
+              {activeOrg.description && (
+                <>
+                  <span className="hidden sm:inline text-slate-400">•</span>
+                  <span className="text-[11px] text-slate-600 hidden sm:inline">{activeOrg.description}</span>
+                </>
+              )}
             </div>
             {activeOrg.contactPerson && (
               <span className="text-[11px] text-[#233d76] font-bold">
@@ -567,6 +583,12 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Dynamic Organization Management Modal for TRST */}
+      <OrganizationManagementModal
+        isOpen={isOrgModalOpen}
+        onClose={() => setIsOrgModalOpen(false)}
+      />
     </div>
   );
 };
