@@ -2,16 +2,24 @@
 
 @theme {
   --color-trust-blue: #233d76;
-  --color-trust-blue-dark: #1b2f5c;
-  --color-trust-blue-light: #2e4d94;
+  --color-trust-blue-dark: #1a2d57;
+  --color-trust-blue-light: #2d4c91;
   --color-trust-yellow: #dfaf27;
   --color-trust-yellow-dark: #b88d18;
   --color-trust-yellow-light: #f0da9a;
+  --font-serif: "Philosopher", "Times New Roman", serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-marathi: "Tiro Devanagari Marathi", "Plus Jakarta Sans", sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    @apply bg-[#f4f6fa] text-slate-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, .trust-heading {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
   }
 }

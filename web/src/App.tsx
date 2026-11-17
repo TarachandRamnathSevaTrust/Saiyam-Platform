@@ -28,25 +28,24 @@ export const App: React.FC = () => {
     isTrustAdmin ? 'DASHBOARD' : 'SCHOOLS'
   );
 
-  // If trainer has not selected a school yet, prompt them to pick a school
   const requiresSchool =
     !isTrustAdmin &&
     activeTab !== 'SCHOOLS' &&
     selectedSchool === null;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans pb-16 sm:pb-0">
+    <div className="min-h-screen bg-[#f4f6fa] flex flex-col font-sans pb-16 sm:pb-0">
       <Header />
 
-      {/* Desktop Navigation Sub-Header (Hidden on Mobile) */}
-      <div className="hidden sm:block bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-2 sm:space-x-3 overflow-x-auto py-2.5">
+      {/* Desktop Navigation Sub-Header (Full Width & Clean Margins) */}
+      <div className="hidden sm:block bg-white border-b border-slate-200 sticky top-16 sm:top-18 z-20 shadow-2xs">
+        <div className="w-full px-4 sm:px-8 lg:px-12">
+          <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-2.5">
             {isTrustAdmin ? (
               <>
                 <button
                   onClick={() => setActiveTab('DASHBOARD')}
-                  className={`flex items-center space-x-2 py-2 px-4 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'DASHBOARD'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -58,7 +57,7 @@ export const App: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab('SCHOOLS')}
-                  className={`flex items-center space-x-2 py-2 px-4 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'SCHOOLS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -73,7 +72,7 @@ export const App: React.FC = () => {
               <>
                 <button
                   onClick={() => setActiveTab('SCHOOLS')}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'SCHOOLS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -85,7 +84,7 @@ export const App: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab('STUDENTS')}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'STUDENTS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -97,7 +96,7 @@ export const App: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab('ASSESSMENTS')}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'ASSESSMENTS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -109,7 +108,7 @@ export const App: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab('SESSIONS')}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'SESSIONS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -121,7 +120,7 @@ export const App: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab('DOCUMENTS')}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'DOCUMENTS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -136,14 +135,13 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Viewport */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full">
-        {/* If school is required but not selected yet, show helpful selection banner & school list */}
+      {/* Main Content Viewport: Full Width with Generous Margins */}
+      <main className="w-full px-4 sm:px-8 lg:px-12 py-6 sm:py-8 flex-1">
         {requiresSchool ? (
-          <div className="space-y-4 max-w-4xl mx-auto">
-            <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-xl p-4 text-[#233d76] flex items-center space-x-3 shadow-2xs">
-              <AlertCircle className="w-5 h-5 text-[#233d76] shrink-0" />
-              <div className="text-xs sm:text-sm font-semibold">
+          <div className="space-y-4 max-w-5xl mx-auto">
+            <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-2xl p-4 sm:p-5 text-[#233d76] flex items-center space-x-3.5 shadow-2xs">
+              <AlertCircle className="w-6 h-6 text-[#233d76] shrink-0" />
+              <div className="text-xs sm:text-sm font-bold">
                 {language === 'mr'
                   ? 'कृपया आधी खालीलपैकी शाळा निवडा किंवा नवीन शाळा नोंदणी करा.'
                   : 'Please select a school below or register a new one to continue.'}
@@ -153,13 +151,8 @@ export const App: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Trust Admin Dashboard */}
             {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
-
-            {/* Schools List View */}
             {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
-
-            {/* Field Trainer Core Modules */}
             {activeTab === 'STUDENTS' && <StudentRoster onBack={() => setActiveTab('SCHOOLS')} />}
             {activeTab === 'ASSESSMENTS' && <AssessmentDataEntry onBack={() => setActiveTab('SCHOOLS')} />}
             {activeTab === 'SESSIONS' && <SessionLogger onBack={() => setActiveTab('SCHOOLS')} />}
@@ -168,7 +161,7 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Native App Style for Phone Screen) */}
+      {/* Mobile Bottom Navigation Bar */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-lg">
         {isTrustAdmin ? (
           <div className="grid grid-cols-2 h-14">
@@ -192,7 +185,6 @@ export const App: React.FC = () => {
             </button>
           </div>
         ) : (
-          /* Trainer 5 Bottom Tabs */
           <div className="grid grid-cols-5 h-14">
             <button
               onClick={() => setActiveTab('SCHOOLS')}
@@ -203,7 +195,6 @@ export const App: React.FC = () => {
               <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
             </button>
-
             <button
               onClick={() => setActiveTab('STUDENTS')}
               className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
@@ -213,7 +204,6 @@ export const App: React.FC = () => {
               <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
             </button>
-
             <button
               onClick={() => setActiveTab('ASSESSMENTS')}
               className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
@@ -223,7 +213,6 @@ export const App: React.FC = () => {
               <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
             </button>
-
             <button
               onClick={() => setActiveTab('SESSIONS')}
               className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
@@ -233,7 +222,6 @@ export const App: React.FC = () => {
               <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[9px] truncate max-w-[60px]">{language === 'mr' ? 'सत्रे' : 'Sessions'}</span>
             </button>
-
             <button
               onClick={() => setActiveTab('DOCUMENTS')}
               className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
@@ -248,9 +236,9 @@ export const App: React.FC = () => {
       </div>
 
       {/* Desktop Footer */}
-      <footer className="hidden sm:block bg-white border-t border-slate-200 py-5 mt-10 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="font-medium text-[#233d76]">
+      <footer className="hidden sm:block bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div className="w-full px-4 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span className="font-semibold text-[#233d76]">
             Initiative By : Tarachand Ramnath Seva Trust (TRST). All rights reserved.
           </span>
           <div className="flex items-center space-x-1.5 text-slate-600">
