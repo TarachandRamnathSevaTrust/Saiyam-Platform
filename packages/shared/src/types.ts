@@ -1,4 +1,18 @@
-export type UserRole = 'TRUST_ADMIN' | 'FIELD_TRAINER' | 'HEAD_TRAINER';
+export type UserRole = 'TRUST_ADMIN' | 'FIELD_TRAINER' | 'HEAD_TRAINER' | 'ORG_COORDINATOR';
+
+export type OrganizationCode = 'TRST_DIRECT' | 'JPIP' | 'VOPA';
+
+export interface Organization {
+  id: string;
+  code: OrganizationCode;
+  nameMr: string;
+  nameEn: string;
+  orgType: 'IN_HOUSE' | 'PARTNER_NGO' | 'ACADEMIC_INSTITUTE';
+  description?: string;
+  contactPerson?: string;
+  trainerCount?: number;
+  schoolCount?: number;
+}
 
 export interface UserProfile {
   id: string;
@@ -6,12 +20,16 @@ export interface UserProfile {
   email: string;
   role: UserRole;
   phone?: string;
+  organizationId?: string; // null for TRUST_ADMIN who oversees all orgs
+  organizationCode?: OrganizationCode;
   isActive: boolean;
   createdAt: string;
 }
 
 export interface School {
   id: string;
+  organizationId?: string; // links school to TRST Direct, JPIP, or VOPA
+  organizationCode?: OrganizationCode;
   name: string; // e.g. Hujurpaga
   village: string; // e.g. Pune
   taluka: string;

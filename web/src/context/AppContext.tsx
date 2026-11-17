@@ -10,6 +10,8 @@ import {
   Question,
   PaperType,
   AssessmentRecord,
+  Organization,
+  OrganizationCode,
   formatRowsForExcelExport,
   calculateAssessmentScore,
 } from '@saiyam/shared';
@@ -19,6 +21,7 @@ import {
   INITIAL_STUDENTS,
   INITIAL_ASSESSMENT_PAIRS,
   INITIAL_SESSION_LOGS,
+  INITIAL_ORGANIZATIONS,
 } from '../lib/mockData';
 import { INITIAL_QUESTIONS } from '@saiyam/shared';
 
@@ -27,6 +30,9 @@ interface AppContextType {
   switchUser: (userId: string) => void;
   language: 'mr' | 'en';
   setLanguage: (lang: 'mr' | 'en') => void;
+  organizations: Organization[];
+  selectedOrgFilter: string;
+  setSelectedOrgFilter: (orgCode: string) => void;
   schools: School[];
   selectedSchool: School | null;
   setSelectedSchool: (school: School | null) => void;
@@ -56,6 +62,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
+  const [organizations] = useState<Organization[]>(INITIAL_ORGANIZATIONS);
+  const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('ALL');
 
   const [schools, setSchools] = useState<School[]>(() => {
     const saved = localStorage.getItem('saiyam_schools');
@@ -120,6 +128,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newSchool: School = {
       ...schoolData,
       id: `sch-${Date.now()}`,
+      organizationCode: currentUser.organizationCode || 'TRST_DIRECT',
       createdAt: new Date().toISOString().split('T')[0],
       totalStudentsCount: 0,
       completedSessionsCount: 0,
@@ -284,6 +293,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         switchUser,
         language,
         setLanguage,
+        organizations,
+        selectedOrgFilter,
+        setSelectedOrgFilter,
         schools,
         selectedSchool,
         setSelectedSchool,

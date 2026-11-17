@@ -24,21 +24,39 @@ export const AdminDashboard: React.FC = () => {
   const {
     dashboardStats,
     schools,
+    students,
     assessmentPairs,
     exportToExcel,
     language,
     sessionLogs,
+    organizations,
+    selectedOrgFilter,
+    setSelectedOrgFilter,
   } = useApp();
 
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
 
+  // Filter schools by selected organization
+  const orgSchools = schools.filter((s) => {
+    if (selectedOrgFilter === 'ALL') return true;
+    return (s.organizationCode || 'TRST_DIRECT') === selectedOrgFilter;
+  });
+
+  const orgSchoolIds = new Set(orgSchools.map((s) => s.id));
+
+  // Filter student pairs by organization and school
   const filteredPairs = assessmentPairs.filter((p) => {
+    const student = students.find((s) => s.id === p.studentId);
+    if (selectedOrgFilter !== 'ALL') {
+      if (!student || !orgSchoolIds.has(student.schoolId)) return false;
+    }
     if (selectedSchoolFilter !== 'ALL') {
-      const studentSchool = schools.find((s) => s.id === selectedSchoolFilter);
-      if (!studentSchool) return false;
+      if (!student || student.schoolId !== selectedSchoolFilter) return false;
     }
     return true;
   });
+
+  const activeOrg = organizations.find((o) => o.code === selectedOrgFilter);
 
   const calcPaperMetrics = (pType: 'MKMH' | 'MMAT' | 'ERT') => {
     const pairs = assessmentPairs.filter((p) => p.paperType === pType && p.preTest && p.postTest);
@@ -94,6 +112,71 @@ export const AdminDashboard: React.FC = () => {
             {language === 'mr' ? 'स्वयंचलित एक्सेल डाऊनलोड (.xlsx)' : 'Download Clean Excel (.xlsx)'}
           </span>
         </button>
+      </div>
+
+      {/* Organization Multi-Tenancy Switcher Bar (TRST Direct | JPIP | VOPA) */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <Building2 className="w-4 h-4 text-[#233d76]" />
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              {language === 'mr' ? 'अंमलबजावणी संस्था (Organization):' : 'Organization Filter:'}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                setSelectedOrgFilter('ALL');
+                setSelectedSchoolFilter('ALL');
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedOrgFilter === 'ALL'
+                  ? 'bg-[#233d76] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              🌐 {language === 'mr' ? 'सर्व संस्था (Consolidated)' : 'All (Consolidated)'}
+            </button>
+
+            {organizations.map((org) => (
+              <button
+                key={org.id}
+                onClick={() => {
+                  setSelectedOrgFilter(org.code);
+                  setSelectedSchoolFilter('ALL');
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  selectedOrgFilter === org.code
+                    ? 'bg-[#233d76] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <span>{org.code === 'TRST_DIRECT' ? '🏛️' : org.code === 'JPIP' ? '📘' : '🤝'}</span>
+                <span>{org.code === 'TRST_DIRECT' ? 'TRST Direct' : org.code}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Informative Partner Badge when specific Org is selected */}
+        {activeOrg && (
+          <div className="bg-[#f0da9a]/30 border border-[#dfaf27]/40 rounded-xl px-3.5 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#233d76] gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="font-extrabold uppercase tracking-wider bg-[#dfaf27] px-2 py-0.5 rounded text-[10px]">
+                {activeOrg.code}
+              </span>
+              <span className="font-semibold">{activeOrg.nameMr}</span>
+              <span className="hidden sm:inline text-slate-400">•</span>
+              <span className="text-[11px] text-slate-600 hidden sm:inline">{activeOrg.description}</span>
+            </div>
+            {activeOrg.contactPerson && (
+              <span className="text-[11px] text-[#233d76] font-bold">
+                {language === 'mr' ? 'समन्वयक:' : 'POC:'} {activeOrg.contactPerson}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 4 Primary KPI Summary Cards */}

@@ -23,6 +23,15 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
 
+  // Field trainers only see schools belonging to their assigned organization
+  const visibleSchools = isTrustAdmin
+    ? schools
+    : schools.filter(
+        (s) =>
+          !currentUser.organizationCode ||
+          (s.organizationCode || 'TRST_DIRECT') === currentUser.organizationCode
+      );
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Top Trainer Bar (Only shown for Field Trainers who conduct visits) */}
@@ -56,19 +65,19 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
             </h2>
           </div>
           <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-3 py-1 rounded-full border border-[#dfaf27]/40">
-            {schools.length} {language === 'mr' ? 'शाळा सक्रिय' : 'Active Schools'}
+            {visibleSchools.length} {language === 'mr' ? 'शाळा सक्रिय' : 'Active Schools'}
           </span>
         </div>
       )}
 
       {/* If No Schools Registered Yet */}
-      {schools.length === 0 ? (
+      {visibleSchools.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center shadow-2xs">
           <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-3">
             <Frown className="w-8 h-8" />
           </div>
           <h3 className="text-base font-bold text-slate-800 trust-heading">
-            {language === 'mr' ? 'अद्याप कोणतीही शाळा/संस्था नोंदवलेली नाही...' : 'No school registered yet...'}
+            {language === 'mr' ? 'अद्याप कोणतीही शाळा नोंदवलेली नाही...' : 'No school registered yet...'}
           </h3>
           <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
             {isTrustAdmin
@@ -94,7 +103,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
       ) : (
         /* Schools Cards */
         <div className="space-y-5">
-          {schools.map((school) => {
+          {visibleSchools.map((school) => {
             const isSelected = selectedSchool?.id === school.id;
 
             return (
@@ -116,7 +125,12 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       <Building2 className="w-5 h-5 text-[#dfaf27]" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-base text-slate-900 trust-heading">{school.name}</h3>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-bold text-base text-slate-900 trust-heading">{school.name}</h3>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-[#233d76]/10 text-[#233d76]">
+                          {school.organizationCode || 'TRST_DIRECT'}
+                        </span>
+                      </div>
                       <div className="flex items-center text-xs text-slate-500 space-x-2 mt-0.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
                         <span>
