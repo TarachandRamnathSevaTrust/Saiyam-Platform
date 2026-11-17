@@ -124,7 +124,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                     required
                     value={nameMr}
                     onChange={(e) => setNameMr(e.target.value)}
-                    placeholder="उदा. ज्ञान प्रबोधिनी, व्होपा, स्नेहालय..."
+                    placeholder="उदा. भागीदार संस्था नाव..."
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
@@ -137,7 +137,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                     type="text"
                     value={nameEn}
                     onChange={(e) => setNameEn(e.target.value)}
-                    placeholder="e.g. Jnana Prabodhini, VOPA..."
+                    placeholder="e.g. Partner NGO / Institution Name..."
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
@@ -151,7 +151,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                     required
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. JPIP, VOPA, TAN_NGO..."
+                    placeholder="e.g. NGO_CODE, PARTNER_1..."
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-mono uppercase focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>

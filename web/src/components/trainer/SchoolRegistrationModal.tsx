@@ -98,7 +98,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
             <input
               type="text"
               required
-              placeholder={language === 'mr' ? 'उदा. हुजूरपागा शाळा' : 'e.g. Hujurpaga High School'}
+              placeholder={language === 'mr' ? 'उदा. शाळेचे नाव...' : 'e.g. School / Institution Name...'}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"

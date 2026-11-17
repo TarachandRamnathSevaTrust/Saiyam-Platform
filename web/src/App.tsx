@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from './context/AppContext';
 import { Header } from './components/layout/Header';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { GovernancePanel } from './components/admin/GovernancePanel';
 import { SchoolList } from './components/trainer/SchoolList';
 import { StudentRoster } from './components/trainer/StudentRoster';
 import { AssessmentDataEntry } from './components/trainer/AssessmentDataEntry';
@@ -53,6 +54,18 @@ export const App: React.FC = () => {
                 >
                   <LayoutDashboard className="w-4 h-4 text-[#dfaf27]" />
                   <span>{language === 'mr' ? 'विश्वस्त डॅशबोर्ड व विश्लेषण' : 'Trust Dashboard & Delta Engine'}</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('GOVERNANCE')}
+                  className={`flex items-center space-x-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'GOVERNANCE'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? 'प्रशासन (संस्था व प्रशिक्षक)' : 'Governance (Orgs & Facilitators)'}</span>
                 </button>
 
                 <button
@@ -152,6 +165,7 @@ export const App: React.FC = () => {
         ) : (
           <>
             {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
+            {isTrustAdmin && activeTab === 'GOVERNANCE' && <GovernancePanel />}
             {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
             {activeTab === 'STUDENTS' && <StudentRoster onBack={() => setActiveTab('SCHOOLS')} />}
             {activeTab === 'ASSESSMENTS' && <AssessmentDataEntry onBack={() => setActiveTab('SCHOOLS')} />}
@@ -164,7 +178,7 @@ export const App: React.FC = () => {
       {/* Mobile Bottom Navigation Bar */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-lg">
         {isTrustAdmin ? (
-          <div className="grid grid-cols-2 h-14">
+          <div className="grid grid-cols-3 h-14">
             <button
               onClick={() => setActiveTab('DASHBOARD')}
               className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
@@ -173,6 +187,15 @@ export const App: React.FC = () => {
             >
               <LayoutDashboard className={`w-5 h-5 ${activeTab === 'DASHBOARD' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[10px]">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('GOVERNANCE')}
+              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer ${
+                activeTab === 'GOVERNANCE' ? 'text-[#233d76] font-bold' : 'text-slate-500'
+              }`}
+            >
+              <ShieldCheck className={`w-5 h-5 ${activeTab === 'GOVERNANCE' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">{language === 'mr' ? 'प्रशासन' : 'Admin'}</span>
             </button>
             <button
               onClick={() => setActiveTab('SCHOOLS')}

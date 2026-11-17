@@ -72,16 +72,15 @@ export const Header: React.FC = () => {
               >
                 {users.map((user) => {
                   const userOrg = organizations.find((o) => o.code === user.organizationCode);
-                  const orgTag = userOrg ? ` (${userOrg.nameMr})` : '';
+                  const orgName = userOrg ? (language === 'mr' ? userOrg.nameMr : userOrg.nameEn) : '';
+                  const orgTag = orgName ? ` [${orgName}]` : '';
 
                   const label =
                     user.role === 'TRUST_ADMIN'
                       ? language === 'mr'
-                        ? '👑 विश्वस्त (Trust Admin)'
-                        : '👑 Trust Admin'
-                      : language === 'mr'
-                      ? `👤 क्षेत्र प्रशिक्षक (Field Trainer)${orgTag}`
-                      : `👤 Field Trainer${orgTag}`;
+                        ? `👑 ${user.fullName} (विश्वस्त)`
+                        : `👑 ${user.fullName} (Admin)`
+                      : `👤 ${user.fullName}${orgTag}`;
 
                   return (
                     <option key={user.id} value={user.id} className="bg-[#233d76] text-white py-1">
@@ -102,9 +101,12 @@ export const Header: React.FC = () => {
               <span className="text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-2 py-0.5 rounded-sm shrink-0">
                 {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer'}
               </span>
+              <span className="text-white text-xs font-bold">
+                {currentUser.fullName}
+              </span>
               {organizations.find((o) => o.code === currentUser.organizationCode) && (
-                <span className="text-white text-xs font-semibold">
-                  {organizations.find((o) => o.code === currentUser.organizationCode)?.nameMr}
+                <span className="text-[#f0da9a] text-xs font-semibold">
+                  • {organizations.find((o) => o.code === currentUser.organizationCode)?.nameMr}
                 </span>
               )}
             </div>

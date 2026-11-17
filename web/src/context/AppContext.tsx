@@ -29,6 +29,10 @@ interface AppContextType {
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
   users: UserProfile[];
+  addUser: (userData: Omit<UserProfile, 'id' | 'createdAt'>) => UserProfile;
+  updateUser: (id: string, updates: Partial<UserProfile>) => void;
+  deleteUser: (id: string) => void;
+  assignTrainerToSchool: (schoolId: string, trainerId: string) => void;
   language: 'mr' | 'en';
   setLanguage: (lang: 'mr' | 'en') => void;
   organizations: Organization[];
@@ -59,91 +63,125 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Aggressive sanitization of browser storage to purge all obsolete cache with Kadolkar / Anagha / JPIP / VOPA
+const purgeObsoleteStorage = () => {
+  try {
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      if (key.startsWith('saiyam_')) {
+        const val = localStorage.getItem(key) || '';
+        if (
+          val.includes('Kadolkar') ||
+          val.includes('Anagha') ||
+          val.includes('u-trainer-trst') ||
+          key.includes('_v2') ||
+          key.includes('_v3') ||
+          key.includes('_v4') ||
+          key.includes('_v5')
+        ) {
+          localStorage.removeItem(key);
+        }
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+};
+purgeObsoleteStorage();
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('saiyam_users_v3');
-    if (saved) return JSON.parse(saved);
-    localStorage.removeItem('saiyam_users');
+    const saved = localStorage.getItem('saiyam_users_v7');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
     return INITIAL_USERS;
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('saiyam_user_v3');
+    const saved = localStorage.getItem('saiyam_user_v7');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.id === 'u-admin' || parsed.id === 'u-trainer-trst') return parsed;
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed?.id) return parsed;
+      } catch (e) {}
     }
-    localStorage.removeItem('saiyam_user');
-    return INITIAL_USERS[1];
+    return INITIAL_USERS[0];
   });
 
   const [language, setLanguage] = useState<'mr' | 'en'>('mr');
   const [organizations, setOrganizations] = useState<Organization[]>(() => {
-    const saved = localStorage.getItem('saiyam_organizations_v3');
-    if (saved) return JSON.parse(saved);
-    localStorage.removeItem('saiyam_organizations');
+    const saved = localStorage.getItem('saiyam_organizations_v7');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
     return INITIAL_ORGANIZATIONS;
   });
   const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('ALL');
 
   const [schools, setSchools] = useState<School[]>(() => {
-    const saved = localStorage.getItem('saiyam_schools');
+    const saved = localStorage.getItem('saiyam_schools_v7');
     return saved ? JSON.parse(saved) : INITIAL_SCHOOLS;
   });
 
   const [selectedSchool, setSelectedSchool] = useState<School | null>(() => {
-    const saved = localStorage.getItem('saiyam_selected_school');
+    const saved = localStorage.getItem('saiyam_selected_school_v7');
     return saved ? JSON.parse(saved) : null;
   });
 
   const [students, setStudents] = useState<Student[]>(() => {
-    const saved = localStorage.getItem('saiyam_students');
+    const saved = localStorage.getItem('saiyam_students_v7');
     return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
   });
 
   const [assessmentPairs, setAssessmentPairs] = useState<StudentAssessmentPair[]>(() => {
-    const saved = localStorage.getItem('saiyam_assessment_pairs');
+    const saved = localStorage.getItem('saiyam_assessment_pairs_v7');
     return saved ? JSON.parse(saved) : INITIAL_ASSESSMENT_PAIRS;
   });
 
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>(() => {
-    const saved = localStorage.getItem('saiyam_session_logs');
+    const saved = localStorage.getItem('saiyam_session_logs_v7');
     return saved ? JSON.parse(saved) : INITIAL_SESSION_LOGS;
   });
 
   const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
 
-  // Sync state to local storage
+  // Sync state to versioned local storage
   useEffect(() => {
-    localStorage.setItem('saiyam_user_v3', JSON.stringify(currentUser));
+    localStorage.setItem('saiyam_user_v7', JSON.stringify(currentUser));
   }, [currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_schools', JSON.stringify(schools));
+    localStorage.setItem('saiyam_schools_v7', JSON.stringify(schools));
   }, [schools]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_selected_school', JSON.stringify(selectedSchool));
+    localStorage.setItem('saiyam_selected_school_v7', JSON.stringify(selectedSchool));
   }, [selectedSchool]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_students', JSON.stringify(students));
+    localStorage.setItem('saiyam_students_v7', JSON.stringify(students));
   }, [students]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_assessment_pairs', JSON.stringify(assessmentPairs));
+    localStorage.setItem('saiyam_assessment_pairs_v7', JSON.stringify(assessmentPairs));
   }, [assessmentPairs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_session_logs', JSON.stringify(sessionLogs));
+    localStorage.setItem('saiyam_session_logs_v7', JSON.stringify(sessionLogs));
   }, [sessionLogs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_organizations_v3', JSON.stringify(organizations));
+    localStorage.setItem('saiyam_organizations_v7', JSON.stringify(organizations));
   }, [organizations]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_users_v3', JSON.stringify(users));
+    localStorage.setItem('saiyam_users_v7', JSON.stringify(users));
   }, [users]);
 
   const switchUser = (userId: string) => {
@@ -152,6 +190,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentUser(user);
       setSelectedSchool(null);
     }
+  };
+
+  const addUser = (userData: Omit<UserProfile, 'id' | 'createdAt'>): UserProfile => {
+    const newUser: UserProfile = {
+      ...userData,
+      id: `user-${Date.now()}`,
+      createdAt: new Date().toISOString().split('T')[0],
+      isActive: true,
+    };
+    setUsers((prev) => [...prev, newUser]);
+    return newUser;
+  };
+
+  const updateUser = (id: string, updates: Partial<UserProfile>) => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === id) {
+          const updated = { ...u, ...updates };
+          if (currentUser.id === id) {
+            setCurrentUser(updated);
+          }
+          return updated;
+        }
+        return u;
+      })
+    );
+  };
+
+  const deleteUser = (id: string) => {
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+    if (currentUser.id === id) {
+      const fallback = users.find((u) => u.id !== id && u.role === 'TRUST_ADMIN') || INITIAL_USERS[0];
+      setCurrentUser(fallback);
+    }
+  };
+
+  const assignTrainerToSchool = (schoolId: string, trainerId: string) => {
+    const trainer = users.find((u) => u.id === trainerId);
+    setSchools((prev) =>
+      prev.map((s) => {
+        if (s.id === schoolId) {
+          return {
+            ...s,
+            assignedTrainerId: trainerId || undefined,
+            assignedTrainerName: trainer ? trainer.fullName : undefined,
+            organizationCode: trainer?.organizationCode || s.organizationCode,
+          };
+        }
+        return s;
+      })
+    );
   };
 
   const addOrganization = (orgData: Omit<Organization, 'id' | 'createdAt' | 'isActive'>): Organization => {
@@ -321,7 +410,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Real-time calculated dashboard stats
   const dashboardStats: DashboardStats = {
-    totalFieldTrainers: 1,
+    totalFieldTrainers: users.filter((u) => u.role === 'FIELD_TRAINER').length,
     totalSchools: schools.length,
     totalStudents: students.length,
     totalSessionsConducted: sessionLogs.length,
@@ -343,6 +432,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         switchUser,
         users,
+        addUser,
+        updateUser,
+        deleteUser,
+        assignTrainerToSchool,
         language,
         setLanguage,
         organizations,

@@ -1,15 +1,15 @@
 -- ==============================================================================
--- MIGRATION: MULTI-TENANCY & IMPLEMENTING ORGANIZATIONS FOR SAIYAM
--- Supports: TRST Direct (In-house), JPIP (Jnana Prabodhini), VOPA (Partner)
+-- MIGRATION: MULTI-TENANCY & DYNAMIC ORGANIZATIONS FOR SAIYAM
+-- Supports 100% dynamic partner organizations and field trainers managed by TRST
 -- ==============================================================================
 
 -- 1. Create Organizations Table
 CREATE TABLE IF NOT EXISTS public.organizations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code TEXT NOT NULL UNIQUE CHECK (code IN ('TRST_DIRECT', 'JPIP', 'VOPA', 'OTHER')),
+    code TEXT NOT NULL UNIQUE,
     name_mr TEXT NOT NULL,
     name_en TEXT NOT NULL,
-    org_type TEXT NOT NULL CHECK (org_type IN ('IN_HOUSE', 'PARTNER_NGO', 'ACADEMIC_INSTITUTE')),
+    org_type TEXT NOT NULL DEFAULT 'PARTNER_NGO',
     description TEXT,
     contact_person TEXT,
     contact_email TEXT,
@@ -17,12 +17,10 @@ CREATE TABLE IF NOT EXISTS public.organizations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Pre-seed only TRST Direct. Partner organizations are added dynamically by TRST.
+-- Pre-seed only TRST Direct as baseline in-house entity. All partner orgs are added dynamically.
 INSERT INTO public.organizations (code, name_mr, name_en, org_type, description, contact_person) VALUES
-('TRST_DIRECT', 'ताराचंद रामनाथ सेवा ट्रस्ट (थेट)', 'Tarachand Ramnath Seva Trust (TRST Direct)', 'IN_HOUSE', 'TRST internal field facilitation team conducting direct school sessions and test bundles.', 'Anagha Kadolkar')
-ON CONFLICT (code) DO UPDATE SET
-    name_mr = EXCLUDED.name_mr,
-    name_en = EXCLUDED.name_en;
+('TRST_DIRECT', 'ताराचंद रामनाथ सेवा ट्रस्ट (थेट)', 'Tarachand Ramnath Seva Trust (TRST Direct)', 'IN_HOUSE', 'TRST internal field facilitation team.', 'TRST Operations Lead')
+ON CONFLICT (code) DO NOTHING;
 
 -- 2. Link Schools to Organizations
 ALTER TABLE public.schools

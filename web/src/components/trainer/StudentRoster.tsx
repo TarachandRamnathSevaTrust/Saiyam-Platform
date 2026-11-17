@@ -165,7 +165,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack }) => {
                 <input
                   type="text"
                   required
-                  placeholder={language === 'mr' ? 'उदा. अनघा कुलकर्णी' : 'e.g. Anagha Kulkarni'}
+                  placeholder={language === 'mr' ? 'विद्यार्थ्याचे पूर्ण नाव' : 'Student Full Name'}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full text-sm bg-white px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
