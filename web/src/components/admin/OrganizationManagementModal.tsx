@@ -67,7 +67,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
             <Building2 className="w-5 h-5 text-[#dfaf27]" />
             <div>
               <h3 className="font-bold text-base trust-heading">
-                {language === 'mr' ? 'संस्था व्यवस्थापन (Organization Management)' : 'Manage Implementing Organizations'}
+                {language === 'mr' ? 'संस्था व्यवस्थापन' : 'Organization Management'}
               </h3>
               <p className="text-[11px] text-[#f0da9a]">
                 {language === 'mr' ? 'TRST द्वारे सर्व भागीदार संस्थांचे थेट नियंत्रण' : 'Fully dynamic organization registry managed by TRST'}
@@ -117,84 +117,84 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    संस्थेचे नाव (मराठी) *
+                    {language === 'mr' ? 'संस्थेचे नाव *' : 'Organization Name *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={nameMr}
                     onChange={(e) => setNameMr(e.target.value)}
-                    placeholder="उदा. भागीदार संस्था नाव..."
+                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Partner NGO / Institution Name...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Organization Name (English)
+                    {language === 'mr' ? 'इंग्रजी नाव (पर्यायी)' : 'Name in Marathi (Optional)'}
                   </label>
                   <input
                     type="text"
                     value={nameEn}
                     onChange={(e) => setNameEn(e.target.value)}
-                    placeholder="e.g. Partner NGO / Institution Name..."
+                    placeholder={language === 'mr' ? 'e.g. Jnana Prabodhini...' : 'उदा. ज्ञान प्रबोधिनी...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    संस्था कोड (Unique Code) *
+                    {language === 'mr' ? 'संस्था कोड *' : 'Organization Code *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. NGO_CODE, PARTNER_1..."
+                    placeholder="e.g. NGO_CODE, JPIP..."
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-mono uppercase focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    संस्थेचा प्रकार (Type)
+                    {language === 'mr' ? 'संस्थेचा प्रकार' : 'Organization Type'}
                   </label>
                   <select
                     value={orgType}
                     onChange={(e) => setOrgType(e.target.value as any)}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   >
-                    <option value="IN_HOUSE">🏛️ In-House (TRST Direct)</option>
-                    <option value="PARTNER_NGO">🤝 Partner NGO</option>
-                    <option value="ACADEMIC_INSTITUTE">📘 Academic / Research Institute</option>
-                    <option value="GOVERNMENT">🏛️ Government Body</option>
-                    <option value="OTHER">🌐 Other Partner</option>
+                    <option value="IN_HOUSE">{language === 'mr' ? '🏛️ थेट TRST (अंतर्गत)' : '🏛️ In-House (TRST Direct)'}</option>
+                    <option value="PARTNER_NGO">{language === 'mr' ? '🤝 भागीदार स्वयंसेवी संस्था' : '🤝 Partner NGO'}</option>
+                    <option value="ACADEMIC_INSTITUTE">{language === 'mr' ? '📘 शैक्षणिक / संशोधन संस्था' : '📘 Academic / Research Institute'}</option>
+                    <option value="GOVERNMENT">{language === 'mr' ? '🏛️ शासकीय संस्था' : '🏛️ Government Body'}</option>
+                    <option value="OTHER">{language === 'mr' ? '🌐 इतर संस्था' : '🌐 Other Partner'}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    संपर्क प्रतिनिधी (Lead Person)
+                    {language === 'mr' ? 'संपर्क प्रतिनिधी' : 'Contact Person / Lead'}
                   </label>
                   <input
                     type="text"
                     value={contactPerson}
                     onChange={(e) => setContactPerson(e.target.value)}
-                    placeholder="उदा. संध्याताई, प्रकल्प संचालक..."
+                    placeholder={language === 'mr' ? 'उदा. संध्याताई, प्रकल्प संचालक...' : 'e.g. Project Director, Lead...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    मोबाईल / फोन नंबर
+                    {language === 'mr' ? 'मोबाईल नंबर' : 'Phone Number'}
                   </label>
                   <input
                     type="tel"
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="+91 98220 00000"
+                    placeholder="+91 98000 00000"
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
@@ -202,13 +202,13 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
 
               <div>
                 <label className="font-bold text-slate-700 block mb-1 text-xs">
-                  वर्णन व कार्यक्षेत्र (Description & Role)
+                  {language === 'mr' ? 'वर्णन व कार्यक्षेत्र' : 'Description & Scope'}
                 </label>
                 <textarea
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="उदा. पुणे परिसरातील ५० शाळांचे प्रत्यक्ष सत्र संचलन..."
+                  placeholder={language === 'mr' ? 'उदा. पुणे परिसरातील ५० शाळांचे प्रत्यक्ष सत्र संचलन...' : 'e.g. Direct facilitation across 50 schools...'}
                   className="w-full p-2.5 rounded-xl border border-slate-200 bg-white text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                 />
               </div>
@@ -219,13 +219,13 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   onClick={() => setIsAdding(false)}
                   className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 cursor-pointer"
                 >
-                  रद्द करा
+                  {language === 'mr' ? 'रद्द करा' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 text-xs font-bold rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-white shadow-xs cursor-pointer"
                 >
-                  संस्था सेव्ह करा (Save Organization)
+                  {language === 'mr' ? 'संस्था जतन करा' : 'Save Organization'}
                 </button>
               </div>
             </form>
@@ -307,7 +307,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
             onClick={onClose}
             className="font-bold text-[#233d76] hover:underline cursor-pointer"
           >
-            बंद करा (Close)
+            {language === 'mr' ? 'बंद करा' : 'Close'}
           </button>
         </div>
       </div>

@@ -116,7 +116,7 @@ export const App: React.FC = () => {
                   }`}
                 >
                   <Building2 className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? 'संस्था नियंत्रण कक्ष (NGO Portal)' : 'NGO Coordinator Portal'}</span>
+                  <span>{language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'NGO Coordinator Portal'}</span>
                 </button>
 
                 <button

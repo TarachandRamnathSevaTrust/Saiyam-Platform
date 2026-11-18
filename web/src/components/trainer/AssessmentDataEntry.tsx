@@ -47,7 +47,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
             onClick={onBack}
             className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
           >
-            ← शाळा निवडा (Back to Schools)
+            {language === 'mr' ? '← शाळा यादीकडे जा' : '← Back to Schools'}
           </button>
         )}
       </div>
@@ -319,8 +319,8 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                     </h4>
                     <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
                       {language === 'mr'
-                        ? 'TRST शैक्षणिक टीमकडून अधिकृत ~९० प्रश्न व गुणांकन (marks weightage) प्राप्त झाल्यानंतर ते येथे थेट दिसतील. सिस्टिममध्ये कोणताही डमी प्रश्न भरला जाणार नाही.'
-                        : 'Once official questions and marks weightage are loaded from the TRST team, they will appear here dynamically. No synthetic questions are populated.'}
+                        ? 'TRST शैक्षणिक टीमकडून अधिकृत प्रश्न व गुणांकन प्राप्त झाल्यानंतर ते येथे थेट दिसतील.'
+                        : 'Once official questions and marks weightage are loaded from the TRST team, they will appear here dynamically.'}
                     </p>
                   </div>
                 ) : (
@@ -332,7 +332,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                         <div className="flex items-start justify-between">
                           <p className="text-sm font-semibold text-slate-800 leading-relaxed">
                             <strong className="text-[#233d76] mr-1.5 font-bold">
-                              प्र. {q.questionNumber}.
+                              {language === 'mr' ? `प्र. ${q.questionNumber}.` : `Q. ${q.questionNumber}.`}
                             </strong>
                             {language === 'mr' ? q.textMr : q.textEn}
                           </p>
@@ -342,10 +342,10 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                             <button
                               onClick={() => handleSelectOption(q.id, selectedCode)}
                               className="text-[11px] text-slate-400 hover:text-rose-600 flex items-center ml-2 cursor-pointer transition-colors"
-                              title="पर्याय रद्द करा (Clear)"
+                              title={language === 'mr' ? 'पर्याय रद्द करा' : 'Clear selection'}
                             >
                               <RotateCcw className="w-3 h-3 mr-0.5" />
-                              रद्द
+                              {language === 'mr' ? 'रद्द' : 'Clear'}
                             </button>
                           )}
                         </div>
@@ -438,7 +438,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
             onClick={() => onNavigate('SESSIONS')}
             className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
-            <span>{language === 'mr' ? '२५ सत्र नोंदींकडे जा (Log Sessions) →' : '25 Session Logs →'}</span>
+            <span>{language === 'mr' ? '२५ सत्र नोंदींकडे जा →' : '25 Session Logs →'}</span>
           </button>
         </div>
       )}

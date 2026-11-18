@@ -94,7 +94,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="space-y-2 w-full lg:w-auto">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span className="text-[10px] sm:text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md shadow-2xs">
-              {language === 'mr' ? 'विश्वस्त डॅशबोर्ड (Trust Dashboard)' : 'Trust Executive Portal'}
+              {language === 'mr' ? 'विश्वस्त डॅशबोर्ड' : 'Trust Executive Portal'}
             </span>
             <span className="text-[10px] sm:text-xs bg-[#1a2d57] text-[#dfaf27] font-bold px-2.5 py-1 rounded-md border border-[#dfaf27]/40">
               📅 {language === 'mr' ? `आर्थिक वर्ष: FY ${financialYear}` : `Financial Year: FY ${financialYear}`}
@@ -131,7 +131,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Building2 className="w-4 h-4 text-[#233d76]" />
             <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {language === 'mr' ? 'अंमलबजावणी संस्था (Organization):' : 'Organization Filter:'}
+              {language === 'mr' ? 'अंमलबजावणी संस्था:' : 'Implementing Organization:'}
             </span>
           </div>
 
@@ -147,7 +147,7 @@ export const AdminDashboard: React.FC = () => {
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              🌐 {language === 'mr' ? 'सर्व संस्था (Consolidated)' : 'All (Consolidated)'}
+              🌐 {language === 'mr' ? 'सर्व संस्था (एकत्रित)' : 'All Organizations (Consolidated)'}
             </button>
 
             {organizations.map((org) => (
@@ -163,7 +163,7 @@ export const AdminDashboard: React.FC = () => {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                <span>{org.nameMr}</span>
+                <span>{language === 'mr' ? org.nameMr : (org.nameEn || org.nameMr)}</span>
               </button>
             ))}
 
@@ -315,7 +315,7 @@ export const AdminDashboard: React.FC = () => {
                   onChange={(e) => setSelectedSchoolFilter(e.target.value)}
                   className="bg-transparent font-bold text-[#233d76] focus:outline-hidden cursor-pointer text-xs"
                 >
-                  <option value="ALL">{language === 'mr' ? 'सर्व शाळा (All Schools)' : 'All Schools'}</option>
+                  <option value="ALL">{language === 'mr' ? 'सर्व शाळा' : 'All Schools'}</option>
                   {schools.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -331,8 +331,12 @@ export const AdminDashboard: React.FC = () => {
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">चाचणी १ / Paper 1</span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">माझे ज्ञान, माझे आरोग्य (MKMH)</h3>
+                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                      {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
+                      {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
+                    </h3>
                   </div>
                   <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
                     <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
@@ -358,8 +362,12 @@ export const AdminDashboard: React.FC = () => {
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">चाचणी २ / Paper 2</span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">समज व गैरसमज (MMAT)</h3>
+                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                      {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
+                      {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
+                    </h3>
                   </div>
                   <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
                     <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
@@ -385,8 +393,12 @@ export const AdminDashboard: React.FC = () => {
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">चाचणी ३ / Paper 3</span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">स्व-भावना नियमन (ERT)</h3>
+                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                      {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
+                      {language === 'mr' ? 'स्व-भावना नियमन (ERT)' : 'Emotion Regulation Test (ERT)'}
+                    </h3>
                   </div>
                   <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
                     <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
@@ -431,15 +443,29 @@ export const AdminDashboard: React.FC = () => {
                 <table className="min-w-full text-xs border-collapse">
                   <thead className="bg-[#233d76] text-white">
                     <tr>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">गठ्ठा क्र. (Bundle #)</th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">विद्यार्थ्याचे नाव (Name)</th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">लिंग (Gender)</th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">इयत्ता (Class)</th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">चाचणी (Paper)</th>
+                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                        {language === 'mr' ? 'गठ्ठा क्र.' : 'Bundle #'}
+                      </th>
+                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                        {language === 'mr' ? 'विद्यार्थ्याचे नाव' : 'Student Name'}
+                      </th>
+                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                        {language === 'mr' ? 'लिंग' : 'Gender'}
+                      </th>
+                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                        {language === 'mr' ? 'इयत्ता' : 'Class'}
+                      </th>
+                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                        {language === 'mr' ? 'चाचणी' : 'Test Paper'}
+                      </th>
                       <th className="px-3.5 py-3 text-center font-bold border-b border-white">Pre %</th>
                       <th className="px-3.5 py-3 text-center font-bold border-b border-white">Post %</th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">फरक (Delta)</th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">स्थिती (Status)</th>
+                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                        {language === 'mr' ? 'फरक' : 'Delta'}
+                      </th>
+                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                        {language === 'mr' ? 'स्थिती' : 'Status'}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="text-[#233d76]">
@@ -514,7 +540,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-[#233d76]">
-                    {language === 'mr' ? 'सत्र प्रगती (Session Progress)' : 'Session Progress'}
+                    {language === 'mr' ? 'सत्र प्रगती' : 'Session Progress'}
                   </span>
                   <span className="font-mono font-bold text-[#233d76] bg-[#f0da9a]/60 px-2.5 py-0.5 rounded">
                     {sessionLogs.length} / 25

@@ -80,7 +80,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-bold text-slate-600">
-                {language === 'mr' ? 'संस्था (Hierarchy):' : 'Organization:'}
+                {language === 'mr' ? 'संस्था:' : 'Organization:'}
               </span>
               <span className="font-bold text-slate-800">
                 {organizations.find((o) => o.code === (currentUser.organizationCode || organizationCode))?.nameMr ||
@@ -93,7 +93,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
           {!currentUser.organizationCode && organizations.length > 0 && (
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                {language === 'mr' ? 'अंमलबजावणी संस्था (Implementing Organization)' : 'Organization'}
+                {language === 'mr' ? 'अंमलबजावणी संस्था' : 'Implementing Organization'}
               </label>
               <select
                 value={organizationCode}
@@ -103,7 +103,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 <option value="">{language === 'mr' ? '-- संस्था निवडा --' : '-- Select Organization --'}</option>
                 {organizations.map((org) => (
                   <option key={org.id} value={org.code}>
-                    {org.nameMr} ({org.code})
+                    {language === 'mr' ? org.nameMr : (org.nameEn || org.nameMr)} ({org.code})
                   </option>
                 ))}
               </select>

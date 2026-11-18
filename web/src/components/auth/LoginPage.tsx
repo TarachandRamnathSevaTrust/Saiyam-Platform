@@ -51,8 +51,8 @@ export const LoginPage: React.FC = () => {
       const newUser: UserProfile = {
         id: `user-${Date.now()}`,
         fullName: isTrainer 
-          ? (language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Facilitator (Trainer)')
-          : (language === 'mr' ? 'विश्वस्त प्रतिनिधी (Trust Executive)' : 'Trust Executive (Admin)'),
+          ? (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator')
+          : (language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'Trust Executive'),
         email: email.trim(),
         role: isTrainer ? 'FIELD_TRAINER' : 'TRUST_ADMIN',
         isActive: true,
@@ -66,7 +66,7 @@ export const LoginPage: React.FC = () => {
   const handleDemoAdmin = () => {
     const adminUser = users.find((u) => u.role === 'TRUST_ADMIN') || {
       id: 'u-trust-admin',
-      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी (Admin)' : 'Trust Executive (Admin)',
+      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'Trust Executive',
       email: 'admin@trst.org.in',
       role: 'TRUST_ADMIN',
       isActive: true,
@@ -85,7 +85,7 @@ export const LoginPage: React.FC = () => {
 
     const demoTrainer: UserProfile = {
       id: 'demo-field-trainer',
-      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Facilitator (Trainer)',
+      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator',
       email: 'trainer@trst.org.in',
       role: 'FIELD_TRAINER',
       organizationCode: organizations[0]?.code || 'TRST_DIRECT',
@@ -265,7 +265,7 @@ export const LoginPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-900 group-hover:text-[#233d76]">
-                          {language === 'mr' ? '२. क्षेत्र प्रशिक्षक (Field Trainer)' : '2. Field Facilitator (Trainer)'}
+                          {language === 'mr' ? '२. क्षेत्र प्रशिक्षक' : '2. Field Facilitator'}
                         </div>
                         <div className="text-[11px] text-slate-500 mt-0.5">
                           {language === 'mr'
@@ -290,12 +290,12 @@ export const LoginPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-900 group-hover:text-[#233d76]">
-                          {language === 'mr' ? '३. भागीदार संस्था समन्वयक (उदा. JPIP)' : '3. Implementing Partner NGO (e.g. JPIP)'}
+                          {language === 'mr' ? '३. भागीदार संस्था समन्वयक' : '3. Implementing Partner NGO'}
                         </div>
                         <div className="text-[11px] text-slate-500 mt-0.5">
                           {language === 'mr'
-                            ? 'संस्थेअंतर्गत क्षेत्रीय प्रशिक्षक (FTs), शाळा व प्रगती ट्रॅकिंग'
-                            : 'Track Field Trainers (FTs), schools & sessions under this NGO'}
+                            ? 'संस्थेअंतर्गत क्षेत्रीय प्रशिक्षक, शाळा व प्रगती ट्रॅकिंग'
+                            : 'Track Field Trainers, schools & sessions under this NGO'}
                         </div>
                       </div>
                     </div>
@@ -358,7 +358,7 @@ export const LoginPage: React.FC = () => {
                   className="w-full py-3.5 rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer mt-2"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{language === 'mr' ? 'लॉगिन करा (Sign In)' : 'Sign In to Portal'}</span>
+                  <span>{language === 'mr' ? 'लॉगिन करा' : 'Sign In to Portal'}</span>
                 </button>
 
                 <p className="text-[11px] text-center text-slate-400 mt-3">

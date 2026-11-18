@@ -264,14 +264,14 @@ export const GovernancePanel: React.FC = () => {
       <div className="bg-[#233d76] rounded-2xl p-6 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-3 py-1 rounded-md shadow-2xs">
-            {language === 'mr' ? 'प्रशासन केंद्र (Trust Governance)' : 'Trust Administration'}
+            {language === 'mr' ? 'प्रशासन केंद्र' : 'Trust Administration'}
           </span>
           <h1 className="text-2xl font-bold trust-heading mt-2">
             {language === 'mr' ? 'संस्था व क्षेत्र प्रशिक्षक थेट व्यवस्थापन' : 'Organizations & Trainers Governance'}
           </h1>
           <p className="text-xs text-[#f0da9a] mt-0.5">
             {language === 'mr'
-              ? '१. संस्था ➔ २. क्षेत्र प्रशिक्षक (Supabase Auth) ➔ ३. शाळा ➔ ४. विद्यार्थी थेट मॅपिंग.'
+              ? '१. संस्था ➔ २. क्षेत्र प्रशिक्षक ➔ ३. शाळा ➔ ४. विद्यार्थी थेट मॅपिंग.'
               : 'Strict Data Lineage: 1. Organization ➔ 2. Field Facilitators ➔ 3. School Allocations ➔ 4. Students.'}
           </p>
         </div>
@@ -290,7 +290,7 @@ export const GovernancePanel: React.FC = () => {
         <div className="flex items-center space-x-2 mb-3">
           <Database className="w-4 h-4 text-[#233d76]" />
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
-            {language === 'mr' ? 'प्रणाली डेटा प्रवाह व मॅपिंग (System Data Lineage Flow)' : 'System Data Lineage Flow'}
+            {language === 'mr' ? 'प्रणाली डेटा प्रवाह व मॅपिंग' : 'System Data Lineage Flow'}
           </h3>
         </div>
 
@@ -368,7 +368,7 @@ export const GovernancePanel: React.FC = () => {
           }`}
         >
           <Building2 className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? '१. संस्था व भागीदार (Organizations)' : '1. Implementing Organizations'}</span>
+          <span>{language === 'mr' ? '१. संस्था व भागीदार' : '1. Implementing Organizations'}</span>
           <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
             {organizations.length}
           </span>
@@ -465,14 +465,14 @@ export const GovernancePanel: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्थेचे नाव (मराठी) *' : 'Name (Marathi) *'}
+                    {language === 'mr' ? 'संस्थेचे नाव *' : 'Organization Name *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={orgNameMr}
                     onChange={(e) => setOrgNameMr(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. सामाजिक संस्था...' : 'e.g. Partner NGO...'}
+                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Partner NGO / Institution...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                     autoFocus
                   />
@@ -480,51 +480,51 @@ export const GovernancePanel: React.FC = () => {
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'Organization Name (English)' : 'Name (English)'}
+                    {language === 'mr' ? 'इंग्रजी नाव (पर्यायी)' : 'Name in Marathi (Optional)'}
                   </label>
                   <input
                     type="text"
                     value={orgNameEn}
                     onChange={(e) => setOrgNameEn(e.target.value)}
-                    placeholder="e.g. Partner Foundation..."
+                    placeholder={language === 'mr' ? 'e.g. Jnana Prabodhini...' : 'उदा. ज्ञान प्रबोधिनी...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्था कोड (Unique Code) *' : 'Organization Code *'}
+                    {language === 'mr' ? 'संस्था कोड *' : 'Organization Code *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={orgCode}
                     onChange={(e) => setOrgCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. NGO_1, FOUNDATION..."
+                    placeholder="e.g. NGO_1, JPIP..."
                     className="w-full p-2.5 rounded-xl border border-slate-200 font-mono uppercase focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्थेचा प्रकार (Type)' : 'Type'}
+                    {language === 'mr' ? 'संस्थेचा प्रकार' : 'Organization Type'}
                   </label>
                   <select
                     value={orgType}
                     onChange={(e) => setOrgType(e.target.value as any)}
                     className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   >
-                    <option value="IN_HOUSE">🏛️ In-House (TRST Direct)</option>
-                    <option value="PARTNER_NGO">🤝 Partner NGO</option>
-                    <option value="ACADEMIC_INSTITUTE">📘 Academic / Research Institute</option>
-                    <option value="GOVERNMENT">🏛️ Government Body</option>
-                    <option value="OTHER">🌐 Other Partner</option>
+                    <option value="IN_HOUSE">{language === 'mr' ? '🏛️ थेट TRST (अंतर्गत)' : '🏛️ In-House (TRST Direct)'}</option>
+                    <option value="PARTNER_NGO">{language === 'mr' ? '🤝 भागीदार स्वयंसेवी संस्था' : '🤝 Partner NGO'}</option>
+                    <option value="ACADEMIC_INSTITUTE">{language === 'mr' ? '📘 शैक्षणिक / संशोधन संस्था' : '📘 Academic / Research Institute'}</option>
+                    <option value="GOVERNMENT">{language === 'mr' ? '🏛️ शासकीय संस्था' : '🏛️ Government Body'}</option>
+                    <option value="OTHER">{language === 'mr' ? '🌐 इतर संस्था' : '🌐 Other Partner'}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संपर्क प्रतिनिधी (Lead Person)' : 'Lead Person'}
+                    {language === 'mr' ? 'संपर्क प्रतिनिधी' : 'Contact Person / Lead'}
                   </label>
                   <input
                     type="text"
@@ -537,7 +537,7 @@ export const GovernancePanel: React.FC = () => {
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'मोबाईल / फोन नंबर' : 'Phone'}
+                    {language === 'mr' ? 'मोबाईल नंबर' : 'Phone Number'}
                   </label>
                   <input
                     type="tel"
@@ -550,7 +550,7 @@ export const GovernancePanel: React.FC = () => {
 
                 <div className="sm:col-span-2">
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'ईमेल आयडी' : 'Email'}
+                    {language === 'mr' ? 'ईमेल आयडी' : 'Email Address'}
                   </label>
                   <input
                     type="email"
@@ -564,7 +564,7 @@ export const GovernancePanel: React.FC = () => {
 
               <div>
                 <label className="font-bold text-slate-700 block mb-1 text-xs">
-                  {language === 'mr' ? 'वर्णन व कार्यक्षेत्र (Description)' : 'Description & Scope'}
+                  {language === 'mr' ? 'वर्णन व कार्यक्षेत्र' : 'Description & Scope'}
                 </label>
                 <textarea
                   rows={2}
@@ -581,7 +581,7 @@ export const GovernancePanel: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <UserCheck className="w-4 h-4 text-[#233d76]" />
                     <span className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
-                      {language === 'mr' ? 'संस्था समन्वयक लॉगिन खाते नियुक्त करा' : 'Assign Coordinator Login User'}
+                      {language === 'mr' ? 'संस्था समन्वयक खाते नियुक्त करा' : 'Assign Coordinator Login User'}
                     </span>
                   </div>
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -600,13 +600,13 @@ export const GovernancePanel: React.FC = () => {
                       className="w-4 h-4 accent-[#233d76] rounded cursor-pointer"
                     />
                     <span className="text-xs font-bold text-slate-700">
-                      {language === 'mr' ? 'खाते जोडा (Enable Coordinator Login)' : 'Enable Coordinator Login'}
+                      {language === 'mr' ? 'समन्वयक खाते जोडा' : 'Enable Coordinator Login'}
                     </span>
                   </label>
                 </div>
                 <p className="text-[11px] text-slate-500 leading-snug">
                   {language === 'mr'
-                    ? 'या संस्थेसाठी स्वतंत्र समन्वयक खाते तयार करा. हा युझर लॉगिन करून त्याच्या अंतर्गत असलेले सर्व क्षेत्र प्रशिक्षक (FTs), शाळा व प्रगती ट्रॅक करू शकेल.'
+                    ? 'या संस्थेसाठी स्वतंत्र समन्वयक खाते तयार करा. हा युझर लॉगिन करून त्याच्या अंतर्गत असलेले सर्व क्षेत्र प्रशिक्षक, शाळा व प्रगती ट्रॅक करू शकेल.'
                     : 'Assign a lead user to oversee this NGO. When they log in, they track all FTs, allocated schools, and sessions under this organization.'}
                 </p>
 
@@ -905,7 +905,7 @@ export const GovernancePanel: React.FC = () => {
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'लॉगिन ईमेल आयडी (Supabase Auth) *' : 'Login Email (Supabase Auth) *'}
+                    {language === 'mr' ? 'लॉगिन ईमेल आयडी *' : 'Login Email Address *'}
                   </label>
                   <input
                     type="email"
@@ -932,17 +932,17 @@ export const GovernancePanel: React.FC = () => {
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'संस्था नियुक्त करा (Assign Org)' : 'Assign Organization'}
+                    {language === 'mr' ? 'संस्था नियुक्त करा' : 'Assign Organization'}
                   </label>
                   <select
                     value={selectedOrgCode}
                     onChange={(e) => setSelectedOrgCode(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   >
-                    <option value="">-- {language === 'mr' ? 'थेट TRST (Direct)' : 'Direct TRST'} --</option>
+                    <option value="">-- {language === 'mr' ? 'थेट TRST अंतर्गत' : 'Direct TRST (In-House)'} --</option>
                     {organizations.map((org) => (
                       <option key={org.id} value={org.code}>
-                        {org.nameMr} ({org.code})
+                        {language === 'mr' ? org.nameMr : (org.nameEn || org.nameMr)} ({org.code})
                       </option>
                     ))}
                   </select>
@@ -1013,7 +1013,7 @@ export const GovernancePanel: React.FC = () => {
               <thead className="bg-[#233d76] text-white">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'प्रशिक्षकाचे नाव' : 'Trainer Name'}</th>
-                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संस्था (Hierarchy)' : 'Organization'}</th>
+                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संस्था' : 'Organization'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'Supabase Auth प्रोफाइल' : 'Auth Profile'}</th>
                   <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'मॅप झालेली व्याप्ती' : 'Mapped Scope'}</th>
                   <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'लॉगिन / कृती' : 'Test Login & Actions'}</th>
@@ -1137,7 +1137,7 @@ export const GovernancePanel: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'शाळा व प्रशिक्षक थेट वाटप (Allocations)' : 'Direct School & Facilitator Allocations'}
+                {language === 'mr' ? 'शाळा व प्रशिक्षक थेट वाटप' : 'Direct School & Facilitator Allocations'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'

@@ -91,7 +91,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
         <div className="space-y-2 w-full lg:w-auto">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span className="text-[10px] sm:text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md shadow-2xs">
-              {language === 'mr' ? 'भागीदार संस्था केंद्र (NGO Coordinator Portal)' : 'Partner NGO Portal'}
+              {language === 'mr' ? 'भागीदार संस्था केंद्र' : 'Partner NGO Portal'}
             </span>
             <span className="text-[10px] sm:text-xs bg-[#1a2d57] text-[#dfaf27] font-bold px-2.5 py-1 rounded-md border border-[#dfaf27]/40">
               📅 FY {financialYear}
@@ -131,7 +131,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {language === 'mr' ? 'क्षेत्र प्रशिक्षक (FTs)' : 'Field Trainers'}
+              {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainers'}
             </span>
             <div className="w-9 h-9 rounded-xl bg-[#233d76]/10 text-[#233d76] flex items-center justify-center">
               <UserCheck className="w-5 h-5" />
@@ -273,7 +273,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'संस्थेतील क्षेत्र प्रशिक्षक (Field Trainers)' : 'Field Trainers Under This NGO'}
+                {language === 'mr' ? 'संस्थेतील क्षेत्र प्रशिक्षक' : 'Field Trainers Under This NGO'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'
@@ -462,8 +462,12 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Paper 1: MKMH */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी १ / Paper 1</span>
-              <h4 className="font-bold text-sm text-slate-900">व्यसनमुक्ती व मानसशास्त्र चाचणी (MKMH)</h4>
+              <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
+              </span>
+              <h4 className="font-bold text-sm text-slate-900">
+                {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
+              </h4>
               <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
                 <div>
                   <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
@@ -475,15 +479,21 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="p-2.5 bg-emerald-50 rounded-xl flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-800">Delta Improvement:</span>
+                <span className="font-bold text-emerald-800">
+                  {language === 'mr' ? 'प्रभाव वाढ (Delta):' : 'Delta Improvement:'}
+                </span>
                 <span className="font-black text-emerald-700 font-mono text-sm">+{mkmhMetrics.delta}%</span>
               </div>
             </div>
 
             {/* Paper 2: MMAT */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी २ / Paper 2</span>
-              <h4 className="font-bold text-sm text-slate-900">मानसिक आरोग्य व मनोवृत्ती (MMAT)</h4>
+              <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
+              </span>
+              <h4 className="font-bold text-sm text-slate-900">
+                {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
+              </h4>
               <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
                 <div>
                   <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
@@ -495,15 +505,21 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="p-2.5 bg-emerald-50 rounded-xl flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-800">Delta Improvement:</span>
+                <span className="font-bold text-emerald-800">
+                  {language === 'mr' ? 'प्रभाव वाढ (Delta):' : 'Delta Improvement:'}
+                </span>
                 <span className="font-black text-emerald-700 font-mono text-sm">+{mmatMetrics.delta}%</span>
               </div>
             </div>
 
             {/* Paper 3: ERT */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी ३ / Paper 3</span>
-              <h4 className="font-bold text-sm text-slate-900">स्व-भावना नियमन चाचणी (ERT)</h4>
+              <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
+              </span>
+              <h4 className="font-bold text-sm text-slate-900">
+                {language === 'mr' ? 'स्व-भावना नियमन चाचणी (ERT)' : 'Emotion Regulation Test (ERT)'}
+              </h4>
               <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
                 <div>
                   <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>

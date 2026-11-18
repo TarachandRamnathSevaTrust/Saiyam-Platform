@@ -29,7 +29,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
             onClick={onBack}
             className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
           >
-            ← शाळा निवडा (Back to Schools)
+            {language === 'mr' ? '← शाळा यादीकडे जा' : '← Back to Schools'}
           </button>
         )}
       </div>
@@ -185,8 +185,8 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
                   onChange={(e) => setGender(e.target.value as Gender)}
                   className="w-full text-sm bg-white px-2.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden cursor-pointer"
                 >
-                  <option value="FEMALE">{language === 'mr' ? 'मुलगी (Girl)' : 'Female'}</option>
-                  <option value="MALE">{language === 'mr' ? 'मुलगा (Boy)' : 'Male'}</option>
+                  <option value="FEMALE">{language === 'mr' ? 'मुलगी' : 'Female'}</option>
+                  <option value="MALE">{language === 'mr' ? 'मुलगा' : 'Male'}</option>
                 </select>
               </div>
 
@@ -221,7 +221,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
                 <button
                   type="submit"
                   className="w-full bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold p-2.5 rounded-xl shadow-xs flex items-center justify-center cursor-pointer transition-colors"
-                  title="सेव्ह करा (Save)"
+                  title={language === 'mr' ? 'जतन करा' : 'Save Student'}
                 >
                   <Check className="w-4 h-4 text-[#dfaf27]" />
                 </button>
@@ -289,7 +289,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
               onClick={() => onNavigate('ASSESSMENTS')}
               className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
-              <span>{language === 'mr' ? 'पूर्व / उत्तर चाचण्या (Pre/Post Tests) →' : 'Pre / Post Tests →'}</span>
+              <span>{language === 'mr' ? 'पूर्व / उत्तर चाचण्या →' : 'Pre / Post Tests →'}</span>
             </button>
           </div>
         )}

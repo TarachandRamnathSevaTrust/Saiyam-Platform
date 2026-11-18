@@ -24,7 +24,7 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
             onClick={onBack}
             className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
           >
-            ← शाळा निवडा (Back to Schools)
+            {language === 'mr' ? '← शाळा यादीकडे जा' : '← Back to Schools'}
           </button>
         )}
       </div>
@@ -94,7 +94,9 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   <span className="text-xs font-bold text-emerald-900 block">
                     {selectedSchool.name}_letter.jpg
                   </span>
-                  <span className="text-[11px] text-emerald-700">अपलोड पूर्ण (Uploaded)</span>
+                  <span className="text-[11px] text-emerald-700">
+                    {language === 'mr' ? 'अपलोड पूर्ण' : 'Uploaded'}
+                  </span>
                 </div>
               </div>
               {!isTrustAdmin && (
@@ -102,7 +104,7 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   onClick={() => setRequestLetterUploaded(false)}
                   className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
                 >
-                  काढून टाका
+                  {language === 'mr' ? 'काढून टाका' : 'Remove'}
                 </button>
               )}
             </div>
@@ -154,7 +156,9 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   <span className="text-xs font-bold text-emerald-900 block">
                     {selectedSchool.name}_stamp.jpg
                   </span>
-                  <span className="text-[11px] text-emerald-700">अपलोड पूर्ण (Uploaded)</span>
+                  <span className="text-[11px] text-emerald-700">
+                    {language === 'mr' ? 'अपलोड पूर्ण' : 'Uploaded'}
+                  </span>
                 </div>
               </div>
               {!isTrustAdmin && (
@@ -162,7 +166,7 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
                   onClick={() => setStampedSheetUploaded(false)}
                   className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
                 >
-                  काढून टाका
+                  {language === 'mr' ? 'काढून टाका' : 'Remove'}
                 </button>
               )}
             </div>

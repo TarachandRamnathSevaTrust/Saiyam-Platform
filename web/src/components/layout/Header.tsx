@@ -146,14 +146,14 @@ export const Header: React.FC = () => {
           <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
           <span className="text-[11px] font-bold text-[#f0da9a] truncate">
             {isTrustAdmin
-              ? language === 'mr' ? '👑 विश्वस्त (Admin)' : '👑 Trust Admin'
+              ? language === 'mr' ? '👑 विश्वस्त' : '👑 Trust Admin'
               : isOrgCoordinator
               ? language === 'mr' ? `🏢 समन्वयक: ${currentUser.fullName}` : `🏢 Lead: ${currentUser.fullName}`
               : `👤 ${currentUser.fullName}`}
           </span>
           {currentOrg && (
             <span className="text-[10px] text-slate-300 truncate font-normal">
-              [{currentOrg.nameMr}]
+              [{language === 'mr' ? currentOrg.nameMr : (currentOrg.nameEn || currentOrg.nameMr)}]
             </span>
           )}
         </div>

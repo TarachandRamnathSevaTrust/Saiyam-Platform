@@ -39,7 +39,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
         <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <span className="text-xs font-bold text-[#dfaf27] uppercase tracking-wider block">
-              {language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Field Trainer'}
+              {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator'}
             </span>
             <h2 className="text-lg font-bold trust-heading mt-0.5">{currentUser.fullName}</h2>
           </div>
@@ -50,7 +50,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
             className="flex items-center space-x-2 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>{language === 'mr' ? 'नोंदणी करा (Register School)' : 'Register School'}</span>
+            <span>{language === 'mr' ? '+ शाळा नोंदणी करा' : '+ Register School'}</span>
           </button>
         </div>
       ) : (
@@ -58,7 +58,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
         <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <span className="text-xs font-bold text-[#dfaf27] uppercase tracking-wider block">
-              {language === 'mr' ? 'विश्वस्त निरीक्षण (Audit & Monitoring)' : 'Trust Supervision'}
+              {language === 'mr' ? 'विश्वस्त निरीक्षण' : 'Trust Supervision'}
             </span>
             <h2 className="text-lg font-bold trust-heading mt-0.5">
               {language === 'mr' ? 'क्षेत्रातील सर्व नोंदणीकृत शाळा' : 'Field Schools Roster'}
@@ -168,7 +168,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       {language === 'mr' ? 'विद्यार्थी यादी' : 'Student Roster'}
                     </span>
                     <span className="text-[10px] text-slate-500 mt-0.5">
-                      {isTrustAdmin ? 'तपासा (View)' : 'गठ्ठा क्रमाने'}
+                      {isTrustAdmin ? (language === 'mr' ? 'तपासा' : 'View') : (language === 'mr' ? 'गठ्ठा क्रमाने' : 'By Stack')}
                     </span>
                   </button>
 
