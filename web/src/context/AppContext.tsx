@@ -15,6 +15,7 @@ import {
   formatRowsForExcelExport,
   calculateAssessmentScore,
 } from '@saiyam/shared';
+import { apiService } from '../lib/api';
 import {
   INITIAL_USERS,
   INITIAL_SCHOOLS,
@@ -197,6 +198,62 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
 
+  // Auto-hydrate from Supabase PostgreSQL backend if available
+  useEffect(() => {
+    if (!apiService.isConnected()) return;
+
+    let isMounted = true;
+    async function hydrateFromBackend() {
+      try {
+        const [backendOrgs, backendSchools, backendLogs] = await Promise.all([
+          apiService.getOrganizations(),
+          apiService.getSchools(),
+          apiService.getSessionLogs(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (backendOrgs && backendOrgs.length > 0) {
+          setOrganizations((prev) => {
+            const remoteMap = new Map(backendOrgs.map((o) => [o.code, o]));
+            const merged = [...backendOrgs];
+            // Retain any locally created ones that haven't synced yet
+            for (const localOrg of prev) {
+              if (!remoteMap.has(localOrg.code)) {
+                merged.push(localOrg);
+              }
+            }
+            return merged;
+          });
+        }
+
+        if (backendSchools && backendSchools.length > 0) {
+          setSchools((prev) => {
+            const remoteMap = new Map(backendSchools.map((s) => [s.name, s]));
+            const merged = [...backendSchools];
+            for (const localSch of prev) {
+              if (!remoteMap.has(localSch.name)) {
+                merged.push(localSch);
+              }
+            }
+            return merged;
+          });
+        }
+
+        if (backendLogs && backendLogs.length > 0) {
+          setSessionLogs(backendLogs);
+        }
+      } catch (err) {
+        console.warn('Hydration from Supabase error:', err);
+      }
+    }
+
+    hydrateFromBackend();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Sync state to versioned local storage (v10)
   useEffect(() => {
     localStorage.setItem('saiyam_user_v10', JSON.stringify(currentUser));
@@ -292,13 +349,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addOrganization = (orgData: Omit<Organization, 'id' | 'createdAt' | 'isActive'>): Organization => {
+    const tempId = `org-${Date.now()}`;
     const newOrg: Organization = {
       ...orgData,
-      id: `org-${Date.now()}`,
+      id: tempId,
       isActive: true,
       createdAt: new Date().toISOString().split('T')[0],
     };
     setOrganizations((prev) => [...prev, newOrg]);
+
+    // Asynchronously push to Supabase backend
+    if (apiService.isConnected()) {
+      apiService
+        .createOrganization(orgData)
+        .then((persistedOrg) => {
+          if (persistedOrg) {
+            setOrganizations((prev) =>
+              prev.map((o) => (o.id === tempId ? persistedOrg : o))
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to sync new organization to Supabase:', err);
+        });
+    }
+
     return newOrg;
   };
 
@@ -306,17 +381,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOrganizations((prev) =>
       prev.map((o) => (o.id === id ? { ...o, ...orgData } : o))
     );
+    if (apiService.isConnected()) {
+      apiService.updateOrganization(id, orgData).catch((err) => {
+        console.warn('Failed to update organization in Supabase:', err);
+      });
+    }
   };
 
   const deleteOrganization = (id: string) => {
     setOrganizations((prev) => prev.filter((o) => o.id !== id));
+    if (apiService.isConnected()) {
+      apiService.deleteOrganization(id).catch((err) => {
+        console.warn('Failed to delete organization in Supabase:', err);
+      });
+    }
   };
 
   const addSchool = (schoolData: Omit<School, 'id' | 'createdAt'>): School => {
+    const tempId = `sch-${Date.now()}`;
     const newSchool: School = {
       ...schoolData,
       financialYear: schoolData.financialYear || financialYear,
-      id: `sch-${Date.now()}`,
+      id: tempId,
       organizationCode: schoolData.organizationCode || currentUser.organizationCode,
       createdAt: new Date().toISOString().split('T')[0],
       totalStudentsCount: 0,
@@ -324,14 +410,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setSchools((prev) => [newSchool, ...prev]);
     setSelectedSchool(newSchool);
+
+    if (apiService.isConnected()) {
+      apiService
+        .createSchool(schoolData)
+        .then((persistedSchool) => {
+          if (persistedSchool) {
+            setSchools((prev) =>
+              prev.map((s) => (s.id === tempId ? { ...newSchool, id: persistedSchool.id } : s))
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to sync new school to Supabase:', err);
+        });
+    }
+
     return newSchool;
   };
 
   const addStudent = (studentData: Omit<Student, 'id' | 'createdAt'>): Student => {
+    const tempId = `st-${Date.now()}`;
     const newStudent: Student = {
       ...studentData,
       financialYear: studentData.financialYear || financialYear,
-      id: `st-${Date.now()}`,
+      id: tempId,
       createdAt: new Date().toISOString().split('T')[0],
     };
     setStudents((prev) => [...prev, newStudent]);
@@ -350,6 +453,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
 
     setAssessmentPairs((prev) => [...prev, ...newPairs]);
+
+    if (apiService.isConnected()) {
+      apiService.createStudent(studentData).catch((err) => {
+        console.warn('Failed to sync student to Supabase:', err);
+      });
+    }
+
     return newStudent;
   };
 
@@ -440,6 +550,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return s;
       })
     );
+
+    if (apiService.isConnected()) {
+      apiService.createSessionLog(logData).catch((err) => {
+        console.warn('Failed to sync session log to Supabase:', err);
+      });
+    }
   };
 
   const exportToExcel = (schoolId?: string) => {

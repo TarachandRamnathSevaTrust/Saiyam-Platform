@@ -4,23 +4,172 @@ import {
   Student,
   Question,
   PaperType,
-  AssessmentRecord,
   SessionLog,
+  Organization,
+  UserProfile,
 } from '@saiyam/shared';
 
 /**
  * Saiyam Data Service Layer:
  * Automatically uses Supabase PostgreSQL when credentials (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
- * are provided in the environment. Otherwise, seamlessly maintains offline/local storage state.
+ * are configured. Gracefully handles errors and offline fallbacks.
  */
 
 export const apiService = {
-  // Check if live Supabase backend is connected
+  // Check if live Supabase backend is configured
   isConnected(): boolean {
-    return isSupabaseConfigured;
+    return isSupabaseConfigured && Boolean(supabase);
   },
 
-  // --- SCHOOLS ---
+  // ============================================================================
+  // ORGANIZATIONS (संस्था व्यवस्थापन)
+  // ============================================================================
+  async getOrganizations(): Promise<Organization[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((row) => ({
+        id: row.id,
+        code: row.code,
+        nameMr: row.name_mr || row.name_en,
+        nameEn: row.name_en || row.name_mr,
+        orgType: row.org_type || 'PARTNER_NGO',
+        description: row.description || '',
+        contactPerson: row.contact_person || '',
+        contactPhone: row.contact_phone || '',
+        contactEmail: row.contact_email || '',
+        coordinatorUserId: row.coordinator_user_id || undefined,
+        coordinatorUserName: row.coordinator_name || undefined,
+        coordinatorEmail: row.coordinator_email || undefined,
+        isActive: row.is_active ?? true,
+        createdAt: row.created_at || new Date().toISOString().split('T')[0],
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch organizations error:', err);
+      return null;
+    }
+  },
+
+  async createOrganization(
+    org: Omit<Organization, 'id' | 'createdAt' | 'isActive'>
+  ): Promise<Organization | null> {
+    if (!supabase) return null;
+    try {
+      // 1. Try inserting with coordinator columns
+      const fullPayload: Record<string, any> = {
+        code: org.code,
+        name_mr: org.nameMr,
+        name_en: org.nameEn || org.nameMr,
+        org_type: org.orgType || 'PARTNER_NGO',
+        description: org.description || '',
+        contact_person: org.contactPerson || '',
+        contact_phone: org.contactPhone || '',
+        contact_email: org.contactEmail || '',
+        is_active: true,
+      };
+
+      if (org.coordinatorUserId) fullPayload.coordinator_user_id = org.coordinatorUserId;
+      if (org.coordinatorUserName) fullPayload.coordinator_name = org.coordinatorUserName;
+      if (org.coordinatorEmail) fullPayload.coordinator_email = org.coordinatorEmail;
+
+      let { data, error } = await supabase
+        .from('organizations')
+        .insert(fullPayload)
+        .select()
+        .single();
+
+      // Fallback: If coordinator columns don't exist yet in Supabase table before SQL patch is run
+      if (error && error.message?.includes('column')) {
+        const standardPayload = {
+          code: org.code,
+          name_mr: org.nameMr,
+          name_en: org.nameEn || org.nameMr,
+          org_type: org.orgType || 'PARTNER_NGO',
+          description: org.description || '',
+          contact_person: org.contactPerson || '',
+          contact_phone: org.contactPhone || '',
+          contact_email: org.contactEmail || '',
+          is_active: true,
+        };
+        const retryResult = await supabase
+          .from('organizations')
+          .insert(standardPayload)
+          .select()
+          .single();
+        data = retryResult.data;
+        error = retryResult.error;
+      }
+
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        code: data.code,
+        nameMr: data.name_mr,
+        nameEn: data.name_en,
+        orgType: data.org_type,
+        description: data.description,
+        contactPerson: data.contact_person,
+        contactPhone: data.contact_phone,
+        contactEmail: data.contact_email,
+        coordinatorUserId: data.coordinator_user_id || org.coordinatorUserId,
+        coordinatorUserName: data.coordinator_name || org.coordinatorUserName,
+        coordinatorEmail: data.coordinator_email || org.coordinatorEmail,
+        isActive: data.is_active ?? true,
+        createdAt: data.created_at,
+      };
+    } catch (err) {
+      console.warn('Supabase create organization error:', err);
+      return null;
+    }
+  },
+
+  async updateOrganization(id: string, updates: Partial<Organization>): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.nameMr !== undefined) payload.name_mr = updates.nameMr;
+      if (updates.nameEn !== undefined) payload.name_en = updates.nameEn;
+      if (updates.code !== undefined) payload.code = updates.code;
+      if (updates.orgType !== undefined) payload.org_type = updates.orgType;
+      if (updates.description !== undefined) payload.description = updates.description;
+      if (updates.contactPerson !== undefined) payload.contact_person = updates.contactPerson;
+      if (updates.contactPhone !== undefined) payload.contact_phone = updates.contactPhone;
+      if (updates.contactEmail !== undefined) payload.contact_email = updates.contactEmail;
+      if (updates.coordinatorUserId !== undefined) payload.coordinator_user_id = updates.coordinatorUserId;
+      if (updates.coordinatorUserName !== undefined) payload.coordinator_name = updates.coordinatorUserName;
+      if (updates.coordinatorEmail !== undefined) payload.coordinator_email = updates.coordinatorEmail;
+
+      const { error } = await supabase.from('organizations').update(payload).eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase update organization error:', err);
+      return false;
+    }
+  },
+
+  async deleteOrganization(id: string): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const { error } = await supabase.from('organizations').delete().eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase delete organization error:', err);
+      return false;
+    }
+  },
+
+  // ============================================================================
+  // SCHOOLS (शाळा व्यवस्थापन)
+  // ============================================================================
   async getSchools(): Promise<School[] | null> {
     if (!supabase) return null;
     try {
@@ -33,6 +182,7 @@ export const apiService = {
       return (data || []).map((row) => ({
         id: row.id,
         financialYear: row.financial_year || '2025-26',
+        organizationCode: row.organization_code || 'TRST_DIRECT',
         name: row.name,
         village: row.village,
         taluka: row.taluka,
@@ -56,6 +206,8 @@ export const apiService = {
       const { data, error } = await supabase
         .from('schools')
         .insert({
+          financial_year: school.financialYear || '2025-26',
+          organization_code: school.organizationCode || 'TRST_DIRECT',
           name: school.name,
           village: school.village,
           taluka: school.taluka,
@@ -73,6 +225,7 @@ export const apiService = {
       return {
         id: data.id,
         financialYear: data.financial_year || school.financialYear || '2025-26',
+        organizationCode: data.organization_code || school.organizationCode || 'TRST_DIRECT',
         name: data.name,
         village: data.village,
         taluka: data.taluka,
@@ -90,7 +243,9 @@ export const apiService = {
     }
   },
 
-  // --- QUESTIONS (Dynamic ~90 questions per paper) ---
+  // ============================================================================
+  // QUESTIONS (Dynamic ~90 questions per paper)
+  // ============================================================================
   async getQuestions(paperType?: PaperType): Promise<Question[] | null> {
     if (!supabase) return null;
     try {
@@ -119,7 +274,9 @@ export const apiService = {
     }
   },
 
-  // --- STUDENTS ---
+  // ============================================================================
+  // STUDENTS (विद्यार्थी यादी)
+  // ============================================================================
   async getStudentsBySchool(schoolId: string): Promise<Student[] | null> {
     if (!supabase) return null;
     try {
@@ -147,7 +304,44 @@ export const apiService = {
     }
   },
 
-  // --- SESSION LOGS ---
+  async createStudent(student: Omit<Student, 'id' | 'createdAt'>): Promise<Student | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .insert({
+          school_id: student.schoolId,
+          financial_year: student.financialYear || '2025-26',
+          bundle_sequence_no: student.bundleSequenceNo,
+          full_name: student.fullName,
+          gender: student.gender,
+          standard: student.standard,
+          division: student.division,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return {
+        id: data.id,
+        schoolId: data.school_id,
+        financialYear: data.financial_year || '2025-26',
+        bundleSequenceNo: data.bundle_sequence_no,
+        fullName: data.full_name,
+        gender: data.gender,
+        standard: data.standard,
+        division: data.division,
+        createdAt: data.created_at,
+      };
+    } catch (err) {
+      console.warn('Supabase create student error:', err);
+      return null;
+    }
+  },
+
+  // ============================================================================
+  // SESSION LOGS (सत्र नोंदी)
+  // ============================================================================
   async getSessionLogs(schoolId?: string): Promise<SessionLog[] | null> {
     if (!supabase) return null;
     try {
@@ -176,6 +370,50 @@ export const apiService = {
       }));
     } catch (err) {
       console.warn('Supabase fetch session logs error:', err);
+      return null;
+    }
+  },
+
+  async createSessionLog(log: Omit<SessionLog, 'id' | 'createdAt'>): Promise<SessionLog | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('session_logs')
+        .insert({
+          school_id: log.schoolId,
+          financial_year: log.financialYear || '2025-26',
+          session_number: log.sessionNumber,
+          session_date: log.conductedDate,
+          duration_minutes: log.durationMinutes,
+          present_students_count: log.totalAttendance,
+          girls_present: log.girlsPresent,
+          boys_present: log.boysPresent,
+          tools_used: log.toolsUsed,
+          summary_notes: log.specialNotes,
+          conducted_by: log.conductedBy,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return {
+        id: data.id,
+        schoolId: data.school_id,
+        financialYear: data.financial_year || '2025-26',
+        sessionNumber: data.session_number,
+        conductedDate: data.session_date,
+        durationMinutes: data.duration_minutes,
+        totalAttendance: data.present_students_count,
+        girlsPresent: data.girls_present,
+        boysPresent: data.boys_present,
+        toolsUsed: data.tools_used,
+        specialNotes: data.summary_notes,
+        conductedBy: data.conducted_by,
+        media: [],
+        createdAt: data.created_at,
+      };
+    } catch (err) {
+      console.warn('Supabase create session log error:', err);
       return null;
     }
   },
