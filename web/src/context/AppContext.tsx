@@ -33,6 +33,7 @@ interface AppContextType {
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
   users: UserProfile[];
+  refreshProfiles: () => Promise<UserProfile[]>;
   addUser: (userData: Omit<UserProfile, 'id' | 'createdAt'>) => UserProfile;
   updateUser: (id: string, updates: Partial<UserProfile>) => void;
   deleteUser: (id: string) => void;
@@ -205,13 +206,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
     async function hydrateFromBackend() {
       try {
-        const [backendOrgs, backendSchools, backendLogs] = await Promise.all([
+        const [backendOrgs, backendSchools, backendLogs, backendProfiles] = await Promise.all([
           apiService.getOrganizations(),
           apiService.getSchools(),
           apiService.getSessionLogs(),
+          apiService.getProfiles(),
         ]);
 
         if (!isMounted) return;
+
+        if (backendProfiles && backendProfiles.length > 0) {
+          setUsers((prev) => {
+            const remoteMap = new Map(backendProfiles.map((p) => [p.email.toLowerCase(), p]));
+            const merged = [...backendProfiles];
+            for (const localUser of prev) {
+              if (!remoteMap.has(localUser.email.toLowerCase())) {
+                merged.push(localUser);
+              }
+            }
+            return merged;
+          });
+        }
 
         if (backendOrgs && backendOrgs.length > 0) {
           setOrganizations((prev) => {
@@ -297,6 +312,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const refreshProfiles = async (): Promise<UserProfile[]> => {
+    if (!apiService.isConnected()) return users;
+    try {
+      const backendProfiles = await apiService.getProfiles();
+      if (backendProfiles && backendProfiles.length > 0) {
+        setUsers((prev) => {
+          const remoteMap = new Map(backendProfiles.map((p) => [p.email.toLowerCase(), p]));
+          const merged = [...backendProfiles];
+          for (const localUser of prev) {
+            if (!remoteMap.has(localUser.email.toLowerCase())) {
+              merged.push(localUser);
+            }
+          }
+          return merged;
+        });
+        return backendProfiles;
+      }
+    } catch (e) {
+      console.warn('Error refreshing profiles:', e);
+    }
+    return users;
+  };
+
   const addUser = (userData: Omit<UserProfile, 'id' | 'createdAt'>): UserProfile => {
     const newUser: UserProfile = {
       ...userData,
@@ -321,6 +359,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return u;
       })
     );
+
+    if (apiService.isConnected()) {
+      apiService.updateProfile(id, updates).catch((err) => {
+        console.warn('Failed to sync updated profile to Supabase:', err);
+      });
+    }
   };
 
   const deleteUser = (id: string) => {
@@ -603,6 +647,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         switchUser,
         users,
+        refreshProfiles,
         addUser,
         updateUser,
         deleteUser,

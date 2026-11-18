@@ -23,6 +23,7 @@ import {
   Database,
   Sparkles,
   UserCheck,
+  RefreshCw,
 } from 'lucide-react';
 import { Organization, UserProfile, School } from '@saiyam/shared';
 
@@ -33,6 +34,7 @@ export const GovernancePanel: React.FC = () => {
     updateOrganization,
     deleteOrganization,
     users,
+    refreshProfiles,
     addUser,
     deleteUser,
     updateUser,
@@ -59,6 +61,8 @@ export const GovernancePanel: React.FC = () => {
 
   // NGO Coordinator / Lead Account State
   const [hasCoordinator, setHasCoordinator] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>('');
+  const [isRefreshingProfiles, setIsRefreshingProfiles] = useState(false);
   const [coordinatorName, setCoordinatorName] = useState('');
   const [coordinatorEmail, setCoordinatorEmail] = useState('');
   const [coordinatorPhone, setCoordinatorPhone] = useState('');
@@ -121,11 +125,46 @@ export const GovernancePanel: React.FC = () => {
     setOrgContactEmail('');
     setOrgDescription('');
     setHasCoordinator(false);
+    setSelectedProfileId('');
     setCoordinatorName('');
     setCoordinatorEmail('');
     setCoordinatorPhone('');
     setCoordinatorAuthUserId('');
     setIsAddingOrg(false);
+  };
+
+  const handleRefreshProfiles = async () => {
+    setIsRefreshingProfiles(true);
+    try {
+      await refreshProfiles();
+      triggerNotify(language === 'mr' ? 'बॅकएंड प्रोफाइल रीफ्रेश झाले!' : 'Backend profiles refreshed!');
+    } finally {
+      setTimeout(() => setIsRefreshingProfiles(false), 500);
+    }
+  };
+
+  const handleSelectProfile = (pId: string) => {
+    setSelectedProfileId(pId);
+    if (!pId) {
+      setCoordinatorName('');
+      setCoordinatorEmail('');
+      setCoordinatorPhone('');
+      setCoordinatorAuthUserId('');
+      return;
+    }
+    if (pId === '__NEW_MANUAL__') {
+      setCoordinatorName(orgContactPerson || '');
+      setCoordinatorEmail(orgContactEmail || '');
+      setCoordinatorPhone(orgContactPhone || '');
+      return;
+    }
+    const found = users.find((u) => u.id === pId);
+    if (found) {
+      setCoordinatorName(found.fullName);
+      setCoordinatorEmail(found.email);
+      setCoordinatorPhone(found.phone || '');
+      setCoordinatorAuthUserId(found.authUserId || found.id);
+    }
   };
 
   const handleSaveOrg = (e: React.FormEvent) => {
@@ -595,7 +634,49 @@ export const GovernancePanel: React.FC = () => {
                 </p>
 
                 {hasCoordinator && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 text-xs border-t border-[#233d76]/10">
+                  <div className="space-y-3 pt-2 border-t border-[#233d76]/10">
+                    {/* Select from existing Supabase backend users */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="font-bold text-slate-700 block text-xs">
+                          {language === 'mr'
+                            ? 'बॅकएंड प्रोफाइलमधून वापरकर्ता निवडा (Supabase Profiles)'
+                            : 'Select User from Backend Profiles (Supabase Auth)'}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleRefreshProfiles}
+                          className="text-[11px] text-[#233d76] hover:text-[#b88d18] flex items-center space-x-1 font-bold cursor-pointer"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${isRefreshingProfiles ? 'animate-spin text-[#dfaf27]' : ''}`} />
+                          <span>{language === 'mr' ? 'बॅकएंड रीफ्रेश करा' : 'Refresh Profiles'}</span>
+                        </button>
+                      </div>
+
+                      <select
+                        value={selectedProfileId}
+                        onChange={(e) => handleSelectProfile(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                      >
+                        <option value="">
+                          {language === 'mr'
+                            ? `-- नोंदणीकृत वापरकर्ता निवडा (${users.length} उपलब्ध) --`
+                            : `-- Choose a registered backend profile (${users.length} available) --`}
+                        </option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} ({u.email}) — [{u.role}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
+                          </option>
+                        ))}
+                        <option value="__NEW_MANUAL__">
+                          {language === 'mr'
+                            ? '+ नवीन वापरकर्ता माहिती मॅन्युअली प्रविष्ट करा (Manual Entry)'
+                            : '+ Enter details manually'}
+                        </option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                     <div>
                       <label className="font-bold text-slate-700 block mb-1">
                         {language === 'mr' ? 'समन्वयकाचे नाव *' : 'Coordinator Name *'}
@@ -660,8 +741,9 @@ export const GovernancePanel: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
                 <button

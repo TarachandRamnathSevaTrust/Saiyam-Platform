@@ -22,6 +22,56 @@ export const apiService = {
   },
 
   // ============================================================================
+  // PROFILES / BACKEND USERS (प्रशासक, समन्वयक, प्रशिक्षक प्रोफाइल)
+  // ============================================================================
+  async getProfiles(): Promise<UserProfile[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data || []).map((row) => ({
+        id: row.id,
+        authUserId: row.auth_user_id || row.id,
+        fullName: row.full_name || row.email,
+        email: row.email,
+        role: row.role || 'FIELD_TRAINER',
+        phone: row.phone || undefined,
+        organizationId: row.organization_id || undefined,
+        organizationCode: row.organization_code || undefined,
+        isActive: row.is_active ?? true,
+        createdAt: row.created_at || new Date().toISOString().split('T')[0],
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch profiles error:', err);
+      return null;
+    }
+  },
+
+  async updateProfile(id: string, updates: Partial<UserProfile>): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.fullName !== undefined) payload.full_name = updates.fullName;
+      if (updates.role !== undefined) payload.role = updates.role;
+      if (updates.phone !== undefined) payload.phone = updates.phone;
+      if (updates.organizationCode !== undefined) payload.organization_code = updates.organizationCode;
+      if (updates.organizationId !== undefined) payload.organization_id = updates.organizationId;
+      if (updates.isActive !== undefined) payload.is_active = updates.isActive;
+
+      const { error } = await supabase.from('profiles').update(payload).eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase update profile error:', err);
+      return false;
+    }
+  },
+
+  // ============================================================================
   // ORGANIZATIONS (संस्था व्यवस्थापन)
   // ============================================================================
   async getOrganizations(): Promise<Organization[] | null> {

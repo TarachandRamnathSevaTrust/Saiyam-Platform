@@ -14,8 +14,10 @@ import {
   Edit2,
   UserPlus,
   CheckCircle2,
+  RefreshCw,
+  Sparkles,
 } from 'lucide-react';
-import { Organization } from '@saiyam/shared';
+import { Organization, UserProfile } from '@saiyam/shared';
 
 interface Props {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     updateOrganization,
     deleteOrganization,
     users,
+    refreshProfiles,
     addUser,
     updateUser,
     switchUser,
@@ -50,9 +53,11 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
 
   // Coordinator User Assignment fields
   const [assignCoordinator, setAssignCoordinator] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [coordinatorName, setCoordinatorName] = useState('');
   const [coordinatorEmail, setCoordinatorEmail] = useState('');
   const [coordinatorPhone, setCoordinatorPhone] = useState('');
+  const [isRefreshingUsers, setIsRefreshingUsers] = useState(false);
 
   const [successMsg, setSuccessMsg] = useState(false);
 
@@ -67,11 +72,45 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     setContactEmail('');
     setDescription('');
     setAssignCoordinator(true);
+    setSelectedUserId('');
     setCoordinatorName('');
     setCoordinatorEmail('');
     setCoordinatorPhone('');
     setEditingOrgId(null);
     setIsAdding(false);
+  };
+
+  const handleRefreshUsers = async () => {
+    setIsRefreshingUsers(true);
+    try {
+      await refreshProfiles();
+    } finally {
+      setTimeout(() => setIsRefreshingUsers(false), 500);
+    }
+  };
+
+  const handleSelectExistingUser = (userId: string) => {
+    setSelectedUserId(userId);
+    if (!userId) {
+      setCoordinatorName('');
+      setCoordinatorEmail('');
+      setCoordinatorPhone('');
+      return;
+    }
+
+    if (userId === '__NEW_MANUAL__') {
+      setCoordinatorName(contactPerson || '');
+      setCoordinatorEmail(contactEmail || '');
+      setCoordinatorPhone(contactPhone || '');
+      return;
+    }
+
+    const found = users.find((u) => u.id === userId);
+    if (found) {
+      setCoordinatorName(found.fullName);
+      setCoordinatorEmail(found.email);
+      setCoordinatorPhone(found.phone || '');
+    }
   };
 
   const handleStartEdit = (org: Organization) => {
@@ -84,25 +123,29 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     setContactEmail(org.contactEmail || '');
     setDescription(org.description || '');
 
-    // Check existing coordinator user
+    // Check existing coordinator user from state
     const existingCoord = users.find(
       (u) =>
         (u.organizationCode === org.code && u.role === 'ORG_COORDINATOR') ||
-        u.id === org.coordinatorUserId
+        u.id === org.coordinatorUserId ||
+        (org.coordinatorEmail && u.email.toLowerCase() === org.coordinatorEmail.toLowerCase())
     );
 
     if (existingCoord) {
       setAssignCoordinator(true);
+      setSelectedUserId(existingCoord.id);
       setCoordinatorName(existingCoord.fullName);
       setCoordinatorEmail(existingCoord.email);
       setCoordinatorPhone(existingCoord.phone || '');
     } else if (org.coordinatorEmail) {
       setAssignCoordinator(true);
+      setSelectedUserId('__NEW_MANUAL__');
       setCoordinatorName(org.coordinatorUserName || '');
       setCoordinatorEmail(org.coordinatorEmail);
       setCoordinatorPhone(org.contactPhone || '');
     } else {
       setAssignCoordinator(false);
+      setSelectedUserId('');
       setCoordinatorName('');
       setCoordinatorEmail('');
       setCoordinatorPhone('');
@@ -123,41 +166,58 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     let coordUserName: string | undefined = undefined;
     let coordUserEmail: string | undefined = undefined;
 
-    // Handle Coordinator User Creation or Update
-    if (assignCoordinator && coordinatorEmail.trim()) {
-      const cName = coordinatorName.trim() || contactPerson.trim() || `${name.trim()} Coordinator`;
-      const cEmail = coordinatorEmail.trim().toLowerCase();
-      const cPhone = coordinatorPhone.trim() || contactPhone.trim();
+    // Handle Coordinator User Assignment
+    if (assignCoordinator) {
+      if (selectedUserId && selectedUserId !== '__NEW_MANUAL__') {
+        // Link to existing backend user from Supabase profiles
+        const chosenUser = users.find((u) => u.id === selectedUserId);
+        if (chosenUser) {
+          coordUserId = chosenUser.id;
+          coordUserName = chosenUser.fullName;
+          coordUserEmail = chosenUser.email;
 
-      const existingUser = users.find(
-        (u) =>
-          u.email.toLowerCase() === cEmail ||
-          (u.organizationCode === cleanCode && u.role === 'ORG_COORDINATOR')
-      );
+          // Update user role to ORG_COORDINATOR and assign org code
+          updateUser(chosenUser.id, {
+            role: 'ORG_COORDINATOR',
+            organizationCode: cleanCode,
+          });
+        }
+      } else if (coordinatorEmail.trim()) {
+        // Manual creation / link by email
+        const cName = coordinatorName.trim() || contactPerson.trim() || `${name.trim()} Coordinator`;
+        const cEmail = coordinatorEmail.trim().toLowerCase();
+        const cPhone = coordinatorPhone.trim() || contactPhone.trim();
 
-      if (existingUser) {
-        updateUser(existingUser.id, {
-          fullName: cName,
-          email: cEmail,
-          phone: cPhone,
-          role: 'ORG_COORDINATOR',
-          organizationCode: cleanCode,
-        });
-        coordUserId = existingUser.id;
-      } else {
-        const newUser = addUser({
-          fullName: cName,
-          email: cEmail,
-          phone: cPhone,
-          role: 'ORG_COORDINATOR',
-          organizationCode: cleanCode,
-          isActive: true,
-        });
-        coordUserId = newUser.id;
+        const existingUser = users.find(
+          (u) =>
+            u.email.toLowerCase() === cEmail ||
+            (u.organizationCode === cleanCode && u.role === 'ORG_COORDINATOR')
+        );
+
+        if (existingUser) {
+          updateUser(existingUser.id, {
+            fullName: cName,
+            email: cEmail,
+            phone: cPhone,
+            role: 'ORG_COORDINATOR',
+            organizationCode: cleanCode,
+          });
+          coordUserId = existingUser.id;
+        } else {
+          const newUser = addUser({
+            fullName: cName,
+            email: cEmail,
+            phone: cPhone,
+            role: 'ORG_COORDINATOR',
+            organizationCode: cleanCode,
+            isActive: true,
+          });
+          coordUserId = newUser.id;
+        }
+
+        coordUserName = cName;
+        coordUserEmail = cEmail;
       }
-
-      coordUserName = cName;
-      coordUserEmail = cEmail;
     }
 
     const orgPayload = {
@@ -275,7 +335,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                       : 'Edit Organization Details'
                     : language === 'mr'
                     ? 'नवीन संस्था व समन्वयक माहिती'
-                    : 'Add New Organization & Coordinator User'}
+                    : 'Add New Organization & Assign User'}
                 </h5>
               </div>
 
@@ -334,10 +394,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   <input
                     type="text"
                     value={contactPerson}
-                    onChange={(e) => {
-                      setContactPerson(e.target.value);
-                      if (!coordinatorName) setCoordinatorName(e.target.value);
-                    }}
+                    onChange={(e) => setContactPerson(e.target.value)}
                     placeholder={language === 'mr' ? 'उदा. सचिन कुलकर्णी, प्रकल्प संचालक...' : 'e.g. Project Director, Lead...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
@@ -350,10 +407,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   <input
                     type="tel"
                     value={contactPhone}
-                    onChange={(e) => {
-                      setContactPhone(e.target.value);
-                      if (!coordinatorPhone) setCoordinatorPhone(e.target.value);
-                    }}
+                    onChange={(e) => setContactPhone(e.target.value)}
                     placeholder="+91 98000 00000"
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
@@ -366,10 +420,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   <input
                     type="email"
                     value={contactEmail}
-                    onChange={(e) => {
-                      setContactEmail(e.target.value);
-                      if (!coordinatorEmail) setCoordinatorEmail(e.target.value);
-                    }}
+                    onChange={(e) => setContactEmail(e.target.value)}
                     placeholder="contact@organization.org"
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
@@ -391,70 +442,141 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
 
               {/* Coordinator User Assignment Section */}
               <div className="bg-[#233d76]/5 rounded-xl p-4 border border-[#233d76]/20 space-y-3">
-                <label className="flex items-center space-x-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={assignCoordinator}
-                    onChange={(e) => setAssignCoordinator(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#233d76] accent-[#233d76]"
-                  />
-                  <span className="font-bold text-xs text-[#233d76] flex items-center space-x-1.5">
-                    <UserPlus className="w-4 h-4 text-[#dfaf27]" />
-                    <span>
-                      {language === 'mr'
-                        ? 'या संस्थेला समन्वयक लॉगिन खाते नियुक्त करा'
-                        : 'Assign Coordinator Login User Account'}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center space-x-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={assignCoordinator}
+                      onChange={(e) => setAssignCoordinator(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#233d76] accent-[#233d76]"
+                    />
+                    <span className="font-bold text-xs text-[#233d76] flex items-center space-x-1.5">
+                      <UserPlus className="w-4 h-4 text-[#dfaf27]" />
+                      <span>
+                        {language === 'mr'
+                          ? 'या संस्थेला समन्वयक वापरकर्ता नियुक्त करा'
+                          : 'Assign Coordinator User to this Organization'}
+                      </span>
                     </span>
-                  </span>
-                </label>
+                  </label>
+
+                  {assignCoordinator && (
+                    <button
+                      type="button"
+                      onClick={handleRefreshUsers}
+                      className="text-[11px] text-[#233d76] hover:text-[#b88d18] flex items-center space-x-1 font-bold cursor-pointer transition-colors"
+                      title={language === 'mr' ? 'Supabase मधून नवीन प्रोफाइल्स रीफ्रेश करा' : 'Refresh profiles from Supabase'}
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingUsers ? 'animate-spin text-[#dfaf27]' : ''}`} />
+                      <span>{language === 'mr' ? 'बॅकएंड वापरकर्ते रीफ्रेश' : 'Refresh Backend Users'}</span>
+                    </button>
+                  )}
+                </div>
+
                 <p className="text-[11px] text-slate-500 pl-6">
                   {language === 'mr'
-                    ? 'या खात्याद्वारे समन्वयक थेट लॉगिन करून केवळ या संस्थेच्या शाळा आणि प्रशिक्षकांचे संचलन ट्रॅक करू शकतील.'
-                    : 'This user can log in to view only this organization’s schools, field trainers, and sessions.'}
+                    ? 'बॅकएंड (Supabase Auth / Profiles) मध्ये तयार केलेला वापरकर्ता निवडा, जेणेकरून तो या संस्थेच्या शाळांचे व्यवस्थापन करू शकेल.'
+                    : 'Select a user created in backend (Supabase Auth / Profiles) so they can manage this organization’s schools & field trainers.'}
                 </p>
 
                 {assignCoordinator && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 pl-6">
+                  <div className="space-y-3 pt-1 pl-6">
+                    {/* User Selection Dropdown */}
                     <div>
                       <label className="font-bold text-slate-700 block mb-1 text-[11px]">
-                        {language === 'mr' ? 'समन्वयक नाव *' : 'Coordinator Name *'}
+                        {language === 'mr'
+                          ? 'बॅकएंड प्रोफाइलमधून वापरकर्ता निवडा *'
+                          : 'Select Existing User from Backend (Supabase Profiles) *'}
                       </label>
-                      <input
-                        type="text"
-                        required={assignCoordinator}
-                        value={coordinatorName}
-                        onChange={(e) => setCoordinatorName(e.target.value)}
-                        placeholder="e.g. Sachin Kulkarni"
-                        className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
-                      />
+                      <select
+                        value={selectedUserId}
+                        onChange={(e) => handleSelectExistingUser(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-medium focus:ring-2 focus:ring-[#233d76]"
+                      >
+                        <option value="">
+                          {language === 'mr'
+                            ? `-- नोंदणीकृत वापरकर्ता निवडा (${users.length} उपलब्ध) --`
+                            : `-- Choose a registered user (${users.length} available) --`}
+                        </option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} ({u.email}) — [{u.role}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
+                          </option>
+                        ))}
+                        <option value="__NEW_MANUAL__">
+                          {language === 'mr'
+                            ? '+ नवीन वापरकर्ता माहिती मॅन्युअली प्रविष्ट करा (Manual Entry)'
+                            : '+ Enter new user details manually'}
+                        </option>
+                      </select>
                     </div>
 
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-1 text-[11px]">
-                        {language === 'mr' ? 'लॉगिन ईमेल *' : 'Login Email *'}
-                      </label>
-                      <input
-                        type="email"
-                        required={assignCoordinator}
-                        value={coordinatorEmail}
-                        onChange={(e) => setCoordinatorEmail(e.target.value)}
-                        placeholder="coord@partner.org"
-                        className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
-                      />
-                    </div>
+                    {/* Highlighted Profile Card when user is selected */}
+                    {selectedUserId && selectedUserId !== '__NEW_MANUAL__' && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1 text-emerald-900 animate-fadeIn">
+                        <div className="font-bold flex items-center space-x-1.5 text-emerald-800">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>
+                            {language === 'mr' ? 'नियुक्त समन्वयक:' : 'Assigned Coordinator:'} {coordinatorName}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-emerald-700">
+                          Email: <span className="font-mono font-bold">{coordinatorEmail}</span>
+                          {coordinatorPhone ? ` | Phone: ${coordinatorPhone}` : ''}
+                        </p>
+                        <p className="text-[10px] text-emerald-600">
+                          {language === 'mr'
+                            ? 'हा वापरकर्ता या संस्थेचा ORG_COORDINATOR म्हणून Supabase बॅकएंडमध्ये सेव्ह होईल.'
+                            : 'This user will be linked as the ORG_COORDINATOR for this NGO in Supabase backend.'}
+                        </p>
+                      </div>
+                    )}
 
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-1 text-[11px]">
-                        {language === 'mr' ? 'मोबाईल नंबर' : 'Phone Number'}
-                      </label>
-                      <input
-                        type="tel"
-                        value={coordinatorPhone}
-                        onChange={(e) => setCoordinatorPhone(e.target.value)}
-                        placeholder="+91 98000 00000"
-                        className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
-                      />
-                    </div>
+                    {/* Manual Input Fields if chosen */}
+                    {selectedUserId === '__NEW_MANUAL__' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 bg-white p-3 rounded-xl border border-slate-200">
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-1 text-[11px]">
+                            {language === 'mr' ? 'समन्वयक नाव *' : 'Coordinator Name *'}
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={coordinatorName}
+                            onChange={(e) => setCoordinatorName(e.target.value)}
+                            placeholder="e.g. Sachin Kulkarni"
+                            className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-1 text-[11px]">
+                            {language === 'mr' ? 'लॉगिन ईमेल *' : 'Login Email *'}
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={coordinatorEmail}
+                            onChange={(e) => setCoordinatorEmail(e.target.value)}
+                            placeholder="coord@partner.org"
+                            className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-1 text-[11px]">
+                            {language === 'mr' ? 'मोबाईल नंबर' : 'Phone Number'}
+                          </label>
+                          <input
+                            type="tel"
+                            value={coordinatorPhone}
+                            onChange={(e) => setCoordinatorPhone(e.target.value)}
+                            placeholder="+91 98000 00000"
+                            className="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-[#233d76]"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -498,7 +620,8 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
               const assignedUser = users.find(
                 (u) =>
                   (u.organizationCode === org.code && u.role === 'ORG_COORDINATOR') ||
-                  u.id === org.coordinatorUserId
+                  u.id === org.coordinatorUserId ||
+                  (org.coordinatorEmail && u.email.toLowerCase() === org.coordinatorEmail.toLowerCase())
               ) || (org.coordinatorEmail ? { id: org.coordinatorUserId || `u-${org.code}`, fullName: org.coordinatorUserName || 'Coordinator', email: org.coordinatorEmail, phone: org.contactPhone } : null);
 
               return (
@@ -577,7 +700,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                     {assignedUser ? (
                       <div className="flex items-center space-x-2 text-xs">
                         <span className="flex items-center space-x-1 font-bold text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>
                             {language === 'mr' ? 'समन्वयक:' : 'Coordinator:'} {assignedUser.fullName}
                           </span>
