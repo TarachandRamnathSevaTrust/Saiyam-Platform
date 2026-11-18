@@ -86,7 +86,8 @@ const purgeObsoleteStorage = () => {
           val.includes('u-trainer-trst') ||
           val.includes('u-field-trainer') ||
           val.includes('JPIP') ||
-          val.includes('VOPA')
+          val.includes('VOPA') ||
+          val.includes('admin@trst.org.in')
         ) {
           localStorage.removeItem(key);
         }
@@ -136,6 +137,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLoggedIn(false);
     localStorage.removeItem('saiyam_logged_in_v10');
     setSelectedSchool(null);
+    if (apiService.isConnected()) {
+      apiService.signOut().catch(() => {});
+    }
   };
 
   const availableFinancialYears = ['2024-25', '2025-26', '2026-27'];
@@ -216,16 +220,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (!isMounted) return;
 
         if (backendProfiles && backendProfiles.length > 0) {
-          setUsers((prev) => {
-            const remoteMap = new Map(backendProfiles.map((p) => [p.email.toLowerCase(), p]));
-            const merged = [...backendProfiles];
-            for (const localUser of prev) {
-              if (!remoteMap.has(localUser.email.toLowerCase())) {
-                merged.push(localUser);
-              }
-            }
-            return merged;
-          });
+          // When Supabase backend is connected, use real backend profiles only (no mock data)
+          setUsers(backendProfiles);
         }
 
         if (backendOrgs && backendOrgs.length > 0) {
@@ -317,16 +313,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const backendProfiles = await apiService.getProfiles();
       if (backendProfiles && backendProfiles.length > 0) {
-        setUsers((prev) => {
-          const remoteMap = new Map(backendProfiles.map((p) => [p.email.toLowerCase(), p]));
-          const merged = [...backendProfiles];
-          for (const localUser of prev) {
-            if (!remoteMap.has(localUser.email.toLowerCase())) {
-              merged.push(localUser);
-            }
-          }
-          return merged;
-        });
+        setUsers(backendProfiles);
         return backendProfiles;
       }
     } catch (e) {

@@ -97,3 +97,42 @@ DROP POLICY IF EXISTS "Profiles self view" ON public.profiles;
 DROP POLICY IF EXISTS "Profiles admin manage" ON public.profiles;
 DROP POLICY IF EXISTS "Allow all for profiles" ON public.profiles;
 CREATE POLICY "Allow all for profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+
+
+-- 6. AUTOMATED TRIGGER: When any user is created in Supabase Auth, insert into public.profiles
+CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
+RETURNS trigger AS $$
+BEGIN
+    INSERT INTO public.profiles (
+        id,
+        auth_user_id,
+        email,
+        full_name,
+        role,
+        is_active,
+        created_at,
+        updated_at
+    )
+    VALUES (
+        new.id,
+        new.id,
+        new.email,
+        COALESCE(NULLIF(new.raw_user_meta_data->>'full_name', ''), split_part(new.email, '@', 1)),
+        COALESCE(NULLIF(new.raw_user_meta_data->>'role', ''), 'FIELD_TRAINER'),
+        TRUE,
+        NOW(),
+        NOW()
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
+        full_name = COALESCE(public.profiles.full_name, EXCLUDED.full_name),
+        updated_at = NOW();
+
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_user();

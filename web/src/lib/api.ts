@@ -22,6 +22,77 @@ export const apiService = {
   },
 
   // ============================================================================
+  // SUPABASE AUTH (ईमेल व पासवर्ड थेट लॉगिन)
+  // ============================================================================
+  async signIn(
+    email: string,
+    password: string
+  ): Promise<{ user: UserProfile | null; error: string | null }> {
+    if (!supabase) return { user: null, error: 'Supabase client not initialized' };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        return { user: null, error: error.message };
+      }
+
+      if (!data.user) {
+        return { user: null, error: 'User not returned from Supabase Auth.' };
+      }
+
+      // Fetch matching profile from public.profiles
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profileRow) {
+        return {
+          user: {
+            id: profileRow.id,
+            authUserId: profileRow.auth_user_id || profileRow.id,
+            fullName: profileRow.full_name || profileRow.email,
+            email: profileRow.email,
+            role: profileRow.role || 'FIELD_TRAINER',
+            phone: profileRow.phone || undefined,
+            organizationId: profileRow.organization_id || undefined,
+            organizationCode: profileRow.organization_code || undefined,
+            isActive: profileRow.is_active ?? true,
+            createdAt: profileRow.created_at,
+          },
+          error: null,
+        };
+      }
+
+      // Fallback if profile row is slightly delayed
+      return {
+        user: {
+          id: data.user.id,
+          authUserId: data.user.id,
+          fullName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
+          email: data.user.email || email,
+          role: (data.user.user_metadata?.role as any) || 'FIELD_TRAINER',
+          isActive: true,
+          createdAt: data.user.created_at,
+        },
+        error: null,
+      };
+    } catch (err: any) {
+      return { user: null, error: err.message || 'Authentication error' };
+    }
+  },
+
+  async signOut(): Promise<void> {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+  },
+
+  // ============================================================================
   // PROFILES / BACKEND USERS (प्रशासक, समन्वयक, प्रशिक्षक प्रोफाइल)
   // ============================================================================
   async getProfiles(): Promise<UserProfile[] | null> {

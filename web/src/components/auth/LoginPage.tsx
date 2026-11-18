@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { UserProfile } from '@saiyam/shared';
+import { apiService } from '../../lib/api';
 import {
   ShieldCheck,
   Globe,
@@ -12,6 +13,7 @@ import {
   Sparkles,
   Lock,
   Mail,
+  Loader2,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -26,39 +28,59 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [activeTab, setActiveTab] = useState<'DEMO' | 'AUTH'>('DEMO');
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'DEMO' | 'AUTH'>(() => {
+    return apiService.isConnected() ? 'AUTH' : 'DEMO';
+  });
 
-  // Handle standard email/password login
-  const handleAuthLogin = (e: React.FormEvent) => {
+  // Handle standard email/password login using real Supabase Auth
+  const handleAuthLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!email.trim()) {
-      setErrorMsg(language === 'mr' ? 'कृपया ईमेल प्रविष्ट करा.' : 'Please enter your email.');
+    if (!email.trim() || !password.trim()) {
+      setErrorMsg(
+        language === 'mr'
+          ? 'कृपया ईमेल आणि पासवर्ड दोन्ही प्रविष्ट करा.'
+          : 'Please enter both email and password.'
+      );
       return;
     }
 
-    // Match with existing users
-    const matchedUser = users.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-    );
+    setIsLoading(true);
+    try {
+      if (apiService.isConnected()) {
+        const { user, error } = await apiService.signIn(email, password);
+        if (error) {
+          setErrorMsg(error);
+          setIsLoading(false);
+          return;
+        }
+        if (user) {
+          login(user);
+          setIsLoading(false);
+          return;
+        }
+      }
 
-    if (matchedUser) {
-      login(matchedUser);
-    } else {
-      // Create user session based on email domain or role hint
-      const isTrainer = email.includes('trainer') || email.includes('field');
-      const newUser: UserProfile = {
-        id: `user-${Date.now()}`,
-        fullName: isTrainer 
-          ? (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator')
-          : (language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'Trust Executive'),
-        email: email.trim(),
-        role: isTrainer ? 'FIELD_TRAINER' : 'TRUST_ADMIN',
-        isActive: true,
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      login(newUser);
+      // Offline / fallback login
+      const matchedUser = users.find(
+        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+      );
+
+      if (matchedUser) {
+        login(matchedUser);
+      } else {
+        setErrorMsg(
+          language === 'mr'
+            ? 'अवैध ईमेल किंवा पासवर्ड.'
+            : 'Invalid login credentials in Supabase Auth.'
+        );
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -355,10 +377,23 @@ export const LoginPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer mt-2"
+                  disabled={isLoading}
+                  className="w-full py-3.5 rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer mt-2 disabled:opacity-70"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>{language === 'mr' ? 'लॉगिन करा' : 'Sign In to Portal'}</span>
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#dfaf27]" />
+                  ) : (
+                    <LogIn className="w-4 h-4" />
+                  )}
+                  <span>
+                    {isLoading
+                      ? language === 'mr'
+                        ? 'प्रमाणीकरण चालू आहे...'
+                        : 'Authenticating with Supabase...'
+                      : language === 'mr'
+                      ? 'लॉगिन करा'
+                      : 'Sign In to Portal'}
+                  </span>
                 </button>
 
                 <p className="text-[11px] text-center text-slate-400 mt-3">
