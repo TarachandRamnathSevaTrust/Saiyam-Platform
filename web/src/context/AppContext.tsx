@@ -55,6 +55,8 @@ interface AppContextType {
   addSchool: (schoolData: Omit<School, 'id' | 'createdAt'>) => School;
   students: Student[];
   addStudent: (studentData: Omit<Student, 'id' | 'createdAt'>) => Student;
+  updateStudent: (id: string, updates: Partial<Student>) => void;
+  deleteStudent: (id: string) => void;
   assessmentPairs: StudentAssessmentPair[];
   saveAssessmentSubmission: (
     studentId: string,
@@ -494,6 +496,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newStudent;
   };
 
+  const updateStudent = (id: string, updates: Partial<Student>) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, ...updates } : s))
+    );
+
+    // Sync student updates to assessment pairs
+    setAssessmentPairs((prev) =>
+      prev.map((pair) => {
+        if (pair.studentId === id) {
+          return {
+            ...pair,
+            studentName: updates.fullName || pair.studentName,
+            bundleSequenceNo:
+              updates.bundleSequenceNo !== undefined
+                ? updates.bundleSequenceNo
+                : pair.bundleSequenceNo,
+            gender: updates.gender || pair.gender,
+            standard: updates.standard || pair.standard,
+            division: updates.division || pair.division,
+          };
+        }
+        return pair;
+      })
+    );
+
+    if (apiService.isConnected()) {
+      apiService.updateStudent(id, updates).catch((err) => {
+        console.warn('Failed to sync student update to Supabase:', err);
+      });
+    }
+  };
+
+  const deleteStudent = (id: string) => {
+    setStudents((prev) => prev.filter((s) => s.id !== id));
+    setAssessmentPairs((prev) => prev.filter((p) => p.studentId !== id));
+
+    if (apiService.isConnected()) {
+      apiService.deleteStudent(id).catch((err) => {
+        console.warn('Failed to delete student in Supabase:', err);
+      });
+    }
+  };
+
   const saveAssessmentSubmission = (
     studentId: string,
     paperType: PaperType,
@@ -656,6 +701,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addSchool,
         students,
         addStudent,
+        updateStudent,
+        deleteStudent,
         assessmentPairs,
         saveAssessmentSubmission,
         sessionLogs,

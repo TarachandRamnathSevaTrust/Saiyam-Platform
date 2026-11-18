@@ -460,6 +460,37 @@ export const apiService = {
     }
   },
 
+  async updateStudent(id: string, updates: Partial<Student>): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.fullName !== undefined) payload.full_name = updates.fullName;
+      if (updates.gender !== undefined) payload.gender = updates.gender;
+      if (updates.standard !== undefined) payload.standard = updates.standard;
+      if (updates.division !== undefined) payload.division = updates.division;
+      if (updates.bundleSequenceNo !== undefined) payload.bundle_sequence_no = updates.bundleSequenceNo;
+
+      const { error } = await supabase.from('students').update(payload).eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase update student error:', err);
+      return false;
+    }
+  },
+
+  async deleteStudent(id: string): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const { error } = await supabase.from('students').delete().eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase delete student error:', err);
+      return false;
+    }
+  },
+
   // ============================================================================
   // SESSION LOGS (सत्र नोंदी)
   // ============================================================================

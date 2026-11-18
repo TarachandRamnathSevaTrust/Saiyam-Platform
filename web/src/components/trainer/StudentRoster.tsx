@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Users, Plus, Check, UserPlus, Info, Hash, ArrowLeft } from 'lucide-react';
-import { Gender } from '@saiyam/shared';
+import {
+  Users,
+  Plus,
+  Check,
+  UserPlus,
+  Info,
+  Hash,
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  X,
+  UserCheck,
+} from 'lucide-react';
+import { Gender, Student } from '@saiyam/shared';
 
 interface Props {
   onBack?: () => void;
@@ -9,7 +21,15 @@ interface Props {
 }
 
 export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
-  const { selectedSchool, students, addStudent, language, currentUser } = useApp();
+  const {
+    selectedSchool,
+    students,
+    addStudent,
+    updateStudent,
+    deleteStudent,
+    language,
+    currentUser,
+  } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const [isAdding, setIsAdding] = useState(!isTrustAdmin);
@@ -17,6 +37,14 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   const [gender, setGender] = useState<Gender>('FEMALE');
   const [standard, setStandard] = useState('8');
   const [division, setDivision] = useState('A');
+
+  // Edit Student state
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
+  const [editFullName, setEditFullName] = useState('');
+  const [editGender, setEditGender] = useState<Gender>('FEMALE');
+  const [editStandard, setEditStandard] = useState('8');
+  const [editDivision, setEditDivision] = useState('A');
+  const [editBundleSequenceNo, setEditBundleSequenceNo] = useState(1);
 
   if (!selectedSchool) {
     return (
@@ -58,6 +86,41 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
     setFullName('');
   };
 
+  const handleStartEdit = (student: Student) => {
+    setEditingStudentId(student.id);
+    setEditFullName(student.fullName);
+    setEditGender(student.gender);
+    setEditStandard(student.standard);
+    setEditDivision(student.division);
+    setEditBundleSequenceNo(student.bundleSequenceNo);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStudentId || !editFullName.trim()) return;
+
+    updateStudent(editingStudentId, {
+      fullName: editFullName.trim(),
+      gender: editGender,
+      standard: editStandard,
+      division: editDivision,
+      bundleSequenceNo: editBundleSequenceNo,
+    });
+
+    setEditingStudentId(null);
+  };
+
+  const handleDelete = (student: Student) => {
+    const confirmText =
+      language === 'mr'
+        ? `खात्री करा: ${student.fullName} (S-${student.bundleSequenceNo}) ची नोंद काढून टाकायची आहे का? यामुळे या विद्यार्थ्याच्या चाचण्यांची नोंदही हटवली जाईल.`
+        : `Are you sure you want to delete ${student.fullName} (S-${student.bundleSequenceNo})? This will also remove their test records.`;
+
+    if (window.confirm(confirmText)) {
+      deleteStudent(student.id);
+    }
+  };
+
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       {/* Back button & Title Bar */}
@@ -84,11 +147,22 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
 
         {!isTrustAdmin ? (
           <button
-            onClick={() => setIsAdding(!isAdding)}
+            onClick={() => {
+              setEditingStudentId(null);
+              setIsAdding(!isAdding);
+            }}
             className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 text-[#dfaf27]" />
-            <span>{language === 'mr' ? 'नवीन विद्यार्थी' : 'Add Student'}</span>
+            <span>
+              {isAdding
+                ? language === 'mr'
+                  ? 'फॉर्म बंद करा'
+                  : 'Close Form'
+                : language === 'mr'
+                ? 'नवीन विद्यार्थी'
+                : 'Add Student'}
+            </span>
           </button>
         ) : (
           <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1.5 rounded-lg border border-[#dfaf27]/40">
@@ -119,15 +193,15 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
         <div className="text-xs leading-relaxed">
           <strong>{language === 'mr' ? 'सूचना: ' : 'Instruction: '}</strong>
           {language === 'mr'
-            ? 'पूर्व चाचणीच्या क्रमाने लावलेला आणि नंबर लिहिलेला गठ्ठा घेऊन बसावे. गठ्ठ्याचा क्रम (S-1, S-2...) आणि app मधला क्रम सारखाच असावा.'
-            : 'Hold the numbered physical bundle of test sheets. Register students in the exact same serial order (S-1, S-2...).'}
+            ? 'पूर्व चाचणीच्या क्रमाने लावलेला आणि नंबर लिहिलेला गठ्ठा घेऊन बसावे. गठ्ठ्याचा क्रम (S-1, S-2...) आणि app मधला क्रम सारखाच असावा. गरज भासल्यास आपण विद्यार्थ्यास संपादित किंवा हटवू शकता.'
+            : 'Hold the numbered physical bundle of test sheets. Register students in the exact same serial order (S-1, S-2...). You can edit or delete students anytime.'}
         </div>
       </div>
 
       {/* Roster & Add Form Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {/* Quick Add Form (Matching Page 105: विद्यार्थी माहिती) */}
-        {!isTrustAdmin && isAdding && (
+        {!isTrustAdmin && isAdding && !editingStudentId && (
           <form
             onSubmit={handleAddStudent}
             className="bg-slate-50/70 p-5 border-b border-slate-200 animate-fadeIn"
@@ -254,29 +328,172 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
               </p>
             </div>
           ) : (
-            schoolStudents.map((student) => (
-              <div
-                key={student.id}
-                className="px-6 py-3 flex items-center justify-between hover:bg-slate-50/80 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="font-mono text-xs font-bold bg-[#f0da9a]/50 text-[#233d76] px-2.5 py-1 rounded-lg border border-[#dfaf27]/40">
-                    S-{student.bundleSequenceNo}
-                  </span>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">{student.fullName}</h4>
-                    <span className="text-xs text-slate-500">
-                      {student.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {language === 'mr' ? 'इयत्ता' : 'Class'}{' '}
-                      {student.standard}-{student.division}
+            schoolStudents.map((student) => {
+              const isEditingThis = editingStudentId === student.id;
+
+              if (isEditingThis) {
+                return (
+                  <form
+                    key={student.id}
+                    onSubmit={handleSaveEdit}
+                    className="p-4 bg-[#f0da9a]/25 border-y-2 border-[#dfaf27] space-y-3 animate-fadeIn"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#233d76] flex items-center space-x-1.5">
+                        <Edit2 className="w-3.5 h-3.5 text-[#dfaf27]" />
+                        <span>
+                          {language === 'mr'
+                            ? `विद्यार्थी माहिती संपादित करा (S-${editBundleSequenceNo})`
+                            : `Edit Student Information (S-${editBundleSequenceNo})`}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setEditingStudentId(null)}
+                        className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
+                      {/* Bundle Serial # */}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          {language === 'mr' ? 'गठ्ठा क्र.' : 'Bundle #'}
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          value={editBundleSequenceNo}
+                          onChange={(e) => setEditBundleSequenceNo(Number(e.target.value))}
+                          className="w-full font-mono font-bold bg-white px-2 py-1.5 rounded-lg border border-slate-300 text-center"
+                        />
+                      </div>
+
+                      {/* Full Name */}
+                      <div className="sm:col-span-5">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          {language === 'mr' ? 'विद्यार्थ्याचे पूर्ण नाव *' : 'Student Full Name *'}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editFullName}
+                          onChange={(e) => setEditFullName(e.target.value)}
+                          className="w-full bg-white px-2.5 py-1.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#233d76]"
+                          autoFocus
+                        />
+                      </div>
+
+                      {/* Gender */}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          {language === 'mr' ? 'लिंग' : 'Gender'}
+                        </label>
+                        <select
+                          value={editGender}
+                          onChange={(e) => setEditGender(e.target.value as Gender)}
+                          className="w-full bg-white px-2 py-1.5 rounded-lg border border-slate-300 cursor-pointer"
+                        >
+                          <option value="FEMALE">{language === 'mr' ? 'मुलगी' : 'Female'}</option>
+                          <option value="MALE">{language === 'mr' ? 'मुलगा' : 'Male'}</option>
+                        </select>
+                      </div>
+
+                      {/* Standard */}
+                      <div className="sm:col-span-1">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          {language === 'mr' ? 'इयत्ता' : 'Class'}
+                        </label>
+                        <input
+                          type="text"
+                          value={editStandard}
+                          onChange={(e) => setEditStandard(e.target.value)}
+                          className="w-full bg-white px-2 py-1.5 rounded-lg border border-slate-300 text-center font-bold"
+                        />
+                      </div>
+
+                      {/* Division */}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          {language === 'mr' ? 'तुकडी' : 'Div'}
+                        </label>
+                        <input
+                          type="text"
+                          value={editDivision}
+                          onChange={(e) => setEditDivision(e.target.value)}
+                          className="w-full bg-white px-2 py-1.5 rounded-lg border border-slate-300 text-center font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditingStudentId(null)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 cursor-pointer"
+                      >
+                        {language === 'mr' ? 'रद्द करा' : 'Cancel'}
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-1.5 rounded-lg text-xs font-bold bg-[#233d76] hover:bg-[#1b2f5c] text-white shadow-xs cursor-pointer flex items-center space-x-1"
+                      >
+                        <Check className="w-3.5 h-3.5 text-[#dfaf27]" />
+                        <span>{language === 'mr' ? 'बदल जतन करा' : 'Save Changes'}</span>
+                      </button>
+                    </div>
+                  </form>
+                );
+              }
+
+              return (
+                <div
+                  key={student.id}
+                  className="px-6 py-3 flex items-center justify-between hover:bg-slate-50/80 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="font-mono text-xs font-bold bg-[#f0da9a]/50 text-[#233d76] px-2.5 py-1 rounded-lg border border-[#dfaf27]/40">
+                      S-{student.bundleSequenceNo}
                     </span>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">{student.fullName}</h4>
+                      <span className="text-xs text-slate-500">
+                        {student.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {language === 'mr' ? 'इयत्ता' : 'Class'}{' '}
+                        {student.standard}-{student.division}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 hidden sm:inline-block">
+                      {language === 'mr' ? 'नोंद झाली' : 'Saved'}
+                    </span>
+
+                    {!isTrustAdmin && (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleStartEdit(student)}
+                          className="p-1.5 text-slate-400 hover:text-[#233d76] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          title={language === 'mr' ? 'विद्यार्थी माहिती संपादित करा' : 'Edit student details'}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(student)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                          title={language === 'mr' ? 'विद्यार्थी हटवा' : 'Delete student'}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <span className="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
-                  {language === 'mr' ? 'नोंद झाली' : 'Saved'}
-                </span>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
