@@ -20,6 +20,7 @@ export const Header: React.FC = () => {
   } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+  const isOrgCoordinator = currentUser.role === 'ORG_COORDINATOR';
   const currentOrg = organizations.find((o) => o.code === currentUser.organizationCode);
 
   return (
@@ -109,6 +110,10 @@ export const Header: React.FC = () => {
                       ? language === 'mr'
                         ? `👑 ${user.fullName} (विश्वस्त)`
                         : `👑 ${user.fullName} (Admin)`
+                      : user.role === 'ORG_COORDINATOR'
+                      ? language === 'mr'
+                        ? `🏢 ${user.fullName} (समन्वयक)${orgTag}`
+                        : `🏢 ${user.fullName} (NGO Lead)${orgTag}`
                       : `👤 ${user.fullName}${orgTag}`;
 
                   return (
@@ -142,6 +147,8 @@ export const Header: React.FC = () => {
           <span className="text-[11px] font-bold text-[#f0da9a] truncate">
             {isTrustAdmin
               ? language === 'mr' ? '👑 विश्वस्त (Admin)' : '👑 Trust Admin'
+              : isOrgCoordinator
+              ? language === 'mr' ? `🏢 समन्वयक: ${currentUser.fullName}` : `🏢 Lead: ${currentUser.fullName}`
               : `👤 ${currentUser.fullName}`}
           </span>
           {currentOrg && (
@@ -169,8 +176,25 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
+      {/* Coordinator Sub-Bar for NGO Coordinator */}
+      {isOrgCoordinator && (
+        <div className="bg-[#142345] border-t border-[#294279] px-3 sm:px-8 lg:px-12 py-1.5 sm:py-2 flex items-center justify-between text-xs text-[#f0da9a]">
+          <div className="flex items-center space-x-2 truncate">
+            <span className="text-[9px] sm:text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-1.5 py-0.5 rounded-sm shrink-0">
+              {language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'Partner Portal'}
+            </span>
+            <span className="text-white text-xs font-bold truncate">
+              {currentUser.fullName} {currentOrg ? `• ${language === 'mr' ? currentOrg.nameMr : currentOrg.nameEn}` : ''}
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-300 hidden sm:inline">
+            {language === 'mr' ? 'प्रशिक्षक व शाळा प्रगती नियंत्रण' : 'FTs & School Progress Desk'}
+          </span>
+        </div>
+      )}
+
       {/* Active School Sub-Bar for Field Trainer */}
-      {!isTrustAdmin && (
+      {!isTrustAdmin && !isOrgCoordinator && (
         <div className="bg-[#142345] border-t border-[#294279] px-3 sm:px-8 lg:px-12 py-1.5 sm:py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#f0da9a]">
           <div className="flex items-center space-x-2">
             <span className="text-[9px] sm:text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-1.5 py-0.5 rounded-sm shrink-0">

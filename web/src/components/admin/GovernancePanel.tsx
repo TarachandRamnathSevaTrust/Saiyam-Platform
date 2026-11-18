@@ -22,6 +22,7 @@ import {
   ArrowRight,
   Database,
   Sparkles,
+  UserCheck,
 } from 'lucide-react';
 import { Organization, UserProfile, School } from '@saiyam/shared';
 
@@ -57,6 +58,13 @@ export const GovernancePanel: React.FC = () => {
   const [orgContactEmail, setOrgContactEmail] = useState('');
   const [orgDescription, setOrgDescription] = useState('');
 
+  // NGO Coordinator / Lead Account State
+  const [hasCoordinator, setHasCoordinator] = useState(false);
+  const [coordinatorName, setCoordinatorName] = useState('');
+  const [coordinatorEmail, setCoordinatorEmail] = useState('');
+  const [coordinatorPhone, setCoordinatorPhone] = useState('');
+  const [coordinatorAuthUserId, setCoordinatorAuthUserId] = useState('');
+
   // --- Add/Edit Trainer Form State ---
   const [isAddingTrainer, setIsAddingTrainer] = useState(false);
   const [editingTrainerId, setEditingTrainerId] = useState<string | null>(null);
@@ -85,6 +93,24 @@ export const GovernancePanel: React.FC = () => {
     setOrgContactPhone(org.contactPhone || '');
     setOrgContactEmail(org.contactEmail || '');
     setOrgDescription(org.description || '');
+
+    // Check if a coordinator is assigned to this org
+    const existingCoord = users.find(
+      (u) => u.role === 'ORG_COORDINATOR' && u.organizationCode === org.code
+    );
+    if (existingCoord || org.coordinatorEmail) {
+      setHasCoordinator(true);
+      setCoordinatorName(existingCoord?.fullName || org.coordinatorUserName || org.contactPerson || '');
+      setCoordinatorEmail(existingCoord?.email || org.coordinatorEmail || org.contactEmail || '');
+      setCoordinatorPhone(existingCoord?.phone || org.contactPhone || '');
+      setCoordinatorAuthUserId(existingCoord?.authUserId || '');
+    } else {
+      setHasCoordinator(false);
+      setCoordinatorName('');
+      setCoordinatorEmail('');
+      setCoordinatorPhone('');
+      setCoordinatorAuthUserId('');
+    }
     setIsAddingOrg(true);
   };
 
@@ -97,6 +123,11 @@ export const GovernancePanel: React.FC = () => {
     setOrgContactPhone('');
     setOrgContactEmail('');
     setOrgDescription('');
+    setHasCoordinator(false);
+    setCoordinatorName('');
+    setCoordinatorEmail('');
+    setCoordinatorPhone('');
+    setCoordinatorAuthUserId('');
     setIsAddingOrg(false);
   };
 
@@ -108,31 +139,60 @@ export const GovernancePanel: React.FC = () => {
     }
 
     const cleanCode = orgCode.trim().toUpperCase().replace(/\s+/g, '_');
+    let coordUserId: string | undefined = undefined;
+
+    // Handle Coordinator Account Creation/Update
+    if (hasCoordinator && coordinatorEmail.trim()) {
+      const cName = coordinatorName.trim() || orgContactPerson.trim() || `${cleanCode} Lead`;
+      const cEmail = coordinatorEmail.trim();
+      const resolvedAuthId = coordinatorAuthUserId.trim() || `auth-coord-${cleanCode.toLowerCase()}-${Date.now().toString(36)}`;
+      const existingCoord = users.find(
+        (u) => u.role === 'ORG_COORDINATOR' && u.organizationCode === cleanCode
+      );
+
+      if (existingCoord) {
+        updateUser(existingCoord.id, {
+          fullName: cName,
+          email: cEmail,
+          phone: coordinatorPhone.trim() || orgContactPhone.trim(),
+          authUserId: resolvedAuthId,
+          organizationCode: cleanCode,
+        });
+        coordUserId = existingCoord.id;
+      } else {
+        const newCoord = addUser({
+          fullName: cName,
+          email: cEmail,
+          phone: coordinatorPhone.trim() || orgContactPhone.trim(),
+          role: 'ORG_COORDINATOR',
+          organizationCode: cleanCode,
+          authUserId: resolvedAuthId,
+          isActive: true,
+        });
+        coordUserId = newCoord.id;
+      }
+    }
+
+    const orgPayload = {
+      code: cleanCode,
+      nameMr: orgNameMr.trim(),
+      nameEn: orgNameEn.trim() || orgNameMr.trim(),
+      orgType,
+      contactPerson: orgContactPerson.trim(),
+      contactPhone: orgContactPhone.trim(),
+      contactEmail: orgContactEmail.trim(),
+      description: orgDescription.trim(),
+      coordinatorUserId: coordUserId,
+      coordinatorUserName: hasCoordinator ? (coordinatorName.trim() || orgContactPerson.trim()) : undefined,
+      coordinatorEmail: hasCoordinator ? coordinatorEmail.trim() : undefined,
+    };
 
     if (editingOrgId) {
-      updateOrganization(editingOrgId, {
-        code: cleanCode,
-        nameMr: orgNameMr.trim(),
-        nameEn: orgNameEn.trim() || orgNameMr.trim(),
-        orgType,
-        contactPerson: orgContactPerson.trim(),
-        contactPhone: orgContactPhone.trim(),
-        contactEmail: orgContactEmail.trim(),
-        description: orgDescription.trim(),
-      });
-      triggerNotify(language === 'mr' ? 'संस्थेची माहिती अद्ययावत केली!' : 'Organization updated successfully!');
+      updateOrganization(editingOrgId, orgPayload);
+      triggerNotify(language === 'mr' ? 'संस्थेची माहिती व समन्वयक खाते अद्ययावत केले!' : 'Organization & Coordinator updated successfully!');
     } else {
-      addOrganization({
-        code: cleanCode,
-        nameMr: orgNameMr.trim(),
-        nameEn: orgNameEn.trim() || orgNameMr.trim(),
-        orgType,
-        contactPerson: orgContactPerson.trim(),
-        contactPhone: orgContactPhone.trim(),
-        contactEmail: orgContactEmail.trim(),
-        description: orgDescription.trim(),
-      });
-      triggerNotify(language === 'mr' ? 'नवीन संस्था यशस्वीरित्या जोडली!' : 'Organization created successfully!');
+      addOrganization(orgPayload);
+      triggerNotify(language === 'mr' ? 'नवीन संस्था व समन्वयक खाते यशस्वीरित्या जोडले!' : 'Organization & Coordinator created successfully!');
     }
 
     handleResetOrgForm();
@@ -515,6 +575,110 @@ export const GovernancePanel: React.FC = () => {
                 />
               </div>
 
+              {/* Assign Organization Coordinator / Lead User */}
+              <div className="bg-[#233d76]/5 border border-[#233d76]/20 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <UserCheck className="w-4 h-4 text-[#233d76]" />
+                    <span className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
+                      {language === 'mr' ? 'संस्था समन्वयक लॉगिन खाते नियुक्त करा' : 'Assign Coordinator Login User'}
+                    </span>
+                  </div>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hasCoordinator}
+                      onChange={(e) => {
+                        const val = e.target.checked;
+                        setHasCoordinator(val);
+                        if (val && !coordinatorName) {
+                          setCoordinatorName(orgContactPerson || '');
+                          setCoordinatorEmail(orgContactEmail || '');
+                          setCoordinatorPhone(orgContactPhone || '');
+                        }
+                      }}
+                      className="w-4 h-4 accent-[#233d76] rounded cursor-pointer"
+                    />
+                    <span className="text-xs font-bold text-slate-700">
+                      {language === 'mr' ? 'खाते जोडा (Enable Coordinator Login)' : 'Enable Coordinator Login'}
+                    </span>
+                  </label>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-snug">
+                  {language === 'mr'
+                    ? 'या संस्थेसाठी स्वतंत्र समन्वयक खाते तयार करा. हा युझर लॉगिन करून त्याच्या अंतर्गत असलेले सर्व क्षेत्र प्रशिक्षक (FTs), शाळा व प्रगती ट्रॅक करू शकेल.'
+                    : 'Assign a lead user to oversee this NGO. When they log in, they track all FTs, allocated schools, and sessions under this organization.'}
+                </p>
+
+                {hasCoordinator && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 text-xs border-t border-[#233d76]/10">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">
+                        {language === 'mr' ? 'समन्वयकाचे नाव *' : 'Coordinator Name *'}
+                      </label>
+                      <input
+                        type="text"
+                        required={hasCoordinator}
+                        value={coordinatorName}
+                        onChange={(e) => setCoordinatorName(e.target.value)}
+                        placeholder="e.g. Lead Person Name"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">
+                        {language === 'mr' ? 'लॉगिन ईमेल *' : 'Login Email *'}
+                      </label>
+                      <input
+                        type="email"
+                        required={hasCoordinator}
+                        value={coordinatorEmail}
+                        onChange={(e) => setCoordinatorEmail(e.target.value)}
+                        placeholder="coordinator@org.org.in"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">
+                        {language === 'mr' ? 'फोन नंबर' : 'Phone'}
+                      </label>
+                      <input
+                        type="tel"
+                        value={coordinatorPhone}
+                        onChange={(e) => setCoordinatorPhone(e.target.value)}
+                        placeholder="+91 98000 00000"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">
+                        {language === 'mr' ? 'Supabase Auth ID (UUID)' : 'Supabase Auth UUID'}
+                      </label>
+                      <div className="flex space-x-1.5">
+                        <input
+                          type="text"
+                          value={coordinatorAuthUserId}
+                          onChange={(e) => setCoordinatorAuthUserId(e.target.value)}
+                          placeholder="auth-uuid..."
+                          className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-mono text-[11px] focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCoordinatorAuthUserId(`auth-coord-${(orgCode || 'org').toLowerCase()}-${Date.now().toString(36)}`)}
+                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold shrink-0 cursor-pointer"
+                          title="Generate Auto ID"
+                        >
+                          Auto
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
@@ -597,6 +761,44 @@ export const GovernancePanel: React.FC = () => {
                           <div className="text-[10px] text-slate-500">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</div>
                         </div>
                       </div>
+
+                      {/* Coordinator Account Info */}
+                      {(() => {
+                        const orgCoord = users.find(
+                          (u) => u.role === 'ORG_COORDINATOR' && u.organizationCode === org.code
+                        );
+                        if (!orgCoord && !org.coordinatorUserName) return null;
+                        return (
+                          <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100 flex items-center justify-between">
+                            <div className="overflow-hidden">
+                              <span className="text-[11px] font-bold text-indigo-900 block truncate">
+                                🏢 {language === 'mr' ? 'समन्वयक:' : 'Lead:'} {orgCoord?.fullName || org.coordinatorUserName}
+                              </span>
+                              <span className="text-[10px] text-indigo-600 block truncate">
+                                {orgCoord?.email || org.coordinatorEmail}
+                              </span>
+                            </div>
+                            {orgCoord && (
+                              <button
+                                onClick={() => {
+                                  switchUser(orgCoord.id);
+                                  triggerNotify(
+                                    language === 'mr'
+                                      ? `${orgCoord.fullName} खात्यात स्विच केले!`
+                                      : `Switched to ${orgCoord.fullName}!`,
+                                    'info'
+                                  );
+                                }}
+                                className="ml-2 px-2.5 py-1 bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white text-[10px] font-bold rounded-lg flex items-center space-x-1 shadow-2xs shrink-0 cursor-pointer"
+                                title="समन्वयक म्हणून डॅशबोर्ड पहा"
+                              >
+                                <LogIn className="w-3 h-3" />
+                                <span>{language === 'mr' ? 'खाते पहा' : 'View'}</span>
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       <div className="pt-2 flex justify-end space-x-2">
                         <button

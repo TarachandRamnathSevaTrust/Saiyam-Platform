@@ -97,12 +97,39 @@ export const LoginPage: React.FC = () => {
 
   // Demo 3: Partner NGO Coordinator
   const handleDemoPartner = () => {
+    // 1. Look for an existing ORG_COORDINATOR user
+    const existingCoordinator = users.find((u) => u.role === 'ORG_COORDINATOR');
+    if (existingCoordinator) {
+      login(existingCoordinator);
+      return;
+    }
+
+    // 2. Or check if any organization has a coordinator assigned
+    const orgWithCoord = organizations.find((o) => o.coordinatorEmail || o.coordinatorUserName);
+    if (orgWithCoord) {
+      const coordUser: UserProfile = {
+        id: orgWithCoord.coordinatorUserId || `coord-${orgWithCoord.id}`,
+        fullName: orgWithCoord.coordinatorUserName || (language === 'mr' ? `${orgWithCoord.nameMr} समन्वयक` : `${orgWithCoord.nameEn} Coordinator`),
+        email: orgWithCoord.coordinatorEmail || `coordinator@${orgWithCoord.code.toLowerCase()}.org`,
+        role: 'ORG_COORDINATOR',
+        organizationCode: orgWithCoord.code,
+        isActive: true,
+        createdAt: new Date().toISOString().split('T')[0],
+      };
+      login(coordUser);
+      return;
+    }
+
+    // 3. Fallback to first partner organization (e.g. JPIP)
+    const partnerOrg = organizations.find((o) => o.code !== 'TRST_DIRECT') || organizations[0];
     const demoPartner: UserProfile = {
       id: 'demo-partner-coord',
-      fullName: language === 'mr' ? 'भागीदार संस्था प्रतिनिधी' : 'Partner NGO Coordinator',
-      email: 'partner@trst.org.in',
-      role: 'FIELD_TRAINER',
-      organizationCode: organizations[0]?.code || 'PARTNER_NGO',
+      fullName: language === 'mr'
+        ? `${partnerOrg?.nameMr || 'ज्ञान प्रबोधिनी (JPIP)'} समन्वयक`
+        : `${partnerOrg?.nameEn || 'Jnana Prabodhini (JPIP)'} Coordinator`,
+      email: partnerOrg?.contactEmail || 'coordinator@jpip.org',
+      role: 'ORG_COORDINATOR',
+      organizationCode: partnerOrg?.code || 'JPIP_PUNE',
       isActive: true,
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -263,12 +290,12 @@ export const LoginPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-900 group-hover:text-[#233d76]">
-                          {language === 'mr' ? '३. भागीदार स्वयंसेवी संस्था' : '3. Implementing Partner NGO'}
+                          {language === 'mr' ? '३. भागीदार संस्था समन्वयक (उदा. JPIP)' : '3. Implementing Partner NGO (e.g. JPIP)'}
                         </div>
                         <div className="text-[11px] text-slate-500 mt-0.5">
                           {language === 'mr'
-                            ? 'नियुक्त शाळांचे निरीक्षण व समन्वय'
-                            : 'Partner-scoped oversight & allocated schools'}
+                            ? 'संस्थेअंतर्गत क्षेत्रीय प्रशिक्षक (FTs), शाळा व प्रगती ट्रॅकिंग'
+                            : 'Track Field Trainers (FTs), schools & sessions under this NGO'}
                         </div>
                       </div>
                     </div>

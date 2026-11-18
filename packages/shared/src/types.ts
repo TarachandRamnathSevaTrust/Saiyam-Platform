@@ -12,6 +12,9 @@ export interface Organization {
   contactPerson?: string;
   contactPhone?: string;
   contactEmail?: string;
+  coordinatorUserId?: string; // Links to UserProfile(id) assigned to coordinate this NGO
+  coordinatorUserName?: string;
+  coordinatorEmail?: string;
   isActive: boolean;
   createdAt: string;
   trainerCount?: number;

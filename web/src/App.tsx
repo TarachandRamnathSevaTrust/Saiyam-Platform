@@ -4,6 +4,7 @@ import { Header } from './components/layout/Header';
 import { LoginPage } from './components/auth/LoginPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { GovernancePanel } from './components/admin/GovernancePanel';
+import { PartnerCoordinatorDashboard } from './components/partner/PartnerCoordinatorDashboard';
 import { SchoolList } from './components/trainer/SchoolList';
 import { StudentRoster } from './components/trainer/StudentRoster';
 import { AssessmentDataEntry } from './components/trainer/AssessmentDataEntry';
@@ -18,16 +19,18 @@ import {
   FileText,
   ShieldCheck,
   AlertCircle,
+  School as SchoolIcon,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
   const { isLoggedIn, currentUser, language, selectedSchool } = useApp();
 
   const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
+  const isOrgCoordinator = currentUser?.role === 'ORG_COORDINATOR';
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<string>(
-    isTrustAdmin ? 'DASHBOARD' : 'SCHOOLS'
+    isTrustAdmin ? 'DASHBOARD' : isOrgCoordinator ? 'NGO_PORTAL' : 'SCHOOLS'
   );
 
   // Sync activeTab when role changes
@@ -36,12 +39,14 @@ export const App: React.FC = () => {
       if (activeTab !== 'DASHBOARD' && activeTab !== 'GOVERNANCE' && activeTab !== 'SCHOOLS') {
         setActiveTab('DASHBOARD');
       }
+    } else if (isOrgCoordinator) {
+      setActiveTab('NGO_PORTAL');
     } else {
-      if (activeTab === 'DASHBOARD' || activeTab === 'GOVERNANCE') {
+      if (activeTab === 'DASHBOARD' || activeTab === 'GOVERNANCE' || activeTab === 'NGO_PORTAL') {
         setActiveTab('SCHOOLS');
       }
     }
-  }, [isTrustAdmin]);
+  }, [isTrustAdmin, isOrgCoordinator]);
 
   // If not logged in, show the official Login Page first!
   if (!isLoggedIn) {
@@ -50,6 +55,7 @@ export const App: React.FC = () => {
 
   const requiresSchool =
     !isTrustAdmin &&
+    !isOrgCoordinator &&
     activeTab !== 'SCHOOLS' &&
     selectedSchool === null;
 
@@ -96,6 +102,32 @@ export const App: React.FC = () => {
                   }`}
                 >
                   <Building2 className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? 'शाळा यादी व प्रगती' : 'Schools & Progress'}</span>
+                </button>
+              </>
+            ) : isOrgCoordinator ? (
+              <>
+                <button
+                  onClick={() => setActiveTab('NGO_PORTAL')}
+                  className={`flex items-center space-x-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'NGO_PORTAL'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Building2 className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? 'संस्था नियंत्रण कक्ष (NGO Portal)' : 'NGO Coordinator Portal'}</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('SCHOOLS')}
+                  className={`flex items-center space-x-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'SCHOOLS'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <SchoolIcon className="w-4 h-4 text-[#dfaf27]" />
                   <span>{language === 'mr' ? 'शाळा यादी व प्रगती' : 'Schools & Progress'}</span>
                 </button>
               </>
@@ -185,6 +217,7 @@ export const App: React.FC = () => {
           <>
             {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
             {isTrustAdmin && activeTab === 'GOVERNANCE' && <GovernancePanel />}
+            {isOrgCoordinator && activeTab === 'NGO_PORTAL' && <PartnerCoordinatorDashboard />}
             {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
             {activeTab === 'STUDENTS' && (
               <StudentRoster
@@ -239,6 +272,27 @@ export const App: React.FC = () => {
             >
               <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
               <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+            </button>
+          </div>
+        ) : isOrgCoordinator ? (
+          <div className="grid grid-cols-2 h-15">
+            <button
+              onClick={() => setActiveTab('NGO_PORTAL')}
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                activeTab === 'NGO_PORTAL' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <Building2 className={`w-5 h-5 ${activeTab === 'NGO_PORTAL' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'NGO Portal'}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('SCHOOLS')}
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+              }`}
+            >
+              <SchoolIcon className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा व प्रगती' : 'Schools'}</span>
             </button>
           </div>
         ) : (
