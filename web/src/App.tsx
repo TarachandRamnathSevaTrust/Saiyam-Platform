@@ -186,9 +186,24 @@ export const App: React.FC = () => {
             {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
             {isTrustAdmin && activeTab === 'GOVERNANCE' && <GovernancePanel />}
             {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
-            {activeTab === 'STUDENTS' && <StudentRoster onBack={() => setActiveTab('SCHOOLS')} />}
-            {activeTab === 'ASSESSMENTS' && <AssessmentDataEntry onBack={() => setActiveTab('SCHOOLS')} />}
-            {activeTab === 'SESSIONS' && <SessionLogger onBack={() => setActiveTab('SCHOOLS')} />}
+            {activeTab === 'STUDENTS' && (
+              <StudentRoster
+                onBack={() => setActiveTab('SCHOOLS')}
+                onNavigate={(t) => setActiveTab(t)}
+              />
+            )}
+            {activeTab === 'ASSESSMENTS' && (
+              <AssessmentDataEntry
+                onBack={() => setActiveTab('SCHOOLS')}
+                onNavigate={(t) => setActiveTab(t)}
+              />
+            )}
+            {activeTab === 'SESSIONS' && (
+              <SessionLogger
+                onBack={() => setActiveTab('SCHOOLS')}
+                onNavigate={(t) => setActiveTab(t)}
+              />
+            )}
             {activeTab === 'DOCUMENTS' && <DocumentUpload onBack={() => setActiveTab('SCHOOLS')} />}
           </>
         )}

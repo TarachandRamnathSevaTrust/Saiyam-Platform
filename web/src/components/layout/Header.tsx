@@ -23,26 +23,26 @@ export const Header: React.FC = () => {
   const currentOrg = organizations.find((o) => o.code === currentUser.organizationCode);
 
   return (
-    <header className="bg-[#233d76] text-white sticky top-0 z-40 shadow-md">
+    <header className="bg-[#233d76] text-white sticky top-0 z-40 shadow-md pt-[max(env(safe-area-inset-top,0px),32px)] sm:pt-0">
       {/* Primary Top Bar */}
       <div className="w-full px-3 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center h-14 sm:h-18">
           {/* Logo & Platform Name */}
           <div className="flex items-center space-x-2 sm:space-x-3.5">
-            <div className="bg-white rounded-xl p-1 sm:p-1.5 flex items-center justify-center shadow-sm shrink-0 border border-white/20">
-              <div className="bg-[#233d76] rounded-lg px-2 py-1 text-center">
-                <span className="font-black text-xs sm:text-sm text-[#dfaf27] tracking-wider uppercase">
-                  {language === 'mr' ? 'संयम' : 'SAIYAM'}
-                </span>
-              </div>
+            <div className="bg-white rounded-xl p-1 sm:p-1.5 flex items-center justify-center shadow-xs shrink-0 border border-white/20">
+              <img
+                src="/saiyam-logo.png"
+                alt="संयम (Saiyam)"
+                className="h-8 sm:h-11 w-auto object-contain"
+              />
             </div>
             <div className="leading-tight">
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                <span className="font-bold text-sm sm:text-xl tracking-tight text-white trust-heading">
+                <span className="font-bold text-base sm:text-xl tracking-tight text-white trust-heading">
                   {language === 'mr' ? 'संयम' : 'SAIYAM'}
                 </span>
                 <span className="text-[9px] sm:text-[11px] bg-[#dfaf27] text-[#233d76] font-black px-1.5 sm:px-2 py-0.5 rounded-sm shadow-2xs">
-                  {language === 'mr' ? 'टीआरएसटी' : 'TRST'}
+                  TRST
                 </span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-[#f0da9a] font-medium hidden sm:block mt-0.5">

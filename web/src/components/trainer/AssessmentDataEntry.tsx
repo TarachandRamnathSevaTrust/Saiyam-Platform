@@ -12,9 +12,10 @@ import {
 
 interface Props {
   onBack?: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
+export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => {
   const {
     selectedSchool,
     students,
@@ -216,8 +217,18 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
 
           <div className="max-h-[500px] overflow-y-auto divide-y divide-slate-100">
             {schoolStudents.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-400">
-                {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवले नाहीत' : 'No students found'}
+              <div className="p-6 text-center text-xs space-y-3">
+                <p className="text-slate-500 font-medium">
+                  {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवले नाहीत' : 'No students registered yet'}
+                </p>
+                {onNavigate && (
+                  <button
+                    onClick={() => onNavigate('STUDENTS')}
+                    className="inline-flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>{language === 'mr' ? '+ विद्यार्थी नोंदणी करा' : '+ Register Students'}</span>
+                  </button>
+                )}
               </div>
             ) : (
               schoolStudents.map((st) => {
@@ -417,6 +428,20 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack }) => {
           )}
         </div>
       </div>
+
+      {onNavigate && (
+        <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 gap-3">
+          <span className="text-xs text-slate-500">
+            {language === 'mr' ? 'चाचण्या नोंदवल्यानंतर २५ सत्रांची नोंद करा' : 'After tests, record the 25 on-ground session logs'}
+          </span>
+          <button
+            onClick={() => onNavigate('SESSIONS')}
+            className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <span>{language === 'mr' ? '२५ सत्र नोंदींकडे जा (Log Sessions) →' : '25 Session Logs →'}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

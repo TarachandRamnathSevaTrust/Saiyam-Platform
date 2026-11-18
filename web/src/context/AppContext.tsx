@@ -173,6 +173,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : null;
   });
 
+  // Auto-select first school if none is active but schools exist
+  useEffect(() => {
+    if (!selectedSchool && schools.length > 0) {
+      setSelectedSchool(schools[0]);
+    }
+  }, [schools, selectedSchool]);
+
   const [students, setStudents] = useState<Student[]>(() => {
     const saved = localStorage.getItem('saiyam_students_v10');
     return saved ? JSON.parse(saved) : INITIAL_STUDENTS;

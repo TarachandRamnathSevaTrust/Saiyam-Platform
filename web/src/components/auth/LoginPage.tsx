@@ -110,7 +110,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex flex-col justify-between p-3 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex flex-col justify-between p-3 sm:p-6 lg:p-8 pt-[max(env(safe-area-inset-top,0px),32px)] sm:pt-6">
       {/* Top Navbar: Clean & Free of Any Filter */}
       <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2">
         <div className="flex items-center space-x-2 text-xs text-[#f0da9a]">
@@ -136,13 +136,13 @@ export const LoginPage: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
           {/* Header Banner */}
           <div className="bg-[#233d76] text-white p-6 sm:p-7 text-center relative border-b-4 border-[#dfaf27]">
-            {/* Dynamic Box: Shows SAIYAM in English, or संयम in Marathi */}
-            <div className="w-16 h-16 bg-white rounded-2xl p-1.5 mx-auto mb-3 shadow-md border-2 border-[#dfaf27] flex items-center justify-center">
-              <div className="w-full h-full rounded-xl bg-[#233d76] flex items-center justify-center shadow-inner">
-                <span className="font-black text-xs sm:text-sm text-[#dfaf27] tracking-wider uppercase">
-                  {language === 'mr' ? 'संयम' : 'SAIYAM'}
-                </span>
-              </div>
+            {/* Official Saiyam Logo */}
+            <div className="w-16 h-16 bg-white rounded-2xl p-2 mx-auto mb-3 shadow-md border-2 border-[#dfaf27] flex items-center justify-center">
+              <img
+                src="/saiyam-logo.png"
+                alt="संयम (Saiyam)"
+                className="h-11 w-auto object-contain"
+              />
             </div>
 
             <div className="inline-flex items-center space-x-1.5 bg-[#dfaf27] text-[#233d76] font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1.5 shadow-2xs">

@@ -5,9 +5,10 @@ import { Gender } from '@saiyam/shared';
 
 interface Props {
   onBack?: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export const StudentRoster: React.FC<Props> = ({ onBack }) => {
+export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   const { selectedSchool, students, addStudent, language, currentUser } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
@@ -278,6 +279,20 @@ export const StudentRoster: React.FC<Props> = ({ onBack }) => {
             ))
           )}
         </div>
+
+        {schoolStudents.length > 0 && onNavigate && (
+          <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+            <span className="text-xs text-slate-500">
+              {language === 'mr' ? 'पुढील पायरी: पूर्व चाचण्या नोंदवा' : 'Next Step: Conduct Pre-Tests'}
+            </span>
+            <button
+              onClick={() => onNavigate('ASSESSMENTS')}
+              className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              <span>{language === 'mr' ? 'पूर्व / उत्तर चाचण्या (Pre/Post Tests) →' : 'Pre / Post Tests →'}</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

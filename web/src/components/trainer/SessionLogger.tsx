@@ -15,9 +15,10 @@ import {
 
 interface Props {
   onBack?: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export const SessionLogger: React.FC<Props> = ({ onBack }) => {
+export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   const { selectedSchool, sessionLogs, saveSessionLog, language, currentUser } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
@@ -438,6 +439,20 @@ export const SessionLogger: React.FC<Props> = ({ onBack }) => {
           )}
         </div>
       </div>
+
+      {onNavigate && (
+        <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 gap-3">
+          <span className="text-xs text-slate-500">
+            {language === 'mr' ? 'सत्र नोंदींनंतर अधिकृत कागदपत्रे व सही-शिक्का अपलोड करा' : 'After session logs, upload official school stamp & signature proofs'}
+          </span>
+          <button
+            onClick={() => onNavigate('DOCUMENTS')}
+            className="flex items-center space-x-1.5 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <span>{language === 'mr' ? 'कागदपत्रे अपलोडकडे जा (Upload Documents) →' : 'Upload Documents →'}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
