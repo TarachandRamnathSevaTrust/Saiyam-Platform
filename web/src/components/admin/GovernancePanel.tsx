@@ -49,8 +49,7 @@ export const GovernancePanel: React.FC = () => {
   // --- Add Organization Form State ---
   const [isAddingOrg, setIsAddingOrg] = useState(false);
   const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
-  const [orgNameMr, setOrgNameMr] = useState('');
-  const [orgNameEn, setOrgNameEn] = useState('');
+  const [orgName, setOrgName] = useState('');
   const [orgCode, setOrgCode] = useState('');
   const [orgType, setOrgType] = useState<Organization['orgType']>('PARTNER_NGO');
   const [orgContactPerson, setOrgContactPerson] = useState('');
@@ -85,8 +84,7 @@ export const GovernancePanel: React.FC = () => {
   // --- Organization Handlers ---
   const handleOpenEditOrg = (org: Organization) => {
     setEditingOrgId(org.id);
-    setOrgNameMr(org.nameMr);
-    setOrgNameEn(org.nameEn);
+    setOrgName(org.nameMr || org.nameEn);
     setOrgCode(org.code);
     setOrgType(org.orgType);
     setOrgContactPerson(org.contactPerson || '');
@@ -116,8 +114,7 @@ export const GovernancePanel: React.FC = () => {
 
   const handleResetOrgForm = () => {
     setEditingOrgId(null);
-    setOrgNameMr('');
-    setOrgNameEn('');
+    setOrgName('');
     setOrgCode('');
     setOrgContactPerson('');
     setOrgContactPhone('');
@@ -133,7 +130,7 @@ export const GovernancePanel: React.FC = () => {
 
   const handleSaveOrg = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!orgNameMr.trim() || !orgCode.trim()) {
+    if (!orgName.trim() || !orgCode.trim()) {
       alert(language === 'mr' ? 'कृपया संस्थेचे नाव व कोड भरा.' : 'Please enter organization name and code.');
       return;
     }
@@ -175,8 +172,8 @@ export const GovernancePanel: React.FC = () => {
 
     const orgPayload = {
       code: cleanCode,
-      nameMr: orgNameMr.trim(),
-      nameEn: orgNameEn.trim() || orgNameMr.trim(),
+      nameMr: orgName.trim(),
+      nameEn: orgName.trim(),
       orgType,
       contactPerson: orgContactPerson.trim(),
       contactPhone: orgContactPhone.trim(),
@@ -462,7 +459,7 @@ export const GovernancePanel: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
                     {language === 'mr' ? 'संस्थेचे नाव *' : 'Organization Name *'}
@@ -470,24 +467,11 @@ export const GovernancePanel: React.FC = () => {
                   <input
                     type="text"
                     required
-                    value={orgNameMr}
-                    onChange={(e) => setOrgNameMr(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Partner NGO / Institution...'}
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Jnana Prabodhini, VOPA...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                     autoFocus
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'इंग्रजी नाव (पर्यायी)' : 'Name in Marathi (Optional)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={orgNameEn}
-                    onChange={(e) => setOrgNameEn(e.target.value)}
-                    placeholder={language === 'mr' ? 'e.g. Jnana Prabodhini...' : 'उदा. ज्ञान प्रबोधिनी...'}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                   />
                 </div>
 

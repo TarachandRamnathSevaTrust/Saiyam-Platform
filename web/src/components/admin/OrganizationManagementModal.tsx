@@ -12,8 +12,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
   const { organizations, addOrganization, deleteOrganization, schools, language } = useApp();
 
   const [isAdding, setIsAdding] = useState(false);
-  const [nameMr, setNameMr] = useState('');
-  const [nameEn, setNameEn] = useState('');
+  const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [orgType, setOrgType] = useState<Organization['orgType']>('PARTNER_NGO');
   const [contactPerson, setContactPerson] = useState('');
@@ -26,7 +25,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nameMr.trim() || !code.trim()) {
+    if (!name.trim() || !code.trim()) {
       alert(language === 'mr' ? 'कृपया संस्थेचे नाव आणि कोड प्रविष्ट करा.' : 'Please enter organization name and code.');
       return;
     }
@@ -35,8 +34,8 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
 
     addOrganization({
       code: cleanCode,
-      nameMr: nameMr.trim(),
-      nameEn: nameEn.trim() || nameMr.trim(),
+      nameMr: name.trim(),
+      nameEn: name.trim(),
       orgType,
       contactPerson: contactPerson.trim(),
       contactPhone: contactPhone.trim(),
@@ -48,8 +47,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     setTimeout(() => setSuccessMsg(false), 2500);
 
     // Reset form
-    setNameMr('');
-    setNameEn('');
+    setName('');
     setCode('');
     setContactPerson('');
     setContactPhone('');
@@ -122,23 +120,11 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   <input
                     type="text"
                     required
-                    value={nameMr}
-                    onChange={(e) => setNameMr(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Partner NGO / Institution Name...'}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={language === 'mr' ? 'उदा. ज्ञान प्रबोधिनी, सह्याद्री...' : 'e.g. Jnana Prabodhini, VOPA...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">
-                    {language === 'mr' ? 'इंग्रजी नाव (पर्यायी)' : 'Name in Marathi (Optional)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={nameEn}
-                    onChange={(e) => setNameEn(e.target.value)}
-                    placeholder={language === 'mr' ? 'e.g. Jnana Prabodhini...' : 'उदा. ज्ञान प्रबोधिनी...'}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                    autoFocus
                   />
                 </div>
 
@@ -186,7 +172,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                   />
                 </div>
 
-                <div>
+                <div className="sm:col-span-2">
                   <label className="font-bold text-slate-700 block mb-1">
                     {language === 'mr' ? 'मोबाईल नंबर' : 'Phone Number'}
                   </label>
