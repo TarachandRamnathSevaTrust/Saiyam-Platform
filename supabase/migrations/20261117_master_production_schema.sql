@@ -266,7 +266,8 @@ CREATE TABLE IF NOT EXISTS public.session_media (
 -- ==============================================================================
 -- 13. HIGH-SPEED REPORTING VIEW (EXECUTIVE IMPACT DELTA BY FY)
 -- ==============================================================================
-CREATE OR REPLACE VIEW public.school_impact_summary_view AS
+CREATE OR REPLACE VIEW public.school_impact_summary_view
+WITH (security_invoker = true) AS
 SELECT 
     sc.id AS school_id,
     sc.name AS school_name,
