@@ -148,7 +148,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       <div className="flex items-center text-xs text-slate-500 space-x-2 mt-0.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
                         <span>
-                          {school.village}, {school.district} • पिन: {school.pinCode}
+                          {school.village}, {school.district} • {language === 'mr' ? 'पिन:' : 'PIN:'} {school.pinCode}
                         </span>
                       </div>
                     </div>
@@ -197,7 +197,9 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <span className="text-xs font-bold text-slate-800">
                       {language === 'mr' ? 'पूर्व / उत्तर चाचण्या' : 'Pre / Post Tests'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">३ पेपर्स (MKMH, MMAT, ERT)</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">
+                      {language === 'mr' ? '३ पेपर्स (MKMH, MMAT, ERT)' : '3 Papers (MKMH, MMAT, ERT)'}
+                    </span>
                   </button>
 
                   <button
@@ -213,7 +215,9 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <span className="text-xs font-bold text-slate-800">
                       {language === 'mr' ? 'सत्र नोंदी' : 'Session Logs'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">२५ सत्रे व मिडिया</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">
+                      {language === 'mr' ? '२५ सत्रे व मिडिया' : '25 Sessions & Media'}
+                    </span>
                   </button>
 
                   <button
@@ -229,7 +233,9 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                     <span className="text-xs font-bold text-slate-800">
                       {language === 'mr' ? 'कागदपत्रे पुरावे' : 'Documents'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">सही व शिक्का</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">
+                      {language === 'mr' ? 'सही व शिक्का' : 'HM Stamp & Consent'}
+                    </span>
                   </button>
                 </div>
               </div>

@@ -290,7 +290,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                           {st.fullName}
                         </span>
                         <span className="text-[11px] text-slate-500">
-                          {st.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'}
+                          {st.gender === 'FEMALE' ? (language === 'mr' ? 'मुलगी' : 'Female') : (language === 'mr' ? 'मुलगा' : 'Male')}
                         </span>
                       </div>
                     </div>

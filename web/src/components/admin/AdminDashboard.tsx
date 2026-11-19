@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { OrganizationManagementModal } from './OrganizationManagementModal';
+import { formatOrgName, formatGender, formatAssessmentStatus } from '../../lib/formatters';
 import {
   Users,
   Building2,
@@ -190,7 +191,7 @@ export const AdminDashboard: React.FC = () => {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                <span>{language === 'mr' ? org.nameMr : (org.nameEn || org.nameMr)}</span>
+                <span>{formatOrgName(org, language)}</span>
               </button>
             ))}
 
@@ -198,7 +199,7 @@ export const AdminDashboard: React.FC = () => {
             <button
               onClick={() => setIsOrgModalOpen(true)}
               className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f0da9a]/60 hover:bg-[#dfaf27] text-[#233d76] border border-[#dfaf27] transition-all cursor-pointer shadow-2xs ml-auto sm:ml-2"
-              title="संस्था जोडा किंवा व्यवस्थापन करा"
+              title={language === 'mr' ? 'संस्था जोडा किंवा व्यवस्थापन करा' : 'Manage Organizations'}
             >
               <Settings className="w-3.5 h-3.5 text-[#233d76]" />
               <span>{language === 'mr' ? 'संस्था व्यवस्थापन' : 'Manage Orgs'}</span>
@@ -213,7 +214,7 @@ export const AdminDashboard: React.FC = () => {
               <span className="font-extrabold uppercase tracking-wider bg-[#dfaf27] px-2 py-0.5 rounded text-[10px]">
                 {activeOrg.code}
               </span>
-              <span className="font-semibold">{activeOrg.nameMr}</span>
+              <span className="font-semibold">{formatOrgName(activeOrg, language)}</span>
               {activeOrg.description && (
                 <>
                   <span className="hidden sm:inline text-slate-400">•</span>
@@ -527,7 +528,7 @@ export const AdminDashboard: React.FC = () => {
                         >
                           <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
                           <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
-                          <td className="px-3.5 py-2.5">{p.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'}</td>
+                          <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
                           <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
                           <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
                           <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
@@ -550,7 +551,15 @@ export const AdminDashboard: React.FC = () => {
                             )}
                           </td>
                           <td className="px-3.5 py-2.5 text-center font-semibold">
-                            {p.status === 'ALL_COMPLETED' ? 'पूर्ण' : 'Pre पूर्ण'}
+                            <span
+                              className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
+                                p.status === 'ALL_COMPLETED'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}
+                            >
+                              {formatAssessmentStatus(p.status, language)}
+                            </span>
                           </td>
                         </tr>
                       ))

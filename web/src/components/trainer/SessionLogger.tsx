@@ -39,7 +39,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [girlsPresent, setGirlsPresent] = useState(0);
   const [boysPresent, setBoysPresent] = useState(0);
-  const [toolsUsed, setToolsUsed] = useState('फलक, पेन');
+  const [toolsUsed, setToolsUsed] = useState('');
   const [specialNotes, setSpecialNotes] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -144,7 +144,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
         </div>
 
         <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1 rounded-full border border-[#dfaf27]/40">
-          {sessionLogs.filter((l) => l.schoolId === selectedSchool.id).length} / 25 पूर्ण
+          {sessionLogs.filter((l) => l.schoolId === selectedSchool.id).length} / 25 {language === 'mr' ? 'पूर्ण' : 'Completed'}
         </span>
       </div>
 

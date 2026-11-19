@@ -461,7 +461,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">{student.fullName}</h4>
                       <span className="text-xs text-slate-500">
-                        {student.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा'} • {language === 'mr' ? 'इयत्ता' : 'Class'}{' '}
+                        {student.gender === 'FEMALE' ? (language === 'mr' ? 'मुलगी' : 'Female') : (language === 'mr' ? 'मुलगा' : 'Male')} • {language === 'mr' ? 'इयत्ता' : 'Class'}{' '}
                         {student.standard}-{student.division}
                       </span>
                     </div>

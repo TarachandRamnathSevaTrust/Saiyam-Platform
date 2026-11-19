@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Globe, School as SchoolIcon, ShieldCheck, LogOut, Calendar } from 'lucide-react';
+import { formatOrgName } from '../../lib/formatters';
 
 export const Header: React.FC = () => {
   const {
@@ -58,17 +59,33 @@ export const Header: React.FC = () => {
               <span className="font-medium">DPDP Act (2023) Protected</span>
             </div>
 
-            {/* Language Switcher */}
-            <button
-              onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-              className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-[#f0da9a] hover:bg-[#2d4c91] transition-colors cursor-pointer shadow-2xs"
-              title="Toggle Language"
-            >
-              <Globe className="w-3.5 h-3.5 text-[#dfaf27]" />
-              <span className="text-[10px] sm:text-xs font-bold">
-                {language === 'en' ? 'मराठी' : 'English'}
-              </span>
-            </button>
+            {/* Language Switcher: Explicit Two-Pill Segmented Control (Zero Ambiguity) */}
+            <div className="flex items-center rounded-lg border border-[#3b5998] bg-[#1a2d57] p-0.5 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  language === 'en'
+                    ? 'bg-[#dfaf27] text-[#233d76] font-black shadow-xs'
+                    : 'text-[#f0da9a] hover:text-white hover:bg-white/10'
+                }`}
+                title="Switch to English"
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('mr')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  language === 'mr'
+                    ? 'bg-[#dfaf27] text-[#233d76] font-black shadow-xs'
+                    : 'text-[#f0da9a] hover:text-white hover:bg-white/10'
+                }`}
+                title="मराठी भाषेवर जा"
+              >
+                मराठी
+              </button>
+            </div>
 
             {/* Active Financial Year Badge (Desktop) */}
             <div
@@ -93,7 +110,7 @@ export const Header: React.FC = () => {
                     : currentUser.role === 'ORG_COORDINATOR'
                     ? (language === 'mr' ? 'संस्था समन्वयक' : 'NGO Coordinator')
                     : (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator')}
-                  {currentOrg ? ` • ${language === 'mr' ? currentOrg.nameMr : (currentOrg.nameEn || currentOrg.nameMr)}` : ''}
+                  {currentOrg ? ` • ${formatOrgName(currentOrg, language)}` : ''}
                 </span>
               </div>
             </div>
@@ -125,7 +142,7 @@ export const Header: React.FC = () => {
           </span>
           {currentOrg && (
             <span className="text-[10px] text-slate-300 truncate font-normal">
-              [{language === 'mr' ? currentOrg.nameMr : (currentOrg.nameEn || currentOrg.nameMr)}]
+              [{formatOrgName(currentOrg, language)}]
             </span>
           )}
         </div>
@@ -148,7 +165,7 @@ export const Header: React.FC = () => {
               {language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'Partner Portal'}
             </span>
             <span className="text-white text-xs font-bold truncate">
-              {currentUser.fullName} {currentOrg ? `• ${language === 'mr' ? currentOrg.nameMr : currentOrg.nameEn}` : ''}
+              {currentUser.fullName} {currentOrg ? `• ${formatOrgName(currentOrg, language)}` : ''}
             </span>
           </div>
           <span className="text-[11px] text-slate-300 hidden sm:inline">

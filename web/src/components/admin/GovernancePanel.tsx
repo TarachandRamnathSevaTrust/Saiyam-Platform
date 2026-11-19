@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../lib/api';
+import { formatOrgName } from '../../lib/formatters';
 import {
   Building2,
   Users,
@@ -870,8 +871,13 @@ export const GovernancePanel: React.FC = () => {
                         </span>
                       </div>
 
-                      <h4 className="font-bold text-sm text-slate-900">{org.nameMr}</h4>
-                      <div className="text-[11px] text-slate-400">{org.nameEn}</div>
+                      <h4 className="font-bold text-sm text-slate-900">{formatOrgName(org, language)}</h4>
+                      {language === 'mr' && org.nameEn && org.nameEn !== org.nameMr && (
+                        <div className="text-[11px] text-slate-400">{org.nameEn}</div>
+                      )}
+                      {language === 'en' && org.nameMr && org.nameMr !== org.nameEn && (
+                        <div className="text-[11px] text-slate-400">{org.nameMr}</div>
+                      )}
 
                       {org.description && (
                         <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
@@ -1083,7 +1089,7 @@ export const GovernancePanel: React.FC = () => {
                     <option value="">-- {language === 'mr' ? 'थेट TRST अंतर्गत' : 'Direct TRST (In-House)'} --</option>
                     {organizations.map((org) => (
                       <option key={org.id} value={org.code}>
-                        {language === 'mr' ? org.nameMr : (org.nameEn || org.nameMr)} ({org.code})
+                        {formatOrgName(org, language)} ({org.code})
                       </option>
                     ))}
                   </select>
@@ -1216,7 +1222,7 @@ export const GovernancePanel: React.FC = () => {
                         <td className="px-4 py-3">
                           {trainerOrg ? (
                             <span className="bg-[#233d76]/10 text-[#233d76] font-bold px-2.5 py-1 rounded-md text-[11px] inline-block">
-                              {trainerOrg.nameMr}
+                              {formatOrgName(trainerOrg, language)}
                             </span>
                           ) : (
                             <span className="bg-amber-50 text-amber-800 font-semibold px-2 py-0.5 rounded text-[10px]">

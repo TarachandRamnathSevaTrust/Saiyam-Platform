@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { formatOrgName } from '../../lib/formatters';
 import {
   Building2,
   Users,
@@ -103,7 +104,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
           </div>
 
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold trust-heading tracking-tight leading-snug">
-            {language === 'mr' ? currentOrg.nameMr : currentOrg.nameEn}
+            {formatOrgName(currentOrg, language)}
           </h1>
 
           <div className="flex items-center space-x-2 text-xs text-[#f0da9a]">

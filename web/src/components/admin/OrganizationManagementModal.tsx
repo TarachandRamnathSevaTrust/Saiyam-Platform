@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Organization, UserProfile } from '@saiyam/shared';
+import { formatOrgName } from '../../lib/formatters';
 
 interface Props {
   isOpen: boolean;
@@ -635,9 +636,12 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                       <span className="font-mono font-black text-xs bg-[#233d76] text-white px-2 py-0.5 rounded-md">
                         {org.code}
                       </span>
-                      <h5 className="font-bold text-sm text-slate-900">{org.nameMr}</h5>
-                      {org.nameEn && org.nameEn !== org.nameMr && (
+                      <h5 className="font-bold text-sm text-slate-900">{formatOrgName(org, language)}</h5>
+                      {language === 'mr' && org.nameEn && org.nameEn !== org.nameMr && (
                         <span className="text-xs text-slate-400">({org.nameEn})</span>
+                      )}
+                      {language === 'en' && org.nameMr && org.nameMr !== org.nameEn && (
+                        <span className="text-xs text-slate-400">({org.nameMr})</span>
                       )}
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                         {org.orgType === 'PARTNER_NGO' ? '🤝 NGO' : org.orgType}
