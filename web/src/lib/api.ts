@@ -7,6 +7,8 @@ import {
   SessionLog,
   Organization,
   UserProfile,
+  CurriculumModule,
+  CurriculumSession,
 } from '@saiyam/shared';
 
 /**
@@ -596,6 +598,62 @@ export const apiService = {
       };
     } catch (err) {
       console.warn('Supabase create session log error:', err);
+      return null;
+    }
+  },
+
+  // ============================================================================
+  // CURRICULUM MODULES & SESSIONS (अभ्यासक्रम विभाग व २५ सत्रे)
+  // ============================================================================
+  async getCurriculumModules(): Promise<CurriculumModule[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('curriculum_modules')
+        .select('*')
+        .order('module_number', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((row) => ({
+        id: row.id,
+        moduleNumber: row.module_number,
+        nameMr: row.name_mr,
+        nameEn: row.name_en,
+        descriptionMr: row.description_mr,
+        descriptionEn: row.description_en,
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch curriculum modules error (falling back to shared master):', err);
+      return null;
+    }
+  },
+
+  async getCurriculumSessions(): Promise<CurriculumSession[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('curriculum_sessions')
+        .select('*')
+        .order('session_number', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((row) => ({
+        id: row.id,
+        sessionNumber: row.session_number,
+        phaseNumber: row.phase_number,
+        titleMr: row.title_mr || row.session_name_mr || `सत्र ${row.session_number}`,
+        titleEn: row.title_en || row.session_name_en || `Session ${row.session_number}`,
+        sessionNameMr: row.session_name_mr || row.title_mr,
+        sessionNameEn: row.session_name_en || row.title_en,
+        moduleNumber: row.module_number,
+        moduleNameMr: row.module_name_mr,
+        moduleNameEn: row.module_name_en,
+        description: row.description || row.description_mr || row.description_en,
+        descriptionMr: row.description_mr,
+        descriptionEn: row.description_en,
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch curriculum sessions error (falling back to shared master):', err);
       return null;
     }
   },

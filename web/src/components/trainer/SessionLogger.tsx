@@ -19,11 +19,20 @@ interface Props {
 }
 
 export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
-  const { selectedSchool, sessionLogs, saveSessionLog, language, currentUser } = useApp();
+  const {
+    selectedSchool,
+    sessionLogs,
+    saveSessionLog,
+    language,
+    currentUser,
+    curriculumSessions,
+    curriculumModules,
+  } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const [activeSessionNumber, setActiveSessionNumber] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'LOG' | 'MEDIA'>('LOG');
+  const [selectedModuleFilter, setSelectedModuleFilter] = useState<number | 'ALL'>('ALL');
 
   // Form state
   const [conductedDate, setConductedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -55,10 +64,17 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     );
   }
 
-  // Official 25 Curriculum Sessions mapped to the 10 Modules
-  const allSessionSlots = ALL_25_SESSIONS;
+  // Official 25 Curriculum Sessions mapped to the 10 Modules (from context or shared)
+  const allSessionSlots =
+    curriculumSessions && curriculumSessions.length > 0 ? curriculumSessions : ALL_25_SESSIONS;
 
-  const activeSession = allSessionSlots.find((s) => s.sessionNumber === activeSessionNumber) || allSessionSlots[0];
+  const filteredSessions =
+    selectedModuleFilter === 'ALL'
+      ? allSessionSlots
+      : allSessionSlots.filter((s) => s.moduleNumber === selectedModuleFilter);
+
+  const activeSession =
+    allSessionSlots.find((s) => s.sessionNumber === activeSessionNumber) || allSessionSlots[0];
 
   const existingLog = sessionLogs.find(
     (l) => l.schoolId === selectedSchool.id && l.sessionNumber === activeSessionNumber
@@ -135,16 +151,55 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
       {/* 2-Column Layout Matching Page 108 of Old App */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Sessions List Sidebar (सत्र १ ते २५) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col">
           <div className="p-3.5 bg-slate-50 border-b border-slate-200">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center space-x-2">
-              <BookOpen className="w-4 h-4 text-[#233d76]" />
-              <span>{language === 'mr' ? 'सत्र क्रमांक आणि नाव' : 'Session Number & Title'}</span>
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center space-x-2">
+                <BookOpen className="w-4 h-4 text-[#233d76]" />
+                <span>{language === 'mr' ? 'अभ्यासक्रम व सत्रे (२५)' : 'Curriculum & Sessions (25)'}</span>
+              </h3>
+              <span className="text-[11px] font-semibold text-slate-500">
+                {language === 'mr' ? `${allSessionSlots.length} सत्रे` : `${allSessionSlots.length} sessions`}
+              </span>
+            </div>
+
+            {/* Quick Module Filter */}
+            <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setSelectedModuleFilter('ALL')}
+                className={`px-2.5 py-1 rounded-lg font-bold shrink-0 transition-colors cursor-pointer ${
+                  selectedModuleFilter === 'ALL'
+                    ? 'bg-[#233d76] text-white'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {language === 'mr' ? 'सर्व सत्रे' : 'All'}
+              </button>
+              {(curriculumModules && curriculumModules.length > 0 ? curriculumModules : []).map((m) => (
+                <button
+                  key={m.moduleNumber}
+                  type="button"
+                  onClick={() => setSelectedModuleFilter(m.moduleNumber)}
+                  className={`px-2 py-1 rounded-lg font-medium shrink-0 transition-colors cursor-pointer ${
+                    selectedModuleFilter === m.moduleNumber
+                      ? 'bg-[#233d76] text-white font-bold'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                  title={language === 'mr' ? m.nameMr : m.nameEn}
+                >
+                  {m.moduleNumber === 0
+                    ? (language === 'mr' ? 'ओळख' : 'Intro')
+                    : m.moduleNumber === 11
+                    ? (language === 'mr' ? 'समारोप' : 'Review')
+                    : `${m.moduleNumber}. ${language === 'mr' ? m.nameMr.split(' ')[0] : m.nameEn.split(' ')[0]}`}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="max-h-[580px] overflow-y-auto divide-y divide-slate-100">
-            {allSessionSlots.map((sess) => {
+          <div className="max-h-[560px] overflow-y-auto divide-y divide-slate-100 flex-1">
+            {filteredSessions.map((sess) => {
               const isLogged = sessionLogs.some(
                 (l) => l.schoolId === selectedSchool.id && l.sessionNumber === sess.sessionNumber
               );
@@ -168,17 +223,25 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                       <span className="text-[10px] font-bold text-[#233d76] bg-slate-100 px-1.5 py-0.2 rounded shrink-0">
                         {language === 'mr' ? `सत्र ${sess.sessionNumber}` : `S-${sess.sessionNumber}`}
                       </span>
-                      {sess.moduleNameMr && (
-                        <span className="text-[10px] text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded truncate">
+                      {(sess.moduleNameMr || sess.moduleNameEn) && (
+                        <span className="text-[10px] font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.2 rounded truncate">
                           {language === 'mr' ? sess.moduleNameMr : sess.moduleNameEn}
                         </span>
                       )}
                     </div>
                     <span className="text-xs font-bold text-slate-900 block truncate">
-                      {language === 'mr' ? sess.titleMr : sess.titleEn}
+                      {language === 'mr'
+                        ? sess.sessionNameMr || sess.titleMr
+                        : sess.sessionNameEn || sess.titleEn}
                     </span>
                     <span className="text-[11px] text-slate-400">
-                      {isLogged ? (language === 'mr' ? 'नोंद पूर्ण ✓' : 'Recorded ✓') : (language === 'mr' ? 'नोंद बाकी' : 'Pending')}
+                      {isLogged
+                        ? language === 'mr'
+                          ? 'नोंद पूर्ण ✓'
+                          : 'Recorded ✓'
+                        : language === 'mr'
+                        ? 'नोंद बाकी'
+                        : 'Pending'}
                     </span>
                   </div>
 
@@ -206,18 +269,27 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 <span className="text-[10px] font-bold text-[#233d76] bg-[#f0da9a]/60 px-2 py-0.5 rounded uppercase border border-[#dfaf27]/40">
                   {language === 'mr' ? `सत्र ${activeSession.sessionNumber}` : `Session ${activeSession.sessionNumber}`}
                 </span>
-                {activeSession.moduleNameMr && (
-                  <span className="text-[10px] font-medium text-amber-900 bg-amber-100/70 px-2 py-0.5 rounded">
+                {(activeSession.moduleNameMr || activeSession.moduleNameEn) && (
+                  <span className="text-[10px] font-bold text-amber-900 bg-amber-100/70 px-2 py-0.5 rounded border border-amber-200/60">
                     {language === 'mr' ? activeSession.moduleNameMr : activeSession.moduleNameEn}
+                  </span>
+                )}
+                {activeSession.phaseNumber && (
+                  <span className="text-[10px] text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded">
+                    {language === 'mr' ? `टप्पा ${activeSession.phaseNumber}` : `Phase ${activeSession.phaseNumber}`}
                   </span>
                 )}
               </div>
               <h3 className="font-bold text-base text-slate-900 mt-1">
-                {language === 'mr' ? activeSession.titleMr : activeSession.titleEn}
+                {language === 'mr'
+                  ? activeSession.sessionNameMr || activeSession.titleMr
+                  : activeSession.sessionNameEn || activeSession.titleEn}
               </h3>
-              {activeSession.description && (
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {activeSession.description}
+              {(activeSession.descriptionMr || activeSession.descriptionEn || activeSession.description) && (
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {language === 'mr'
+                    ? activeSession.descriptionMr || activeSession.description
+                    : activeSession.descriptionEn || activeSession.description}
                 </p>
               )}
             </div>

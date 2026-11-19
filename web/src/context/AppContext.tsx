@@ -12,6 +12,10 @@ import {
   AssessmentRecord,
   Organization,
   OrganizationCode,
+  CurriculumModule,
+  CurriculumSession,
+  CURRICULUM_MODULES,
+  ALL_25_SESSIONS,
   formatRowsForExcelExport,
   calculateAssessmentScore,
 } from '@saiyam/shared';
@@ -69,6 +73,8 @@ interface AppContextType {
   dashboardStats: DashboardStats;
   exportToExcel: (schoolId?: string) => void;
   questions: Question[];
+  curriculumModules: CurriculumModule[];
+  curriculumSessions: CurriculumSession[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -204,6 +210,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
+  const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>(CURRICULUM_MODULES);
+  const [curriculumSessions, setCurriculumSessions] = useState<CurriculumSession[]>(ALL_25_SESSIONS);
 
   // Auto-hydrate from Supabase PostgreSQL backend if available
   useEffect(() => {
@@ -212,12 +220,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
     async function hydrateFromBackend() {
       try {
-        const [backendOrgs, backendSchools, backendLogs, backendProfiles, backendStudents] = await Promise.all([
+        const [
+          backendOrgs,
+          backendSchools,
+          backendLogs,
+          backendProfiles,
+          backendStudents,
+          backendModules,
+          backendSessions,
+        ] = await Promise.all([
           apiService.getOrganizations(),
           apiService.getSchools(),
           apiService.getSessionLogs(),
           apiService.getProfiles(),
           apiService.getAllStudents(),
+          apiService.getCurriculumModules(),
+          apiService.getCurriculumSessions(),
         ]);
 
         if (!isMounted) return;
@@ -251,6 +269,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (backendLogs && backendLogs.length > 0) {
           setSessionLogs(backendLogs);
+        }
+
+        if (backendModules && backendModules.length > 0) {
+          setCurriculumModules(backendModules);
+        }
+
+        if (backendSessions && backendSessions.length > 0) {
+          setCurriculumSessions(backendSessions);
         }
       } catch (err) {
         console.warn('Hydration from Supabase error:', err);
@@ -733,6 +759,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         dashboardStats,
         exportToExcel,
         questions,
+        curriculumModules,
+        curriculumSessions,
       }}
     >
       {children}

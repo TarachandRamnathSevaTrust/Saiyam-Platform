@@ -146,19 +146,28 @@ export interface StudentAssessmentPair {
 }
 
 export interface CurriculumModule {
+  id?: string;
   moduleNumber: number;
   nameMr: string;
   nameEn: string;
+  descriptionMr?: string;
+  descriptionEn?: string;
 }
 
 export interface CurriculumSession {
+  id?: string;
   sessionNumber: number; // 1 to 25
+  phaseNumber?: number; // 1, 2, or 3
   titleMr: string;
   titleEn: string;
-  description?: string;
+  sessionNameMr?: string;
+  sessionNameEn?: string;
   moduleNumber?: number;
   moduleNameMr?: string;
   moduleNameEn?: string;
+  description?: string;
+  descriptionMr?: string;
+  descriptionEn?: string;
 }
 
 export interface SessionLog {
