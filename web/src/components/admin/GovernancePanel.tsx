@@ -374,49 +374,53 @@ export const GovernancePanel: React.FC = () => {
 
   return (
     <div className="w-full max-w-[1650px] mx-auto space-y-6">
-      {/* Top Banner */}
-      <div className="bg-[#233d76] rounded-2xl p-6 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-3 py-1 rounded-md shadow-2xs">
+      {/* Top Banner with Button Fixed in the Top Corner (Mobile & Desktop) */}
+      <div className="bg-[#233d76] rounded-2xl p-4 sm:p-6 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col space-y-3">
+        {/* Top Header Row: Badge on Left, View Data Flow Button on Top Right Corner */}
+        <div className="flex items-center justify-between w-full gap-2">
+          <span className="text-[10px] sm:text-xs bg-[#dfaf27] text-[#233d76] uppercase tracking-wider font-extrabold px-2.5 sm:px-3 py-1 rounded-md shadow-2xs shrink-0">
             {language === 'mr' ? 'प्रशासन केंद्र' : 'Trust Administration'}
           </span>
-          <h1 className="text-2xl font-bold trust-heading mt-2">
+
+          <div className="flex items-center gap-2 shrink-0">
+            {notification && (
+              <div className="bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 shadow-md">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{notification.message}</span>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowLineageFlow(!showLineageFlow)}
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold bg-[#1a2d57] hover:bg-[#284682] text-[#f0da9a] border border-[#dfaf27]/50 shadow-2xs cursor-pointer transition-all"
+              title={language === 'mr' ? 'डेटा प्रवाह व आर्किटेक्चर पहा' : 'Toggle Data Lineage Architecture Flow'}
+            >
+              <Database className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#dfaf27]" />
+              <span>
+                {language === 'mr'
+                  ? showLineageFlow
+                    ? 'डेटा प्रवाह लपवा'
+                    : 'डेटा प्रवाह पहा'
+                  : showLineageFlow
+                  ? 'Hide Data Flow'
+                  : 'View Data Flow'}
+              </span>
+              <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform ${showLineageFlow ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Title & Subtitle */}
+        <div>
+          <h1 className="text-lg sm:text-2xl font-bold trust-heading tracking-tight leading-snug">
             {language === 'mr' ? 'संस्था व क्षेत्र प्रशिक्षक थेट व्यवस्थापन' : 'Organizations & Trainers Governance'}
           </h1>
-          <p className="text-xs text-[#f0da9a] mt-0.5">
+          <p className="text-[11px] sm:text-xs text-[#f0da9a] mt-0.5 leading-relaxed">
             {language === 'mr'
               ? '१. संस्था ➔ २. क्षेत्र प्रशिक्षक ➔ ३. शाळा ➔ ४. विद्यार्थी थेट मॅपिंग.'
               : 'Strict Data Lineage: 1. Organization ➔ 2. Field Trainers ➔ 3. School Allocations ➔ 4. Students.'}
           </p>
-        </div>
-
-        {/* Right Action Container: Toast & Collapsible Data Lineage Flow Toggle */}
-        <div className="flex items-center gap-3 self-end sm:self-center">
-          {notification && (
-            <div className="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-md animate-bounce">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{notification.message}</span>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowLineageFlow(!showLineageFlow)}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#1a2d57] hover:bg-[#284682] text-[#f0da9a] border border-[#dfaf27]/50 shadow-xs cursor-pointer transition-all"
-            title={language === 'mr' ? 'डेटा प्रवाह व आर्किटेक्चर पहा' : 'Toggle Data Lineage Architecture Flow'}
-          >
-            <Database className="w-3.5 h-3.5 text-[#dfaf27]" />
-            <span>
-              {language === 'mr'
-                ? showLineageFlow
-                  ? 'डेटा प्रवाह लपवा'
-                  : 'डेटा प्रवाह पहा'
-                : showLineageFlow
-                ? 'Hide Data Flow'
-                : 'View Data Flow'}
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showLineageFlow ? 'rotate-180' : ''}`} />
-          </button>
         </div>
       </div>
 
@@ -583,7 +587,7 @@ export const GovernancePanel: React.FC = () => {
               <span>
                 {isAddingOrg
                   ? language === 'mr' ? 'फॉर्म बंद करा' : 'Close Form'
-                  : language === 'mr' ? '+ नवीन संस्था जोडा' : '+ Add Organization'}
+                  : language === 'mr' ? 'नवीन संस्था जोडा' : 'Add Organization'}
               </span>
             </button>
           </div>
@@ -1043,7 +1047,7 @@ export const GovernancePanel: React.FC = () => {
               <span>
                 {isAddingTrainer
                   ? language === 'mr' ? 'फॉर्म बंद करा' : 'Close Form'
-                  : language === 'mr' ? '+ नवीन प्रशिक्षक जोडा' : '+ Add Field Trainer'}
+                  : language === 'mr' ? 'नवीन प्रशिक्षक जोडा' : 'Add Field Trainer'}
               </span>
             </button>
           </div>

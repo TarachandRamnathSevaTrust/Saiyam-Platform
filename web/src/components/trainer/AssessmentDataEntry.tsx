@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   ChevronRight,
   Save,
+  UserPlus,
 } from 'lucide-react';
 
 interface Props {
@@ -258,7 +259,8 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                     onClick={() => onNavigate('STUDENTS')}
                     className="inline-flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    <span>{language === 'mr' ? '+ विद्यार्थी नोंदणी करा' : '+ Register Students'}</span>
+                    <UserPlus className="w-3.5 h-3.5 text-[#dfaf27]" />
+                    <span>{language === 'mr' ? 'विद्यार्थी नोंदणी करा' : 'Register Students'}</span>
                   </button>
                 )}
               </div>

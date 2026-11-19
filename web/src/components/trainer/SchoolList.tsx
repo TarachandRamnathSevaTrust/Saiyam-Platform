@@ -62,7 +62,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
             className="flex items-center space-x-2 bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>{language === 'mr' ? '+ शाळा नोंदणी करा' : '+ Register School'}</span>
+            <span>{language === 'mr' ? 'शाळा नोंदणी करा' : 'Register School'}</span>
           </button>
         </div>
       ) : (

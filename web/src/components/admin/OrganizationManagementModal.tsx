@@ -733,7 +733,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                         className="text-xs font-bold text-[#233d76] hover:underline cursor-pointer flex items-center space-x-1"
                       >
                         <UserPlus className="w-3.5 h-3.5 text-[#dfaf27]" />
-                        <span>{language === 'mr' ? '+ खाते नियुक्त करा' : '+ Assign Coordinator'}</span>
+                        <span>{language === 'mr' ? 'खाते नियुक्त करा' : 'Assign Coordinator'}</span>
                       </button>
                     )}
                   </div>
