@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { supabase, isSupabaseConfigured, createIsolatedAuthClient } from './supabase';
 import {
   School,
   Student,
@@ -99,71 +99,68 @@ export const apiService = {
     if (!supabase) return { user: null, error: 'Supabase client not initialized' };
     try {
       const cleanEmail = data.email.trim().toLowerCase();
-      const cleanPassword = data.password?.trim() || 'Saiyam@123';
+      const cleanPassword = data.password?.trim() || '';
 
-      // 1. Check if user profile already exists
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-
-      if (existingProfile) {
-        // Update profile
-        await supabase
-          .from('profiles')
-          .update({
-            full_name: data.fullName.trim(),
-            phone: data.phone?.trim() || null,
-            organization_id: data.organizationId || null,
-            organization_code: data.organizationCode || null,
-            role: 'FIELD_TRAINER',
-            is_active: true,
-          })
-          .eq('id', existingProfile.id);
-
+      if (!cleanPassword || cleanPassword.length < 6) {
         return {
-          user: {
-            id: existingProfile.id,
-            authUserId: existingProfile.auth_user_id || existingProfile.id,
-            fullName: data.fullName.trim(),
-            email: cleanEmail,
-            phone: data.phone?.trim(),
-            organizationId: data.organizationId,
-            organizationCode: data.organizationCode,
-            role: 'FIELD_TRAINER',
-            isActive: true,
-            createdAt: existingProfile.created_at,
-          },
-          error: null,
+          user: null,
+          error: 'Password must be at least 6 characters long for Supabase Auth.',
         };
       }
 
-      // 2. Register via Supabase Auth
-      let authUserId: string = crypto.randomUUID();
-      try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: cleanPassword,
-          options: {
-            data: {
-              full_name: data.fullName.trim(),
-              role: 'FIELD_TRAINER',
-            },
+      // Use isolated auth client without session persistence so the active
+      // admin session in localStorage is not hijacked or replaced.
+      const authClient = createIsolatedAuthClient() || supabase;
+
+      // 1. Directly create/register user in Supabase Auth (auth.users) with the entered password
+      let authUserId: string | null = null;
+      let alreadyRegistered = false;
+
+      const { data: authData, error: authError } = await authClient.auth.signUp({
+        email: cleanEmail,
+        password: cleanPassword,
+        options: {
+          data: {
+            full_name: data.fullName.trim(),
+            role: 'FIELD_TRAINER',
+            organization_id: data.organizationId || null,
           },
-        });
-        if (authData?.user?.id) {
-          authUserId = authData.user.id;
+        },
+      });
+
+      if (authError) {
+        if (authError.message.toLowerCase().includes('already registered')) {
+          alreadyRegistered = true;
+        } else {
+          // Return the real Supabase Auth error (e.g., rate limit, weak password, invalid email)
+          return { user: null, error: `Supabase Auth error: ${authError.message}` };
         }
-        if (authError && !authError.message.includes('already registered')) {
-          console.warn('Supabase Auth signUp note:', authError.message);
-        }
-      } catch (authErr) {
-        console.warn('Auth sign up skipped or rate limited:', authErr);
       }
 
-      // 3. Upsert into public.profiles
-      const { data: profileRow } = await supabase
+      if (authData?.user?.id) {
+        authUserId = authData.user.id;
+      }
+
+      // If user was already registered in auth, look up their ID from profiles
+      if (!authUserId) {
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle();
+
+        if (existingProfile) {
+          authUserId = existingProfile.id;
+        } else {
+          return {
+            user: null,
+            error: 'User already exists in Supabase Auth, but matching profile was not found. Please log in or manage via Supabase dashboard.',
+          };
+        }
+      }
+
+      // 2. Ensure public.profiles has organization, phone, and metadata linked to that real Supabase Auth user ID
+      const { data: profileRow, error: profileError } = await supabase
         .from('profiles')
         .upsert(
           {
@@ -177,29 +174,37 @@ export const apiService = {
             role: 'FIELD_TRAINER',
             is_active: true,
           },
-          { onConflict: 'email' }
+          { onConflict: 'id' }
         )
         .select()
         .single();
 
+      if (profileError) {
+        console.warn('Profile upsert note:', profileError);
+      }
+
+      const finalUser: UserProfile = {
+        id: profileRow?.id || authUserId,
+        authUserId: profileRow?.auth_user_id || authUserId,
+        fullName: data.fullName.trim(),
+        email: cleanEmail,
+        phone: data.phone?.trim(),
+        organizationId: data.organizationId,
+        organizationCode: data.organizationCode,
+        role: 'FIELD_TRAINER',
+        isActive: true,
+        createdAt: profileRow?.created_at || new Date().toISOString(),
+      };
+
       return {
-        user: {
-          id: profileRow?.id || authUserId,
-          authUserId: profileRow?.auth_user_id || authUserId,
-          fullName: data.fullName.trim(),
-          email: cleanEmail,
-          phone: data.phone?.trim(),
-          organizationId: data.organizationId,
-          organizationCode: data.organizationCode,
-          role: 'FIELD_TRAINER',
-          isActive: true,
-          createdAt: profileRow?.created_at || new Date().toISOString(),
-        },
-        error: null,
+        user: finalUser,
+        error: alreadyRegistered
+          ? 'User already exists in Supabase Auth. Profile linked to organization.'
+          : null,
       };
     } catch (err: any) {
       console.warn('createTrainerUser error:', err);
-      return { user: null, error: err.message || 'Failed to create trainer user' };
+      return { user: null, error: err.message || 'Failed to create trainer user in Supabase Auth' };
     }
   },
 

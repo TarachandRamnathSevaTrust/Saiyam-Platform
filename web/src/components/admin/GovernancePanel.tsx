@@ -78,7 +78,7 @@ export const GovernancePanel: React.FC = () => {
   const [trainerName, setTrainerName] = useState('');
   const [trainerPhone, setTrainerPhone] = useState('');
   const [trainerEmail, setTrainerEmail] = useState('');
-  const [trainerPassword, setTrainerPassword] = useState('Saiyam@123');
+  const [trainerPassword, setTrainerPassword] = useState('');
   const [showTrainerPassword, setShowTrainerPassword] = useState(false);
   const [selectedOrgCode, setSelectedOrgCode] = useState('');
   const [isSavingTrainer, setIsSavingTrainer] = useState(false);
@@ -258,7 +258,7 @@ export const GovernancePanel: React.FC = () => {
     setTrainerPhone('');
     setTrainerEmail('');
     setSelectedOrgCode('');
-    setTrainerPassword('Saiyam@123');
+    setTrainerPassword('');
     setShowTrainerPassword(false);
     setIsSavingTrainer(false);
     setIsAddingTrainer(false);
@@ -271,8 +271,17 @@ export const GovernancePanel: React.FC = () => {
       return;
     }
 
+    if (!editingTrainerId && (!trainerPassword.trim() || trainerPassword.trim().length < 6)) {
+      alert(
+        language === 'mr'
+          ? 'कृपया Supabase Auth साठी किमान ६ अक्षरी पासवर्ड भरा.'
+          : 'Please enter a Supabase Auth password with at least 6 characters.'
+      );
+      return;
+    }
+
     const assignedOrg = organizations.find((o) => o.code === selectedOrgCode);
-    const chosenPassword = trainerPassword.trim() || 'Saiyam@123';
+    const chosenPassword = trainerPassword.trim();
     setIsSavingTrainer(true);
 
     try {
@@ -315,6 +324,12 @@ export const GovernancePanel: React.FC = () => {
             organizationCode: selectedOrgCode || undefined,
           });
 
+          if (result.error && !result.user) {
+            alert(result.error);
+            setIsSavingTrainer(false);
+            return;
+          }
+
           if (result.user) {
             registeredUser = result.user;
             addUser(result.user);
@@ -338,8 +353,8 @@ export const GovernancePanel: React.FC = () => {
 
         triggerNotify(
           language === 'mr'
-            ? `प्रशिक्षक नोंदणी पूर्ण! लॉगिन पासवर्ड: ${chosenPassword}`
-            : `Trainer created! Login password: ${chosenPassword}`
+            ? `प्रशिक्षक Supabase Auth मध्ये नोंदवला गेला! पासवर्ड सेव्ह झाला.`
+            : `Field Trainer created in Supabase Auth successfully!`
         );
       }
 
@@ -1078,21 +1093,27 @@ export const GovernancePanel: React.FC = () => {
                   <div className="flex items-center justify-between mb-1">
                     <label className="font-bold text-slate-700 block">
                       {editingTrainerId
-                        ? (language === 'mr' ? 'नवीन पासवर्ड बदला (ऐच्छिक)' : 'Change Password (Optional)')
-                        : (language === 'mr' ? 'लॉगिन पासवर्ड *' : 'Initial Login Password *')}
+                        ? (language === 'mr' ? 'नवीन पासवर्ड बदला (ऐच्छिक)' : 'Change Supabase Auth Password (Optional)')
+                        : (language === 'mr' ? 'Supabase Auth पासवर्ड *' : 'Supabase Auth Password *')}
                     </label>
-                    {!editingTrainerId && (
-                      <span className="text-[10px] bg-amber-50 text-[#233d76] font-bold px-1.5 py-0.5 rounded border border-[#dfaf27]/40">
-                        {language === 'mr' ? 'डीफॉल्ट: Saiyam@123' : 'Default: Saiyam@123'}
-                      </span>
-                    )}
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {language === 'mr' ? 'किमान ६ अक्षरे' : 'Min 6 chars'}
+                    </span>
                   </div>
                   <div className="relative">
                     <input
                       type={showTrainerPassword ? 'text' : 'password'}
+                      required={!editingTrainerId}
+                      minLength={6}
                       value={trainerPassword}
                       onChange={(e) => setTrainerPassword(e.target.value)}
-                      placeholder={editingTrainerId ? '••••••••' : 'Saiyam@123'}
+                      placeholder={
+                        editingTrainerId
+                          ? '••••••••'
+                          : language === 'mr'
+                          ? 'प्रशिक्षकासाठी पासवर्ड टाका...'
+                          : 'Enter Supabase Auth password...'
+                      }
                       className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                     />
                     <button
@@ -1106,8 +1127,8 @@ export const GovernancePanel: React.FC = () => {
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1">
                     {language === 'mr'
-                      ? 'प्रशिक्षक या ईमेल व पासवर्डने लॉगिन करतील. (Supabase Auth ID आपोआप तयार होईल)'
-                      : 'Trainer will sign in using this email and password. (Supabase Auth UUID auto-generated).'}
+                      ? 'हा पासवर्ड थेट Supabase Auth (auth.users) मध्ये सुरक्षित साठवला जाईल. प्रशिक्षक याच पासवर्डने लॉगिन करतील.'
+                      : 'This password is saved directly into Supabase Auth (auth.users). Trainer will use it to log in.'}
                   </p>
                 </div>
               </div>
