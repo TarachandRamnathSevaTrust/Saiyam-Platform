@@ -74,7 +74,7 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
           <div className="bg-[#233d76]/5 border border-[#233d76]/20 rounded-xl p-3 text-xs space-y-1">
             <div className="flex items-center justify-between">
               <span className="font-bold text-slate-600">
-                {language === 'mr' ? 'नोंदणीकर्ता प्रशिक्षक:' : 'Facilitator:'}
+                {language === 'mr' ? 'नोंदणीकर्ता प्रशिक्षक:' : 'Field Trainer:'}
               </span>
               <span className="font-bold text-[#233d76]">{currentUser.fullName}</span>
             </div>

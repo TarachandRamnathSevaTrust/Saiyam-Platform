@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
 
     const demoTrainer: UserProfile = {
       id: 'demo-field-trainer',
-      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator',
+      fullName: language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer',
       email: 'trainer@trst.org.in',
       role: 'FIELD_TRAINER',
       organizationCode: organizations[0]?.code || 'TRST_DIRECT',
@@ -287,7 +287,7 @@ export const LoginPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-900 group-hover:text-[#233d76]">
-                          {language === 'mr' ? '२. क्षेत्र प्रशिक्षक' : '2. Field Facilitator'}
+                          {language === 'mr' ? '२. क्षेत्र प्रशिक्षक' : '2. Field Trainer'}
                         </div>
                         <div className="text-[11px] text-slate-500 mt-0.5">
                           {language === 'mr'

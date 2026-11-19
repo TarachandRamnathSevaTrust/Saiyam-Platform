@@ -495,7 +495,7 @@ export const GovernancePanel: React.FC = () => {
           }`}
         >
           <Users className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? '२. क्षेत्र प्रशिक्षक व्यवस्थापन' : '2. Field Facilitators'}</span>
+          <span>{language === 'mr' ? '२. क्षेत्र प्रशिक्षक व्यवस्थापन' : '2. Field Trainers'}</span>
           <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
             {fieldTrainers.length}
           </span>
@@ -854,7 +854,7 @@ export const GovernancePanel: React.FC = () => {
                 const linkedSchools = schools.filter((s) => (s.organizationCode || '') === org.code);
                 const linkedSchoolIds = new Set(linkedSchools.map((s) => s.id));
                 const linkedStudents = students.filter((st) => linkedSchoolIds.has(st.schoolId));
-                const linkedTrainers = users.filter((u) => (u.organizationCode || '') === org.code);
+                const linkedTrainers = users.filter((u) => (u.organizationCode || '') === org.code && u.role === 'FIELD_TRAINER');
 
                 return (
                   <div
@@ -985,12 +985,12 @@ export const GovernancePanel: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'क्षेत्र प्रशिक्षकांची यादी व प्रोफाइल मॅपिंग' : 'Field Facilitators & Auth Profiles'}
+                {language === 'mr' ? 'क्षेत्र प्रशिक्षकांची यादी व प्रोफाइल मॅपिंग' : 'Field Trainers & Auth Profiles'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'
                   ? 'येथे प्रशिक्षक जोडा, संस्था नियुक्त करा आणि Supabase Auth युझर मॅप करा.'
-                  : 'Add facilitators, map to partner organizations, and link to Supabase Auth login accounts.'}
+                  : 'Add field trainers, map to partner organizations, and link to Supabase Auth login accounts.'}
               </p>
             </div>
 
@@ -1021,7 +1021,7 @@ export const GovernancePanel: React.FC = () => {
                   <UserPlus className="w-4 h-4 text-[#233d76]" />
                   <h4 className="font-bold text-xs text-[#233d76] uppercase tracking-wider">
                     {editingTrainerId
-                      ? language === 'mr' ? 'प्रशिक्षकाची माहिती व Auth मॅपिंग बदला' : 'Edit Field Facilitator Profile'
+                      ? language === 'mr' ? 'प्रशिक्षकाची माहिती व Auth मॅपिंग बदला' : 'Edit Field Trainer Profile'
                       : language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षकाची नोंदणी व Auth लिंक' : 'Register Field Trainer & Map Auth Profile'}
                   </h4>
                 </div>
@@ -1044,7 +1044,7 @@ export const GovernancePanel: React.FC = () => {
                     required
                     value={trainerName}
                     onChange={(e) => setTrainerName(e.target.value)}
-                    placeholder={language === 'mr' ? 'उदा. सचिन शिंदे...' : 'e.g. Facilitator Name...'}
+                    placeholder={language === 'mr' ? 'उदा. सचिन शिंदे...' : 'e.g. Field Trainer Name...'}
                     className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
                     autoFocus
                   />
@@ -1146,7 +1146,7 @@ export const GovernancePanel: React.FC = () => {
                   <strong>{language === 'mr' ? 'लॉगिन अधिकार व सुरक्षितता:' : 'Access Rights & Security:'}</strong>{' '}
                   {language === 'mr'
                     ? 'जेव्हा हा प्रशिक्षक या ईमेल आणि पासवर्डने लॉगिन करेल, तेव्हा त्याला फक्त त्याच्या संस्थेच्या अंतर्गत येणाऱ्या शाळा व विद्यार्थ्यांचे संचलन दिसेल.'
-                    : 'When this facilitator signs in with this login and password, they will automatically access their assigned schools and students.'}
+                    : 'When this field trainer signs in with this login and password, they will automatically access their assigned schools and students.'}
                 </div>
               </div>
 
@@ -1307,12 +1307,12 @@ export const GovernancePanel: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'शाळा व प्रशिक्षक थेट वाटप' : 'Direct School & Facilitator Allocations'}
+                {language === 'mr' ? 'शाळा व प्रशिक्षक थेट वाटप' : 'Direct School & Trainer Allocations'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'
                   ? 'प्रत्येक शाळेसाठी थेट क्षेत्र प्रशिक्षक नियुक्त करा. निवडताच प्रशिक्षकाच्या खात्यात ती शाळा दिसेल.'
-                  : 'Assign field facilitators directly to registered schools with instant synchronization.'}
+                  : 'Assign field trainers directly to registered schools with instant synchronization.'}
               </p>
             </div>
           </div>
@@ -1324,7 +1324,7 @@ export const GovernancePanel: React.FC = () => {
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'शाळा / संस्था' : 'School'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'गाव / शहर' : 'Location'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'अंमलबजावणी संस्था' : 'Organization'}</th>
-                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'नियुक्त क्षेत्र प्रशिक्षक' : 'Assigned Facilitator'}</th>
+                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'नियुक्त क्षेत्र प्रशिक्षक' : 'Assigned Field Trainer'}</th>
                   <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'स्थिती' : 'Status'}</th>
                 </tr>
               </thead>
@@ -1367,7 +1367,7 @@ export const GovernancePanel: React.FC = () => {
                             }}
                             className="p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76] cursor-pointer"
                           >
-                            <option value="">-- {language === 'mr' ? 'प्रशिक्षक निवडा' : 'Select Facilitator'} --</option>
+                            <option value="">-- {language === 'mr' ? 'प्रशिक्षक निवडा' : 'Select Field Trainer'} --</option>
                             {fieldTrainers.map((tr) => (
                               <option key={tr.id} value={tr.id}>
                                 {tr.fullName} {tr.organizationCode ? `(${tr.organizationCode})` : ''}

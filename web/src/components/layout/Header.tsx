@@ -109,7 +109,7 @@ export const Header: React.FC = () => {
                     ? (language === 'mr' ? 'विश्वस्त (Admin)' : 'Trust Executive')
                     : currentUser.role === 'ORG_COORDINATOR'
                     ? (language === 'mr' ? 'संस्था समन्वयक' : 'NGO Coordinator')
-                    : (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator')}
+                    : (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer')}
                   {currentOrg ? ` • ${formatOrgName(currentOrg, language)}` : ''}
                 </span>
               </div>

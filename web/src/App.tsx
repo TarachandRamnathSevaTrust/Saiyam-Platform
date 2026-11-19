@@ -94,7 +94,7 @@ export const App: React.FC = () => {
                   }`}
                 >
                   <ShieldCheck className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? 'प्रशासन (संस्था व प्रशिक्षक)' : 'Governance (Orgs & Facilitators)'}</span>
+                  <span>{language === 'mr' ? 'प्रशासन (संस्था व प्रशिक्षक)' : 'Governance (Orgs & Trainers)'}</span>
                 </button>
 
                 <button

@@ -51,7 +51,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
         <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <span className="text-xs font-bold text-[#dfaf27] uppercase tracking-wider block">
-              {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator'}
+              {language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer'}
             </span>
             <h2 className="text-lg font-bold trust-heading mt-0.5">{currentUser.fullName}</h2>
           </div>

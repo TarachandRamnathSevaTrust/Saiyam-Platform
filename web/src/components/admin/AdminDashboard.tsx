@@ -250,7 +250,7 @@ export const AdminDashboard: React.FC = () => {
             </span>
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            {language === 'mr' ? 'शाळांमध्ये प्रत्यक्ष कार्यरत' : 'On-ground facilitators'}
+            {language === 'mr' ? 'शाळांमध्ये प्रत्यक्ष कार्यरत' : 'On-ground field trainers'}
           </p>
         </div>
 
