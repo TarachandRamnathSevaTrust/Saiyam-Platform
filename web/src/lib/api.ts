@@ -486,6 +486,48 @@ export const apiService = {
     }
   },
 
+  async updateSchool(schoolId: string, updates: Partial<School>): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.village !== undefined) payload.village = updates.village;
+      if (updates.taluka !== undefined) payload.taluka = updates.taluka;
+      if (updates.district !== undefined) payload.district = updates.district;
+      if (updates.pinCode !== undefined) payload.pin_code = updates.pinCode;
+      if (updates.programStartDate !== undefined) payload.program_start_date = updates.programStartDate;
+      if (updates.representativeName !== undefined) payload.representative_name = updates.representativeName;
+      if (updates.representativeContact !== undefined) payload.representative_contact = updates.representativeContact;
+      if (updates.assignedTrainerId !== undefined) payload.assigned_trainer_id = updates.assignedTrainerId || null;
+      if (updates.organizationCode !== undefined) payload.organization_code = updates.organizationCode;
+
+      const { error } = await supabase
+        .from('schools')
+        .update(payload)
+        .eq('id', schoolId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase update school error:', err);
+      return false;
+    }
+  },
+
+  async deleteSchool(schoolId: string): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const { error } = await supabase
+        .from('schools')
+        .delete()
+        .eq('id', schoolId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('Supabase delete school error:', err);
+      return false;
+    }
+  },
+
   // ============================================================================
   // QUESTIONS (Dynamic ~90 questions per paper)
   // ============================================================================

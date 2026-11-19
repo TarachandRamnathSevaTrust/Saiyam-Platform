@@ -17,7 +17,6 @@ import {
   Edit2,
   Layers,
   LogIn,
-  Check,
   X,
   KeyRound,
   GraduationCap,
@@ -1285,9 +1284,15 @@ export const GovernancePanel: React.FC = () => {
             </form>
           )}
 
+          {/* Mobile Scroll Hint */}
+          <div className="text-[11px] text-slate-400 sm:hidden flex items-center space-x-1.5 px-1">
+            <span className="text-slate-500 font-bold">⇄</span>
+            <span>{language === 'mr' ? 'तक्ता पाहण्यासाठी आडवा स्क्रोल करा' : 'Scroll sideways to view all columns'}</span>
+          </div>
+
           {/* Field Trainers Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-            <table className="min-w-full text-xs">
+          <div className="w-full bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto touch-pan-x">
+            <table className="min-w-[700px] w-full text-xs">
               <thead className="bg-[#233d76] text-white">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'प्रशिक्षकाचे नाव' : 'Trainer Name'}</th>
@@ -1425,21 +1430,26 @@ export const GovernancePanel: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-            <table className="min-w-full text-xs">
+          {/* Mobile Scroll Hint */}
+          <div className="text-[11px] text-slate-400 sm:hidden flex items-center space-x-1.5 px-1">
+            <span className="text-slate-500 font-bold">⇄</span>
+            <span>{language === 'mr' ? 'तक्ता पाहण्यासाठी आडवा स्क्रोल करा' : 'Scroll sideways to view all columns'}</span>
+          </div>
+
+          <div className="w-full bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto touch-pan-x">
+            <table className="min-w-[620px] w-full text-xs">
               <thead className="bg-[#233d76] text-white">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'शाळा / संस्था' : 'School'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'गाव / शहर' : 'Location'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'अंमलबजावणी संस्था' : 'Organization'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'नियुक्त क्षेत्र प्रशिक्षक' : 'Assigned Field Trainer'}</th>
-                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'स्थिती' : 'Status'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {schools.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">
+                    <td colSpan={4} className="p-8 text-center text-slate-400">
                       {language === 'mr'
                         ? 'अद्याप कोणत्याही शाळेची नोंद झालेली नाही. प्रशिक्षक जेव्हा शाळेत जाऊन नोंदणी करतील तेव्हा ती येथे दिसेल.'
                         : 'No schools registered yet. Registered field schools will appear here for allocation.'}
@@ -1447,12 +1457,19 @@ export const GovernancePanel: React.FC = () => {
                   </tr>
                 ) : (
                   schools.map((school) => {
+                    const effectiveTrainerId =
+                      school.assignedTrainerId ||
+                      fieldTrainers.find((t) => t.fullName === school.assignedTrainerName)?.id ||
+                      (fieldTrainers.filter((t) => !school.organizationCode || t.organizationCode === school.organizationCode).length === 1
+                        ? fieldTrainers.filter((t) => !school.organizationCode || t.organizationCode === school.organizationCode)[0].id
+                        : '');
+
                     return (
                       <tr key={school.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3 font-bold text-slate-900">
                           <div className="flex items-center space-x-2">
-                            <SchoolIcon className="w-4 h-4 text-[#dfaf27]" />
-                            <span>{school.name}</span>
+                            <SchoolIcon className="w-4 h-4 text-[#dfaf27] shrink-0" />
+                            <span className="truncate max-w-[180px]">{school.name}</span>
                           </div>
                         </td>
 
@@ -1468,12 +1485,12 @@ export const GovernancePanel: React.FC = () => {
 
                         <td className="px-4 py-3">
                           <select
-                            value={school.assignedTrainerId || ''}
+                            value={effectiveTrainerId}
                             onChange={(e) => {
                               assignTrainerToSchool(school.id, e.target.value);
                               triggerNotify(language === 'mr' ? 'शाळा वाटप यशस्वीरीत्या बदलले!' : 'School allocation updated!');
                             }}
-                            className="p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+                            className="w-full max-w-xs p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76] cursor-pointer"
                           >
                             <option value="">-- {language === 'mr' ? 'प्रशिक्षक निवडा' : 'Select Field Trainer'} --</option>
                             {fieldTrainers.map((tr) => (
@@ -1482,19 +1499,6 @@ export const GovernancePanel: React.FC = () => {
                               </option>
                             ))}
                           </select>
-                        </td>
-
-                        <td className="px-4 py-3 text-center">
-                          {school.assignedTrainerId ? (
-                            <span className="bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px] inline-flex items-center space-x-1">
-                              <Check className="w-3 h-3" />
-                              <span>{language === 'mr' ? 'नियुक्त' : 'Assigned'}</span>
-                            </span>
-                          ) : (
-                            <span className="bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">
-                              {language === 'mr' ? 'प्रतिक्षेत' : 'Pending'}
-                            </span>
-                          )}
                         </td>
                       </tr>
                     );

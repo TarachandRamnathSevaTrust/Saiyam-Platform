@@ -259,16 +259,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         if (backendSchools && backendSchools.length > 0) {
-          setSchools(backendSchools);
+          const resolvedSchools = backendSchools.map((s) => {
+            if (!s.assignedTrainerId) {
+              const matchedByName = (backendProfiles || []).find(
+                (p) => p.role === 'FIELD_TRAINER' && p.fullName?.trim().toLowerCase() === (s.assignedTrainerName || '').trim().toLowerCase()
+              );
+              if (matchedByName) {
+                return {
+                  ...s,
+                  assignedTrainerId: matchedByName.id,
+                  assignedTrainerName: matchedByName.fullName,
+                };
+              }
+              const orgTrainers = (backendProfiles || []).filter(
+                (p) => p.role === 'FIELD_TRAINER' && (!s.organizationCode || p.organizationCode === s.organizationCode)
+              );
+              if (orgTrainers.length === 1) {
+                return {
+                  ...s,
+                  assignedTrainerId: orgTrainers[0].id,
+                  assignedTrainerName: orgTrainers[0].fullName,
+                };
+              }
+            } else if (!s.assignedTrainerName) {
+              const tr = (backendProfiles || []).find((p) => p.id === s.assignedTrainerId);
+              if (tr) {
+                return { ...s, assignedTrainerName: tr.fullName };
+              }
+            }
+            return s;
+          });
+          setSchools(resolvedSchools);
           // Auto-align selectedSchool to match the real Supabase school with real UUID
           setSelectedSchool((prev) => {
-            if (!prev) return backendSchools[0];
-            const matched = backendSchools.find(
+            if (!prev) return resolvedSchools[0];
+            const matched = resolvedSchools.find(
               (s) =>
                 s.id === prev.id ||
                 s.name.trim().toLowerCase() === prev.name.trim().toLowerCase()
             );
-            return matched || backendSchools[0];
+            return matched || resolvedSchools[0];
           });
         }
 
@@ -530,6 +560,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return s;
       })
     );
+
+    if (apiService.isConnected()) {
+      apiService
+        .updateSchool(schoolId, {
+          assignedTrainerId: trainerId || undefined,
+          organizationCode: trainer?.organizationCode,
+        })
+        .catch((err) => {
+          console.warn('Failed to sync school trainer assignment to Supabase:', err);
+        });
+    }
   };
 
   const addOrganization = (orgData: Omit<Organization, 'id' | 'createdAt' | 'isActive'>): Organization => {
@@ -582,12 +623,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addSchool = (schoolData: Omit<School, 'id' | 'createdAt'>): School => {
+    const assignedTrainerId =
+      schoolData.assignedTrainerId || (currentUser.role === 'FIELD_TRAINER' ? currentUser.id : undefined);
+    const assignedTrainerName =
+      schoolData.assignedTrainerName || (currentUser.role === 'FIELD_TRAINER' ? currentUser.fullName : undefined);
+    const resolvedSchoolData: Omit<School, 'id' | 'createdAt'> = {
+      ...schoolData,
+      assignedTrainerId,
+      assignedTrainerName,
+      organizationCode: schoolData.organizationCode || currentUser.organizationCode,
+    };
+
     const tempId = `sch-${Date.now()}`;
     const newSchool: School = {
-      ...schoolData,
-      financialYear: schoolData.financialYear || financialYear,
+      ...resolvedSchoolData,
+      financialYear: resolvedSchoolData.financialYear || financialYear,
       id: tempId,
-      organizationCode: schoolData.organizationCode || currentUser.organizationCode,
       createdAt: new Date().toISOString().split('T')[0],
       totalStudentsCount: 0,
       completedSessionsCount: 0,
@@ -597,13 +648,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (apiService.isConnected()) {
       apiService
-        .createSchool(schoolData)
+        .createSchool(resolvedSchoolData)
         .then((persistedSchool) => {
           if (persistedSchool) {
+            const finalSchool: School = {
+              ...persistedSchool,
+              assignedTrainerId: persistedSchool.assignedTrainerId || assignedTrainerId,
+              assignedTrainerName: persistedSchool.assignedTrainerName || assignedTrainerName,
+            };
             setSchools((prev) =>
-              prev.map((s) => (s.id === tempId ? persistedSchool : s))
+              prev.map((s) => (s.id === tempId ? finalSchool : s))
             );
-            setSelectedSchool((prev) => (prev?.id === tempId ? persistedSchool : prev));
+            setSelectedSchool((prev) => (prev?.id === tempId ? finalSchool : prev));
           }
         })
         .catch((err) => {
