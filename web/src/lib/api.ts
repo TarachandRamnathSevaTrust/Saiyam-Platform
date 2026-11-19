@@ -523,7 +523,11 @@ export const apiService = {
   async getSessionLogs(schoolId?: string): Promise<SessionLog[] | null> {
     if (!supabase) return null;
     try {
-      let query = supabase.from('session_logs').select('*').order('session_date', { ascending: false });
+      let query = supabase
+        .from('session_logs')
+        .select('*')
+        .order('conducted_date', { ascending: false });
+
       if (schoolId) {
         query = query.eq('school_id', schoolId);
       }
@@ -535,13 +539,13 @@ export const apiService = {
         schoolId: row.school_id,
         financialYear: row.financial_year || '2025-26',
         sessionNumber: row.session_number,
-        conductedDate: row.session_date || row.conducted_date || new Date().toISOString().split('T')[0],
+        conductedDate: row.conducted_date || new Date().toISOString().split('T')[0],
         durationMinutes: row.duration_minutes || 45,
-        totalAttendance: row.present_students_count || ((row.girls_present || 0) + (row.boys_present || 0)),
+        totalAttendance: row.total_attendance || ((row.girls_present || 0) + (row.boys_present || 0)),
         girlsPresent: row.girls_present || 0,
         boysPresent: row.boys_present || 0,
         toolsUsed: row.tools_used || 'फलक, पेन',
-        specialNotes: row.summary_notes || row.special_notes || '',
+        specialNotes: row.special_notes || '',
         conductedBy: row.conducted_by,
         media: [],
         createdAt: row.created_at,
@@ -561,13 +565,13 @@ export const apiService = {
           school_id: log.schoolId,
           financial_year: log.financialYear || '2025-26',
           session_number: log.sessionNumber,
-          session_date: log.conductedDate,
+          conducted_date: log.conductedDate,
           duration_minutes: log.durationMinutes,
-          present_students_count: log.totalAttendance,
+          total_attendance: log.totalAttendance,
           girls_present: log.girlsPresent,
           boys_present: log.boysPresent,
           tools_used: log.toolsUsed,
-          summary_notes: log.specialNotes,
+          special_notes: log.specialNotes,
           conducted_by: log.conductedBy,
         })
         .select()
@@ -579,13 +583,13 @@ export const apiService = {
         schoolId: data.school_id,
         financialYear: data.financial_year || '2025-26',
         sessionNumber: data.session_number,
-        conductedDate: data.session_date,
+        conductedDate: data.conducted_date,
         durationMinutes: data.duration_minutes,
-        totalAttendance: data.present_students_count,
+        totalAttendance: data.total_attendance,
         girlsPresent: data.girls_present,
         boysPresent: data.boys_present,
         toolsUsed: data.tools_used,
-        specialNotes: data.summary_notes,
+        specialNotes: data.special_notes,
         conductedBy: data.conducted_by,
         media: [],
         createdAt: data.created_at,
