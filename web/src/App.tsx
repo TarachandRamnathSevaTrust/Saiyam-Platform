@@ -27,26 +27,30 @@ export const App: React.FC = () => {
 
   const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser?.role === 'ORG_COORDINATOR';
+  const isFieldTrainer = !isTrustAdmin && !isOrgCoordinator;
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<string>(
     isTrustAdmin ? 'DASHBOARD' : isOrgCoordinator ? 'NGO_PORTAL' : 'SCHOOLS'
   );
 
-  // Sync activeTab when role changes
+  // Sync activeTab when role changes or user switches
   useEffect(() => {
     if (isTrustAdmin) {
       if (activeTab !== 'DASHBOARD' && activeTab !== 'GOVERNANCE' && activeTab !== 'SCHOOLS') {
         setActiveTab('DASHBOARD');
       }
     } else if (isOrgCoordinator) {
-      setActiveTab('NGO_PORTAL');
+      if (activeTab !== 'NGO_PORTAL' && activeTab !== 'SCHOOLS') {
+        setActiveTab('NGO_PORTAL');
+      }
     } else {
+      // FIELD TRAINER: strictly restricted from DASHBOARD, GOVERNANCE, NGO_PORTAL
       if (activeTab === 'DASHBOARD' || activeTab === 'GOVERNANCE' || activeTab === 'NGO_PORTAL') {
         setActiveTab('SCHOOLS');
       }
     }
-  }, [isTrustAdmin, isOrgCoordinator]);
+  }, [currentUser?.id, currentUser?.role]);
 
   // If not logged in, show the official Login Page first!
   if (!isLoggedIn) {
@@ -218,7 +222,9 @@ export const App: React.FC = () => {
             {isTrustAdmin && activeTab === 'DASHBOARD' && <AdminDashboard />}
             {isTrustAdmin && activeTab === 'GOVERNANCE' && <GovernancePanel />}
             {isOrgCoordinator && activeTab === 'NGO_PORTAL' && <PartnerCoordinatorDashboard />}
-            {activeTab === 'SCHOOLS' && <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />}
+            {(activeTab === 'SCHOOLS' || (isFieldTrainer && (activeTab === 'DASHBOARD' || activeTab === 'GOVERNANCE' || activeTab === 'NGO_PORTAL'))) && (
+              <SchoolList onNavigateToTab={(t) => setActiveTab(t)} />
+            )}
             {activeTab === 'STUDENTS' && (
               <StudentRoster
                 onBack={() => setActiveTab('SCHOOLS')}

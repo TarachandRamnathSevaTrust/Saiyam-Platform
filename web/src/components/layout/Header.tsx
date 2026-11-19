@@ -91,6 +91,15 @@ export const Header: React.FC = () => {
                 onChange={(e) => switchUser(e.target.value)}
                 className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white py-1.5 sm:py-2 pl-2 sm:pl-3 pr-7 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none max-w-[220px] truncate"
               >
+                {!users.some((u) => u.id === currentUser.id) && (
+                  <option value={currentUser.id} className="bg-[#233d76] text-white py-1">
+                    {currentUser.role === 'TRUST_ADMIN'
+                      ? `👑 ${currentUser.fullName} (Admin)`
+                      : currentUser.role === 'ORG_COORDINATOR'
+                      ? `🏢 ${currentUser.fullName} (NGO Lead)`
+                      : `👤 ${currentUser.fullName}`}
+                  </option>
+                )}
                 {users.map((user) => {
                   const userOrg = organizations.find((o) => o.code === user.organizationCode);
                   const orgName = userOrg ? (language === 'mr' ? userOrg.nameMr : userOrg.nameEn) : '';

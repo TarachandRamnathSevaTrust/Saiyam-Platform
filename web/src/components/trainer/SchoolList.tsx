@@ -22,14 +22,26 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+  const isOrgCoordinator = currentUser.role === 'ORG_COORDINATOR';
 
-  // Field trainers only see schools belonging to their assigned organization
+  // Role Scoping:
+  // - Trust Admin: Sees all schools across all organizations
+  // - NGO Coordinator: Sees all schools under their organization
+  // - Field Trainer: Sees schools specifically assigned to them, or unassigned schools under their organization
   const visibleSchools = isTrustAdmin
     ? schools
-    : schools.filter(
+    : isOrgCoordinator
+    ? schools.filter(
         (s) =>
           !currentUser.organizationCode ||
           (s.organizationCode || 'TRST_DIRECT') === currentUser.organizationCode
+      )
+    : schools.filter(
+        (s) =>
+          s.assignedTrainerId === currentUser.id ||
+          (!s.assignedTrainerId &&
+            (!currentUser.organizationCode ||
+              (s.organizationCode || 'TRST_DIRECT') === currentUser.organizationCode))
       );
 
   return (

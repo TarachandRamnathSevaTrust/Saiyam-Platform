@@ -243,6 +243,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (backendProfiles && backendProfiles.length > 0) {
           // When Supabase backend is connected, use real backend profiles only (no mock data)
           setUsers(backendProfiles);
+          setCurrentUser((prev) => {
+            if (!prev) return backendProfiles[0];
+            const matched = backendProfiles.find(
+              (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
+            );
+            return matched || backendProfiles[0];
+          });
         }
 
         if (backendOrgs && backendOrgs.length > 0) {
@@ -332,6 +339,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentUser(user);
       setIsLoggedIn(true);
       localStorage.setItem('saiyam_logged_in_v10', 'true');
+      localStorage.setItem('saiyam_user_v10', JSON.stringify(user));
       setSelectedSchool(null);
     }
   };
@@ -342,6 +350,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const backendProfiles = await apiService.getProfiles();
       if (backendProfiles && backendProfiles.length > 0) {
         setUsers(backendProfiles);
+        setCurrentUser((prev) => {
+          if (!prev) return backendProfiles[0];
+          const matched = backendProfiles.find(
+            (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
+          );
+          return matched || backendProfiles[0];
+        });
         return backendProfiles;
       }
     } catch (e) {
