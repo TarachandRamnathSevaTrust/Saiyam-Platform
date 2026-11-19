@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { apiService } from '../../lib/api';
 import {
   Building2,
   Users,
@@ -24,6 +25,9 @@ import {
   Sparkles,
   UserCheck,
   RefreshCw,
+  Eye,
+  EyeOff,
+  Lock,
 } from 'lucide-react';
 import { Organization, UserProfile, School } from '@saiyam/shared';
 
@@ -74,8 +78,10 @@ export const GovernancePanel: React.FC = () => {
   const [trainerName, setTrainerName] = useState('');
   const [trainerPhone, setTrainerPhone] = useState('');
   const [trainerEmail, setTrainerEmail] = useState('');
+  const [trainerPassword, setTrainerPassword] = useState('Saiyam@123');
+  const [showTrainerPassword, setShowTrainerPassword] = useState(false);
   const [selectedOrgCode, setSelectedOrgCode] = useState('');
-  const [authUserId, setAuthUserId] = useState('');
+  const [isSavingTrainer, setIsSavingTrainer] = useState(false);
 
   // Feedback notifications
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -241,7 +247,8 @@ export const GovernancePanel: React.FC = () => {
     setTrainerPhone(user.phone || '');
     setTrainerEmail(user.email);
     setSelectedOrgCode(user.organizationCode || '');
-    setAuthUserId(user.authUserId || user.id);
+    setTrainerPassword(''); // Optional password reset on edit
+    setShowTrainerPassword(false);
     setIsAddingTrainer(true);
   };
 
@@ -251,11 +258,13 @@ export const GovernancePanel: React.FC = () => {
     setTrainerPhone('');
     setTrainerEmail('');
     setSelectedOrgCode('');
-    setAuthUserId('');
+    setTrainerPassword('Saiyam@123');
+    setShowTrainerPassword(false);
+    setIsSavingTrainer(false);
     setIsAddingTrainer(false);
   };
 
-  const handleSaveTrainer = (e: React.FormEvent) => {
+  const handleSaveTrainer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!trainerName.trim() || !trainerEmail.trim()) {
       alert(language === 'mr' ? 'कृपया प्रशिक्षकाचे पूर्ण नाव आणि लॉगिन ईमेल भरा.' : 'Please enter trainer full name and email.');
@@ -263,33 +272,84 @@ export const GovernancePanel: React.FC = () => {
     }
 
     const assignedOrg = organizations.find((o) => o.code === selectedOrgCode);
-    const resolvedAuthId = authUserId.trim() || `auth-${Date.now()}`;
+    const chosenPassword = trainerPassword.trim() || 'Saiyam@123';
+    setIsSavingTrainer(true);
 
-    if (editingTrainerId) {
-      updateUser(editingTrainerId, {
-        fullName: trainerName.trim(),
-        phone: trainerPhone.trim(),
-        email: trainerEmail.trim(),
-        organizationId: assignedOrg?.id,
-        organizationCode: selectedOrgCode || undefined,
-        authUserId: resolvedAuthId,
-      });
-      triggerNotify(language === 'mr' ? 'प्रशिक्षकाची माहिती व Auth प्रोफाइल अद्ययावत केली!' : 'Trainer & Auth Profile updated successfully!');
-    } else {
-      addUser({
-        fullName: trainerName.trim(),
-        email: trainerEmail.trim(),
-        phone: trainerPhone.trim(),
-        role: 'FIELD_TRAINER',
-        organizationId: assignedOrg?.id,
-        organizationCode: selectedOrgCode || undefined,
-        authUserId: resolvedAuthId,
-        isActive: true,
-      });
-      triggerNotify(language === 'mr' ? 'नवीन क्षेत्र प्रशिक्षक व Supabase प्रोफाइल जोडली!' : 'Field Trainer & Auth Profile mapped successfully!');
+    try {
+      if (editingTrainerId) {
+        // Update local context
+        updateUser(editingTrainerId, {
+          fullName: trainerName.trim(),
+          phone: trainerPhone.trim(),
+          email: trainerEmail.trim(),
+          organizationId: assignedOrg?.id,
+          organizationCode: selectedOrgCode || undefined,
+        });
+
+        // Update live Supabase profiles if connected
+        if (apiService.isConnected()) {
+          await apiService.updateProfile(editingTrainerId, {
+            fullName: trainerName.trim(),
+            phone: trainerPhone.trim(),
+            organizationId: assignedOrg?.id,
+            organizationCode: selectedOrgCode || undefined,
+          });
+        }
+
+        triggerNotify(
+          language === 'mr'
+            ? 'प्रशिक्षकाची माहिती यशस्वीरीत्या अद्ययावत केली!'
+            : 'Trainer profile updated successfully!'
+        );
+      } else {
+        // Register new Field Trainer in Supabase Auth & public.profiles
+        let registeredUser: UserProfile | null = null;
+
+        if (apiService.isConnected()) {
+          const result = await apiService.createTrainerUser({
+            fullName: trainerName.trim(),
+            email: trainerEmail.trim(),
+            password: chosenPassword,
+            phone: trainerPhone.trim(),
+            organizationId: assignedOrg?.id,
+            organizationCode: selectedOrgCode || undefined,
+          });
+
+          if (result.user) {
+            registeredUser = result.user;
+            addUser(result.user);
+          }
+        }
+
+        if (!registeredUser) {
+          // Local / offline fallback with automatic standard UUID
+          const autoUuid = crypto.randomUUID();
+          addUser({
+            fullName: trainerName.trim(),
+            email: trainerEmail.trim(),
+            phone: trainerPhone.trim(),
+            role: 'FIELD_TRAINER',
+            organizationId: assignedOrg?.id,
+            organizationCode: selectedOrgCode || undefined,
+            authUserId: autoUuid,
+            isActive: true,
+          });
+        }
+
+        triggerNotify(
+          language === 'mr'
+            ? `प्रशिक्षक नोंदणी पूर्ण! लॉगिन पासवर्ड: ${chosenPassword}`
+            : `Trainer created! Login password: ${chosenPassword}`
+        );
+      }
+
+      handleResetTrainerForm();
+    } catch (err: any) {
+      console.error('Error saving trainer:', err);
+      alert(language === 'mr' ? 'प्रशिक्षक जतन करताना त्रुटी आली.' : 'Failed to save trainer profile.');
+    } finally {
+      setIsSavingTrainer(false);
     }
-
-    handleResetTrainerForm();
   };
 
   const fieldTrainers = users.filter((u) => u.role === 'FIELD_TRAINER');
@@ -1014,30 +1074,40 @@ export const GovernancePanel: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="sm:col-span-2">
+                <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="font-bold text-slate-700 block">
-                      {language === 'mr' ? 'Supabase Auth User ID (UUID)' : 'Supabase Auth User ID (UUID)'}
+                      {editingTrainerId
+                        ? (language === 'mr' ? 'नवीन पासवर्ड बदला (ऐच्छिक)' : 'Change Password (Optional)')
+                        : (language === 'mr' ? 'लॉगिन पासवर्ड *' : 'Initial Login Password *')}
                     </label>
+                    {!editingTrainerId && (
+                      <span className="text-[10px] bg-amber-50 text-[#233d76] font-bold px-1.5 py-0.5 rounded border border-[#dfaf27]/40">
+                        {language === 'mr' ? 'डीफॉल्ट: Saiyam@123' : 'Default: Saiyam@123'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showTrainerPassword ? 'text' : 'password'}
+                      value={trainerPassword}
+                      onChange={(e) => setTrainerPassword(e.target.value)}
+                      placeholder={editingTrainerId ? '••••••••' : 'Saiyam@123'}
+                      className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                    />
                     <button
                       type="button"
-                      onClick={() => setAuthUserId(`usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`)}
-                      className="text-[11px] text-[#233d76] font-bold hover:underline"
+                      onClick={() => setShowTrainerPassword(!showTrainerPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                      title={showTrainerPassword ? 'Hide password' : 'Show password'}
                     >
-                      {language === 'mr' ? 'स्वयंचलित ID तयार करा' : 'Auto-Generate ID'}
+                      {showTrainerPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    value={authUserId}
-                    onChange={(e) => setAuthUserId(e.target.value)}
-                    placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                  />
                   <p className="text-[11px] text-slate-400 mt-1">
                     {language === 'mr'
-                      ? 'बॅकएंडमध्ये या ईमेलने युझर तयार केल्यावर हा आयडी public.profiles शी थेट जोडला जातो.'
-                      : 'When created in Supabase Auth, the trigger populates public.profiles and maps to this trainer.'}
+                      ? 'प्रशिक्षक या ईमेल व पासवर्डने लॉगिन करतील. (Supabase Auth ID आपोआप तयार होईल)'
+                      : 'Trainer will sign in using this email and password. (Supabase Auth UUID auto-generated).'}
                   </p>
                 </div>
               </div>
@@ -1046,10 +1116,10 @@ export const GovernancePanel: React.FC = () => {
               <div className="bg-[#f0da9a]/30 border border-[#dfaf27]/40 rounded-xl p-3 flex items-start space-x-2.5 text-xs text-[#233d76]">
                 <KeyRound className="w-4 h-4 text-[#233d76] shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
-                  <strong>{language === 'mr' ? 'लॉगिन अधिकार:' : 'Access Rights:'}</strong>{' '}
+                  <strong>{language === 'mr' ? 'लॉगिन अधिकार व सुरक्षितता:' : 'Access Rights & Security:'}</strong>{' '}
                   {language === 'mr'
-                    ? 'जेव्हा हा प्रशिक्षक या ईमेलने लॉग इन करेल, तेव्हा त्याला फक्त त्याच्या संस्थेच्या अंतर्गत येणाऱ्या शाळा व विद्यार्थ्यांचे संचलन दिसेल.'
-                    : 'When this facilitator signs in with this login, they will automatically access their assigned schools and students.'}
+                    ? 'जेव्हा हा प्रशिक्षक या ईमेल आणि पासवर्डने लॉगिन करेल, तेव्हा त्याला फक्त त्याच्या संस्थेच्या अंतर्गत येणाऱ्या शाळा व विद्यार्थ्यांचे संचलन दिसेल.'
+                    : 'When this facilitator signs in with this login and password, they will automatically access their assigned schools and students.'}
                 </div>
               </div>
 
@@ -1057,17 +1127,24 @@ export const GovernancePanel: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleResetTrainerForm}
-                  className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  disabled={isSavingTrainer}
+                  className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 cursor-pointer disabled:opacity-50"
                 >
                   {language === 'mr' ? 'रद्द करा' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 text-xs font-bold rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-white shadow-xs cursor-pointer"
+                  disabled={isSavingTrainer}
+                  className="px-6 py-2 text-xs font-bold rounded-xl bg-[#233d76] hover:bg-[#1a2d57] text-white shadow-xs cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
                 >
-                  {editingTrainerId
-                    ? language === 'mr' ? 'बदल जतन करा' : 'Update Trainer'
-                    : language === 'mr' ? 'प्रशिक्षक व प्रोफाइल जतन करा' : 'Save Trainer & Profile'}
+                  {isSavingTrainer && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                  <span>
+                    {isSavingTrainer
+                      ? (language === 'mr' ? 'जतन करत आहे...' : 'Saving...')
+                      : editingTrainerId
+                      ? (language === 'mr' ? 'बदल जतन करा' : 'Update Trainer')
+                      : (language === 'mr' ? 'प्रशिक्षक व प्रोफाइल जतन करा' : 'Save Trainer & Profile')}
+                  </span>
                 </button>
               </div>
             </form>

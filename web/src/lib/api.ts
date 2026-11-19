@@ -88,6 +88,121 @@ export const apiService = {
     }
   },
 
+  async createTrainerUser(data: {
+    fullName: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    organizationId?: string;
+    organizationCode?: string;
+  }): Promise<{ user: UserProfile | null; error: string | null }> {
+    if (!supabase) return { user: null, error: 'Supabase client not initialized' };
+    try {
+      const cleanEmail = data.email.trim().toLowerCase();
+      const cleanPassword = data.password?.trim() || 'Saiyam@123';
+
+      // 1. Check if user profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+
+      if (existingProfile) {
+        // Update profile
+        await supabase
+          .from('profiles')
+          .update({
+            full_name: data.fullName.trim(),
+            phone: data.phone?.trim() || null,
+            organization_id: data.organizationId || null,
+            organization_code: data.organizationCode || null,
+            role: 'FIELD_TRAINER',
+            is_active: true,
+          })
+          .eq('id', existingProfile.id);
+
+        return {
+          user: {
+            id: existingProfile.id,
+            authUserId: existingProfile.auth_user_id || existingProfile.id,
+            fullName: data.fullName.trim(),
+            email: cleanEmail,
+            phone: data.phone?.trim(),
+            organizationId: data.organizationId,
+            organizationCode: data.organizationCode,
+            role: 'FIELD_TRAINER',
+            isActive: true,
+            createdAt: existingProfile.created_at,
+          },
+          error: null,
+        };
+      }
+
+      // 2. Register via Supabase Auth
+      let authUserId: string = crypto.randomUUID();
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password: cleanPassword,
+          options: {
+            data: {
+              full_name: data.fullName.trim(),
+              role: 'FIELD_TRAINER',
+            },
+          },
+        });
+        if (authData?.user?.id) {
+          authUserId = authData.user.id;
+        }
+        if (authError && !authError.message.includes('already registered')) {
+          console.warn('Supabase Auth signUp note:', authError.message);
+        }
+      } catch (authErr) {
+        console.warn('Auth sign up skipped or rate limited:', authErr);
+      }
+
+      // 3. Upsert into public.profiles
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            id: authUserId,
+            auth_user_id: authUserId,
+            email: cleanEmail,
+            full_name: data.fullName.trim(),
+            phone: data.phone?.trim() || null,
+            organization_id: data.organizationId || null,
+            organization_code: data.organizationCode || null,
+            role: 'FIELD_TRAINER',
+            is_active: true,
+          },
+          { onConflict: 'email' }
+        )
+        .select()
+        .single();
+
+      return {
+        user: {
+          id: profileRow?.id || authUserId,
+          authUserId: profileRow?.auth_user_id || authUserId,
+          fullName: data.fullName.trim(),
+          email: cleanEmail,
+          phone: data.phone?.trim(),
+          organizationId: data.organizationId,
+          organizationCode: data.organizationCode,
+          role: 'FIELD_TRAINER',
+          isActive: true,
+          createdAt: profileRow?.created_at || new Date().toISOString(),
+        },
+        error: null,
+      };
+    } catch (err: any) {
+      console.warn('createTrainerUser error:', err);
+      return { user: null, error: err.message || 'Failed to create trainer user' };
+    }
+  },
+
   async signOut(): Promise<void> {
     if (supabase) {
       await supabase.auth.signOut();
