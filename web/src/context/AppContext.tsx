@@ -212,11 +212,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
     async function hydrateFromBackend() {
       try {
-        const [backendOrgs, backendSchools, backendLogs, backendProfiles] = await Promise.all([
+        const [backendOrgs, backendSchools, backendLogs, backendProfiles, backendStudents] = await Promise.all([
           apiService.getOrganizations(),
           apiService.getSchools(),
           apiService.getSessionLogs(),
           apiService.getProfiles(),
+          apiService.getAllStudents(),
         ]);
 
         if (!isMounted) return;
@@ -227,30 +228,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         if (backendOrgs && backendOrgs.length > 0) {
-          setOrganizations((prev) => {
-            const remoteMap = new Map(backendOrgs.map((o) => [o.code, o]));
-            const merged = [...backendOrgs];
-            // Retain any locally created ones that haven't synced yet
-            for (const localOrg of prev) {
-              if (!remoteMap.has(localOrg.code)) {
-                merged.push(localOrg);
-              }
-            }
-            return merged;
-          });
+          setOrganizations(backendOrgs);
         }
 
         if (backendSchools && backendSchools.length > 0) {
-          setSchools((prev) => {
-            const remoteMap = new Map(backendSchools.map((s) => [s.name, s]));
-            const merged = [...backendSchools];
-            for (const localSch of prev) {
-              if (!remoteMap.has(localSch.name)) {
-                merged.push(localSch);
-              }
-            }
-            return merged;
+          setSchools(backendSchools);
+          // Auto-align selectedSchool to match the real Supabase school with real UUID
+          setSelectedSchool((prev) => {
+            if (!prev) return backendSchools[0];
+            const matched = backendSchools.find(
+              (s) =>
+                s.id === prev.id ||
+                s.name.trim().toLowerCase() === prev.name.trim().toLowerCase()
+            );
+            return matched || backendSchools[0];
           });
+        }
+
+        if (backendStudents && backendStudents.length > 0) {
+          setStudents(backendStudents);
         }
 
         if (backendLogs && backendLogs.length > 0) {
@@ -450,8 +446,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .then((persistedSchool) => {
           if (persistedSchool) {
             setSchools((prev) =>
-              prev.map((s) => (s.id === tempId ? { ...newSchool, id: persistedSchool.id } : s))
+              prev.map((s) => (s.id === tempId ? persistedSchool : s))
             );
+            setSelectedSchool((prev) => (prev?.id === tempId ? persistedSchool : prev));
           }
         })
         .catch((err) => {
@@ -463,9 +460,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addStudent = (studentData: Omit<Student, 'id' | 'createdAt'>): Student => {
+    // Resolve real Supabase school UUID if current schoolId is temporary
+    let resolvedSchoolId = studentData.schoolId;
+    const currentSchool = schools.find(
+      (s) =>
+        s.id === studentData.schoolId ||
+        s.name.trim().toLowerCase() === selectedSchool?.name?.trim().toLowerCase()
+    );
+    if (currentSchool && currentSchool.id && !currentSchool.id.startsWith('sch-')) {
+      resolvedSchoolId = currentSchool.id;
+    }
+
     const tempId = `st-${Date.now()}`;
     const newStudent: Student = {
       ...studentData,
+      schoolId: resolvedSchoolId,
       financialYear: studentData.financialYear || financialYear,
       id: tempId,
       createdAt: new Date().toISOString().split('T')[0],
@@ -488,9 +497,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAssessmentPairs((prev) => [...prev, ...newPairs]);
 
     if (apiService.isConnected()) {
-      apiService.createStudent(studentData).catch((err) => {
-        console.warn('Failed to sync student to Supabase:', err);
-      });
+      apiService
+        .createStudent({ ...studentData, schoolId: resolvedSchoolId })
+        .then((persistedStudent) => {
+          if (persistedStudent) {
+            setStudents((prev) =>
+              prev.map((s) => (s.id === tempId ? persistedStudent : s))
+            );
+            setAssessmentPairs((prev) =>
+              prev.map((p) =>
+                p.studentId === tempId ? { ...p, studentId: persistedStudent.id } : p
+              )
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to sync student to Supabase:', err);
+        });
     }
 
     return newStudent;

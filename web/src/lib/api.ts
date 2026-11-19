@@ -398,6 +398,32 @@ export const apiService = {
   // ============================================================================
   // STUDENTS (विद्यार्थी यादी)
   // ============================================================================
+  async getAllStudents(): Promise<Student[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('bundle_sequence_no', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((row) => ({
+        id: row.id,
+        schoolId: row.school_id,
+        financialYear: row.financial_year || '2025-26',
+        bundleSequenceNo: row.bundle_sequence_no,
+        fullName: row.full_name,
+        gender: row.gender,
+        standard: row.standard,
+        division: row.division,
+        createdAt: row.created_at,
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch all students error:', err);
+      return null;
+    }
+  },
+
   async getStudentsBySchool(schoolId: string): Promise<Student[] | null> {
     if (!supabase) return null;
     try {
