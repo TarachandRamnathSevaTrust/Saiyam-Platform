@@ -150,14 +150,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const availableFinancialYears = ['2024-25', '2025-26', '2026-27'];
-  const [financialYear, setFinancialYear] = useState<string>(() => {
-    return localStorage.getItem('saiyam_fy_v10') || '2025-26';
-  });
+  const availableFinancialYears = ['2025-26'];
+  const [financialYear, setFinancialYear] = useState<string>('2025-26');
 
   useEffect(() => {
-    localStorage.setItem('saiyam_fy_v10', financialYear);
-  }, [financialYear]);
+    localStorage.setItem('saiyam_fy_v10', '2025-26');
+  }, []);
 
   const [language, setLanguage] = useState<'mr' | 'en'>(() => {
     return (localStorage.getItem('saiyam_lang_v10') as 'mr' | 'en') || 'en';

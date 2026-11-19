@@ -130,6 +130,7 @@ export function computeStudentPair(
 
 export function formatRowsForExcelExport(pairs: StudentAssessmentPair[]) {
   return pairs.map((p) => ({
+    'आर्थिक वर्ष (Financial Year)': p.financialYear || '2025-26',
     'गठ्ठा अनुक्रमांक (Bundle #)': `S-${p.bundleSequenceNo}`,
     'विद्यार्थ्याचे नाव (Name)': p.studentName,
     'लिंग (Gender)': p.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा',

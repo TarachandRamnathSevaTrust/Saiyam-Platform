@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Globe, School as SchoolIcon, ChevronDown, ShieldCheck, LogOut, User } from 'lucide-react';
+import { Globe, School as SchoolIcon, ChevronDown, ShieldCheck, LogOut, User, Calendar } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const {
@@ -74,22 +74,13 @@ export const Header: React.FC = () => {
               </span>
             </button>
 
-            {/* Financial Year (FY) Selector (Desktop) */}
-            <div className="relative hidden sm:block">
-              <select
-                aria-label="Financial Year"
-                value={financialYear}
-                onChange={(e) => setFinancialYear(e.target.value)}
-                className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#dfaf27]/70 bg-[#1a2d57] text-[#f0da9a] hover:text-white py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-6 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none"
-                title="Select Financial Year (आर्थिक वर्ष)"
-              >
-                {availableFinancialYears.map((fy) => (
-                  <option key={fy} value={fy} className="bg-[#233d76] text-white font-bold">
-                    FY {fy}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3 h-3 text-[#dfaf27] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Active Financial Year Badge (Desktop) */}
+            <div
+              className="hidden sm:flex items-center space-x-1.5 text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#dfaf27]/50 bg-[#1a2d57] text-[#f0da9a] shadow-2xs select-none"
+              title={language === 'mr' ? 'चालू शैक्षणिक व आर्थिक वर्ष: २०२५-२६' : 'Active Financial Year: FY 2025–26'}
+            >
+              <Calendar className="w-3.5 h-3.5 text-[#dfaf27]" />
+              <span className="tracking-wide">FY {financialYear}</span>
             </div>
 
             {/* Role Switcher (Desktop) */}
@@ -158,21 +149,13 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Financial Year Selector (Mobile Pill) */}
-        <div className="relative shrink-0">
-          <select
-            aria-label="Financial Year"
-            value={financialYear}
-            onChange={(e) => setFinancialYear(e.target.value)}
-            className="text-[10px] font-black rounded-md border border-[#dfaf27]/60 bg-[#233d76] text-[#dfaf27] py-1 pl-1.5 pr-5 focus:outline-hidden appearance-none cursor-pointer"
-          >
-            {availableFinancialYears.map((fy) => (
-              <option key={fy} value={fy} className="bg-[#233d76] text-white font-bold">
-                FY {fy}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-2.5 h-2.5 text-[#dfaf27] absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Active Financial Year (Mobile Badge) */}
+        <div
+          className="shrink-0 flex items-center space-x-1 text-[10px] font-black rounded-md border border-[#dfaf27]/60 bg-[#233d76] text-[#dfaf27] px-2 py-0.5 select-none"
+          title={language === 'mr' ? 'चालू आर्थिक वर्ष' : 'Active Financial Year'}
+        >
+          <Calendar className="w-2.5 h-2.5 text-[#dfaf27]" />
+          <span>FY {financialYear}</span>
         </div>
       </div>
 
