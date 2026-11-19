@@ -221,8 +221,77 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
+      {/* Mobile Sub-Tabs (Zero Horizontal Scroll, 100% Readable) */}
+      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-200/80 rounded-2xl sm:hidden">
+        <button
+          type="button"
+          onClick={() => setActiveTab('OVERVIEW')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeTab === 'OVERVIEW'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <Building2 className={`w-3.5 h-3.5 ${activeTab === 'OVERVIEW' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '१. FT प्रगती' : '1. Trainers'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeTab === 'OVERVIEW' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            {orgTrainers.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('SCHOOLS')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeTab === 'SCHOOLS'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <SchoolIcon className={`w-3.5 h-3.5 ${activeTab === 'SCHOOLS' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '२. शाळा' : '2. Schools'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeTab === 'SCHOOLS' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            {orgSchools.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('ANALYTICS')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeTab === 'ANALYTICS'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <TrendingUp className={`w-3.5 h-3.5 ${activeTab === 'ANALYTICS' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '३. प्रभाव' : '3. Tests'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeTab === 'ANALYTICS' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            Δ
+          </span>
+        </button>
+      </div>
+
+      {/* Desktop Sub Tabs */}
+      <div className="hidden sm:flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
         <button
           onClick={() => setActiveTab('OVERVIEW')}
           className={`flex items-center space-x-2 pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${

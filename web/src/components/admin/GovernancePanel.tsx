@@ -508,8 +508,77 @@ export const GovernancePanel: React.FC = () => {
         </div>
       )}
 
-      {/* Sub Tabs: 1. Implementing Organizations, 2. Field Facilitators, 3. School Allocations */}
-      <div className="flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
+      {/* Mobile Sub-Tabs: 3-Column Responsive Segmented Bar (Zero Horizontal Scroll, 100% Readable) */}
+      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-200/80 rounded-2xl sm:hidden">
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('ORGS')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeSubTab === 'ORGS'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <Building2 className={`w-3.5 h-3.5 ${activeSubTab === 'ORGS' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '१. संस्था' : '1. Orgs'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeSubTab === 'ORGS' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            {organizations.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('TRAINERS')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeSubTab === 'TRAINERS'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <Users className={`w-3.5 h-3.5 ${activeSubTab === 'TRAINERS' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '२. प्रशिक्षक' : '2. Trainers'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeSubTab === 'TRAINERS' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            {fieldTrainers.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('ALLOCATIONS')}
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold text-center transition-all cursor-pointer ${
+            activeSubTab === 'ALLOCATIONS'
+              ? 'bg-[#233d76] text-white shadow-xs'
+              : 'text-slate-700 bg-white/70 hover:bg-white'
+          }`}
+        >
+          <div className="flex items-center space-x-1">
+            <SchoolIcon className={`w-3.5 h-3.5 ${activeSubTab === 'ALLOCATIONS' ? 'text-[#dfaf27]' : 'text-[#233d76]'}`} />
+            <span className="text-[11px] leading-tight font-extrabold">
+              {language === 'mr' ? '३. शाळा वाटप' : '3. Schools'}
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-black mt-1 px-2 py-0.5 rounded-full ${
+            activeSubTab === 'ALLOCATIONS' ? 'bg-[#dfaf27] text-[#233d76]' : 'bg-slate-200 text-slate-800'
+          }`}>
+            {schools.length}
+          </span>
+        </button>
+      </div>
+
+      {/* Desktop Sub Tabs: 1. Implementing Organizations, 2. Field Trainers, 3. School Allocations */}
+      <div className="hidden sm:flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
         <button
           onClick={() => setActiveSubTab('ORGS')}
           className={`flex items-center space-x-2 pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all cursor-pointer whitespace-nowrap ${
