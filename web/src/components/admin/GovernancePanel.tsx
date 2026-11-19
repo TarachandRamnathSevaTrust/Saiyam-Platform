@@ -29,6 +29,7 @@ import {
   Eye,
   EyeOff,
   Lock,
+  ChevronDown,
 } from 'lucide-react';
 import { Organization, UserProfile, School } from '@saiyam/shared';
 
@@ -52,6 +53,7 @@ export const GovernancePanel: React.FC = () => {
 
   // Organizations is FIRST as per natural hierarchy (Org -> Trainer -> School)
   const [activeSubTab, setActiveSubTab] = useState<'ORGS' | 'TRAINERS' | 'ALLOCATIONS'>('ORGS');
+  const [showLineageFlow, setShowLineageFlow] = useState<boolean>(false);
 
   // --- Add Organization Form State ---
   const [isAddingOrg, setIsAddingOrg] = useState(false);
@@ -384,90 +386,123 @@ export const GovernancePanel: React.FC = () => {
           <p className="text-xs text-[#f0da9a] mt-0.5">
             {language === 'mr'
               ? '१. संस्था ➔ २. क्षेत्र प्रशिक्षक ➔ ३. शाळा ➔ ४. विद्यार्थी थेट मॅपिंग.'
-              : 'Strict Data Lineage: 1. Organization ➔ 2. Field Facilitators ➔ 3. School Allocations ➔ 4. Students.'}
+              : 'Strict Data Lineage: 1. Organization ➔ 2. Field Trainers ➔ 3. School Allocations ➔ 4. Students.'}
           </p>
         </div>
 
-        {/* Dynamic Toast */}
-        {notification && (
-          <div className="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-md animate-bounce">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{notification.message}</span>
-          </div>
-        )}
-      </div>
+        {/* Right Action Container: Toast & Collapsible Data Lineage Flow Toggle */}
+        <div className="flex items-center gap-3 self-end sm:self-center">
+          {notification && (
+            <div className="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-md animate-bounce">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{notification.message}</span>
+            </div>
+          )}
 
-      {/* Visual Pipeline Flow Card (Explaining the 4-Step Architecture) */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
-        <div className="flex items-center space-x-2 mb-3">
-          <Database className="w-4 h-4 text-[#233d76]" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
-            {language === 'mr' ? 'प्रणाली डेटा प्रवाह व मॅपिंग' : 'System Data Lineage Flow'}
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Step 1 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
-            <div className="w-7 h-7 rounded-lg bg-[#233d76] text-white flex items-center justify-center font-bold text-xs shrink-0">
-              1
-            </div>
-            <div>
-              <div className="font-bold text-xs text-slate-900">
-                {language === 'mr' ? 'संस्था जोडा' : 'Add Organization'}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                {language === 'mr' ? 'TRST Direct किंवा भागीदार NGO तयार करा.' : 'Create in-house or partner NGO entity.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
-            <div className="w-7 h-7 rounded-lg bg-[#dfaf27] text-[#233d76] flex items-center justify-center font-bold text-xs shrink-0">
-              2
-            </div>
-            <div>
-              <div className="font-bold text-xs text-slate-900">
-                {language === 'mr' ? 'प्रशिक्षक व Auth प्रोफाइल' : 'Trainer & Auth Profile'}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                {language === 'mr' ? 'Supabase Auth युझर जोडून प्रोफाइल नियुक्त करा.' : 'Map Supabase Auth user to trainer profile.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
-            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              3
-            </div>
-            <div>
-              <div className="font-bold text-xs text-slate-900">
-                {language === 'mr' ? 'प्रशिक्षक शाळा नोंदवतात' : 'Trainers Add Schools'}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                {language === 'mr' ? 'शाळा थेट प्रशिक्षक व संस्थेच्या अंतर्गत मॅप होते.' : 'Schools lock automatically under their trainer.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              4
-            </div>
-            <div>
-              <div className="font-bold text-xs text-slate-900">
-                {language === 'mr' ? 'विद्यार्थी व सत्रे' : 'Students & Sessions'}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                {language === 'mr' ? 'चाचण्या व २५ सत्र नोंदी आपोआप ट्रॅक होतात.' : 'Tests and 25 sessions roll up cleanly.'}
-              </p>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowLineageFlow(!showLineageFlow)}
+            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#1a2d57] hover:bg-[#284682] text-[#f0da9a] border border-[#dfaf27]/50 shadow-xs cursor-pointer transition-all"
+            title={language === 'mr' ? 'डेटा प्रवाह व आर्किटेक्चर पहा' : 'Toggle Data Lineage Architecture Flow'}
+          >
+            <Database className="w-3.5 h-3.5 text-[#dfaf27]" />
+            <span>
+              {language === 'mr'
+                ? showLineageFlow
+                  ? 'डेटा प्रवाह लपवा'
+                  : 'डेटा प्रवाह पहा'
+                : showLineageFlow
+                ? 'Hide Data Flow'
+                : 'View Data Flow'}
+            </span>
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showLineageFlow ? 'rotate-180' : ''}`} />
+          </button>
         </div>
       </div>
+
+      {/* Visual Pipeline Flow Card (Explaining the 4-Step Architecture - Collapsible On-Demand) */}
+      {showLineageFlow && (
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm transition-all animate-fadeIn">
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+            <div className="flex items-center space-x-2">
+              <Database className="w-4 h-4 text-[#233d76]" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
+                {language === 'mr' ? 'प्रणाली डेटा प्रवाह व मॅपिंग' : 'System Data Lineage Flow'}
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowLineageFlow(false)}
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              title={language === 'mr' ? 'बंद करा' : 'Close'}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Step 1 */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+              <div className="w-7 h-7 rounded-lg bg-[#233d76] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                1
+              </div>
+              <div>
+                <div className="font-bold text-xs text-slate-900">
+                  {language === 'mr' ? 'संस्था जोडा' : 'Add Organization'}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  {language === 'mr' ? 'TRST Direct किंवा भागीदार NGO तयार करा.' : 'Create in-house or partner NGO entity.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+              <div className="w-7 h-7 rounded-lg bg-[#dfaf27] text-[#233d76] flex items-center justify-center font-bold text-xs shrink-0">
+                2
+              </div>
+              <div>
+                <div className="font-bold text-xs text-slate-900">
+                  {language === 'mr' ? 'प्रशिक्षक व Auth प्रोफाइल' : 'Trainer & Auth Profile'}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  {language === 'mr' ? 'Supabase Auth युझर जोडून प्रोफाइल नियुक्त करा.' : 'Map Supabase Auth user to trainer profile.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+              <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                3
+              </div>
+              <div>
+                <div className="font-bold text-xs text-slate-900">
+                  {language === 'mr' ? 'प्रशिक्षक शाळा नोंदवतात' : 'Trainers Add Schools'}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  {language === 'mr' ? 'शाळा थेट प्रशिक्षक व संस्थेच्या अंतर्गत मॅप होते.' : 'Schools lock automatically under their trainer.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start space-x-3">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                4
+              </div>
+              <div>
+                <div className="font-bold text-xs text-slate-900">
+                  {language === 'mr' ? 'विद्यार्थी व सत्रे' : 'Students & Sessions'}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  {language === 'mr' ? 'चाचण्या व २५ सत्र नोंदी आपोआप ट्रॅक होतात.' : 'Tests and 25 sessions roll up cleanly.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sub Tabs: 1. Implementing Organizations, 2. Field Facilitators, 3. School Allocations */}
       <div className="flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
