@@ -115,7 +115,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-[1650px] mx-auto space-y-6">
       {/* Top Hero Banner with Official TRST Brand Guidelines */}
       <div className="bg-[#233d76] rounded-2xl p-4 sm:p-7 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
         <div className="space-y-2 w-full lg:w-auto">
@@ -355,85 +355,97 @@ export const AdminDashboard: React.FC = () => {
             {/* 3 Papers Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
               {/* Paper 1: MKMH */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
-                      {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
-                    </span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
-                      {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
-                    </h3>
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all flex flex-col justify-between h-full shadow-2xs">
+                <div>
+                  <div className="flex justify-between items-start gap-2 min-h-[56px]">
+                    <div className="flex-1">
+                      <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                        {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading leading-snug">
+                        {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
+                      </h3>
+                    </div>
+                    <div className="shrink-0">
+                      {renderDeltaBadge(mkmhMetrics.delta)}
+                    </div>
                   </div>
-                  {renderDeltaBadge(mkmhMetrics.delta)}
+                  <div className="mt-4 grid grid-cols-2 gap-2.5 text-center">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
+                      <span className="text-base font-bold text-slate-700">{mkmhMetrics.pre}%</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
+                      <span className="text-base font-bold text-[#233d76]">{mkmhMetrics.post}%</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
-                    <span className="text-base font-bold text-slate-700">{mkmhMetrics.pre}%</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
-                    <span className="text-base font-bold text-[#233d76]">{mkmhMetrics.post}%</span>
-                  </div>
-                </div>
-                <div className="mt-3 text-[11px] text-slate-500 text-center font-medium">
+                <div className="mt-4 pt-2.5 border-t border-slate-200/70 text-[11px] text-slate-500 text-center font-medium">
                   {mkmhMetrics.count} {language === 'mr' ? 'तुलनात्मक जोड्या' : 'paired records'}
                 </div>
               </div>
 
               {/* Paper 2: MMAT */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
-                      {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
-                    </span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
-                      {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
-                    </h3>
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all flex flex-col justify-between h-full shadow-2xs">
+                <div>
+                  <div className="flex justify-between items-start gap-2 min-h-[56px]">
+                    <div className="flex-1">
+                      <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                        {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading leading-snug">
+                        {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
+                      </h3>
+                    </div>
+                    <div className="shrink-0">
+                      {renderDeltaBadge(mmatMetrics.delta)}
+                    </div>
                   </div>
-                  {renderDeltaBadge(mmatMetrics.delta)}
+                  <div className="mt-4 grid grid-cols-2 gap-2.5 text-center">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
+                      <span className="text-base font-bold text-slate-700">{mmatMetrics.pre}%</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
+                      <span className="text-base font-bold text-[#233d76]">{mmatMetrics.post}%</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
-                    <span className="text-base font-bold text-slate-700">{mmatMetrics.pre}%</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
-                    <span className="text-base font-bold text-[#233d76]">{mmatMetrics.post}%</span>
-                  </div>
-                </div>
-                <div className="mt-3 text-[11px] text-slate-500 text-center font-medium">
+                <div className="mt-4 pt-2.5 border-t border-slate-200/70 text-[11px] text-slate-500 text-center font-medium">
                   {mmatMetrics.count} {language === 'mr' ? 'तुलनात्मक जोड्या' : 'paired records'}
                 </div>
               </div>
 
               {/* Paper 3: ERT */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
-                      {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
-                    </span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading">
-                      {language === 'mr' ? 'स्व-भावना नियमन (ERT)' : 'Emotion Regulation Test (ERT)'}
-                    </h3>
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-[#233d76] transition-all flex flex-col justify-between h-full shadow-2xs">
+                <div>
+                  <div className="flex justify-between items-start gap-2 min-h-[56px]">
+                    <div className="flex-1">
+                      <span className="text-[11px] font-bold text-[#233d76] uppercase tracking-wider block">
+                        {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5 trust-heading leading-snug">
+                        {language === 'mr' ? 'स्व-भावना नियमन (ERT)' : 'Emotion Regulation Test (ERT)'}
+                      </h3>
+                    </div>
+                    <div className="shrink-0">
+                      {renderDeltaBadge(ertMetrics.delta)}
+                    </div>
                   </div>
-                  {renderDeltaBadge(ertMetrics.delta)}
+                  <div className="mt-4 grid grid-cols-2 gap-2.5 text-center">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
+                      <span className="text-base font-bold text-slate-700">{ertMetrics.pre}%</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
+                      <span className="text-base font-bold text-[#233d76]">{ertMetrics.post}%</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Pre %</span>
-                    <span className="text-base font-bold text-slate-700">{ertMetrics.pre}%</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-medium">Post %</span>
-                    <span className="text-base font-bold text-[#233d76]">{ertMetrics.post}%</span>
-                  </div>
-                </div>
-                <div className="mt-3 text-[11px] text-slate-500 text-center font-medium">
+                <div className="mt-4 pt-2.5 border-t border-slate-200/70 text-[11px] text-slate-500 text-center font-medium">
                   {ertMetrics.count} {language === 'mr' ? 'तुलनात्मक जोड्या' : 'paired records'}
                 </div>
               </div>
@@ -617,25 +629,57 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-start space-x-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="text-slate-700">
-                  <strong>मुख्याध्यापक सही व शिक्का:</strong> प्रत्येक शाळेचे अधिकृत संमतीपत्र व सत्र पूर्तता पत्रक.
+                  {language === 'mr' ? (
+                    <>
+                      <strong>मुख्याध्यापक सही व शिक्का:</strong> प्रत्येक शाळेचे अधिकृत संमतीपत्र व सत्र पूर्तता पत्रक.
+                    </>
+                  ) : (
+                    <>
+                      <strong>HM Sign & Stamp:</strong> Official school consent letter and session completion certificate.
+                    </>
+                  )}
                 </span>
               </div>
               <div className="flex items-start space-x-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="text-slate-700">
-                  <strong>DPDP Act (2023) अनुपालन:</strong> अल्पवयीन विद्यार्थ्यांची ओळख गोपनीय (S-1 ते S-N गट क्रमांक).
+                  {language === 'mr' ? (
+                    <>
+                      <strong>DPDP Act (2023) अनुपालन:</strong> अल्पवयीन विद्यार्थ्यांची ओळख गोपनीय (S-1 ते S-N गट क्रमांक).
+                    </>
+                  ) : (
+                    <>
+                      <strong>DPDP Act (2023) Compliance:</strong> Minor student identities masked via S-1 to S-N bundle codes.
+                    </>
+                  )}
                 </span>
               </div>
               <div className="flex items-start space-x-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="text-slate-700">
-                  <strong>३ पेपर्स मूल्यांकन:</strong> ~९० प्रश्न प्रति पेपर, गुणांकन वेटेज व प्रोरिटेड स्कोअरिंग.
+                  {language === 'mr' ? (
+                    <>
+                      <strong>३ मूल्यांकन चाचण्या (एकूण ९५ प्रश्न):</strong> चाचणी १ (३० प्रश्न), चाचणी २ (३० प्रश्न), चाचणी ३ (३५ प्रश्न) - रुब्रिक वेटेज व प्रोरिटेड स्कोअरिंग.
+                    </>
+                  ) : (
+                    <>
+                      <strong>3 Standardized Papers (95 Questions Total):</strong> Paper 1 (30 Qs), Paper 2 (30 Qs), Paper 3 (35 Qs) with rubric weightage & prorated scoring.
+                    </>
+                  )}
                 </span>
               </div>
               <div className="flex items-start space-x-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="text-slate-700">
-                  <strong>सत्र छायाचित्रे पुरावा:</strong> प्रत्येक वर्गाचे प्रत्यक्ष उपस्थिती व सत्राचे फोटो.
+                  {language === 'mr' ? (
+                    <>
+                      <strong>सत्र छायाचित्रे पुरावा:</strong> प्रत्येक वर्गाचे प्रत्यक्ष उपस्थिती व सत्राचे फोटो.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Session Media Evidence:</strong> Verified classroom photo proof and session attendance records.
+                    </>
+                  )}
                 </span>
               </div>
             </div>

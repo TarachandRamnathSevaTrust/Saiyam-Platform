@@ -69,7 +69,7 @@ export const App: React.FC = () => {
 
       {/* Desktop Navigation Sub-Header (Full Width & Clean Margins) */}
       <div className="hidden sm:block bg-white border-b border-slate-200 sticky top-16 sm:top-18 z-20 shadow-2xs">
-        <div className="w-full px-4 sm:px-8 lg:px-12">
+        <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-8 lg:px-10">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-2.5">
             {isTrustAdmin ? (
               <>
@@ -204,7 +204,7 @@ export const App: React.FC = () => {
       </div>
 
       {/* Main Content Viewport: Full Width with Generous Margins & Safe Area Bottom */}
-      <main className="w-full px-3 sm:px-8 lg:px-12 py-4 sm:py-8 flex-1 pb-24 sm:pb-8">
+      <main className="w-full max-w-[1650px] mx-auto px-3 sm:px-8 lg:px-10 py-4 sm:py-8 flex-1 pb-24 sm:pb-8">
         {requiresSchool ? (
           <div className="space-y-4 max-w-5xl mx-auto">
             <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-2xl p-4 sm:p-5 text-[#233d76] flex items-center space-x-3.5 shadow-2xs">

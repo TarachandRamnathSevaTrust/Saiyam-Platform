@@ -370,7 +370,7 @@ export const GovernancePanel: React.FC = () => {
   const fieldTrainers = users.filter((u) => u.role === 'FIELD_TRAINER');
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-[1650px] mx-auto space-y-6">
       {/* Top Banner */}
       <div className="bg-[#233d76] rounded-2xl p-6 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

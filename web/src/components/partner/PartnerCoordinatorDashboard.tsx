@@ -85,7 +85,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
   const ertMetrics = calcPaperMetrics('ERT');
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-[1650px] mx-auto space-y-6">
       {/* Top NGO Coordinator Banner */}
       <div className="bg-[#233d76] rounded-2xl p-4 sm:p-7 text-white shadow-md border-b-4 border-[#dfaf27] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
         <div className="space-y-2 w-full lg:w-auto">
@@ -461,24 +461,26 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Paper 1: MKMH */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">
-                {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
-              </span>
-              <h4 className="font-bold text-sm text-slate-900">
-                {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
-              </h4>
-              <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
-                  <span className="text-lg font-bold text-slate-700">{mkmhMetrics.pre}%</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
-                  <span className="text-lg font-bold text-[#233d76]">{mkmhMetrics.post}%</span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between h-full">
+              <div>
+                <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                  {language === 'mr' ? 'चाचणी १' : 'Paper 1'}
+                </span>
+                <h4 className="font-bold text-sm text-slate-900 min-h-[44px] flex items-center">
+                  {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
+                </h4>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center mt-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
+                    <span className="text-lg font-bold text-slate-700">{mkmhMetrics.pre}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
+                    <span className="text-lg font-bold text-[#233d76]">{mkmhMetrics.post}%</span>
+                  </div>
                 </div>
               </div>
-              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs mt-3 ${
                 mkmhMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : mkmhMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
               }`}>
                 <span className="font-bold">
@@ -493,24 +495,26 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
             </div>
 
             {/* Paper 2: MMAT */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">
-                {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
-              </span>
-              <h4 className="font-bold text-sm text-slate-900">
-                {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
-              </h4>
-              <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
-                  <span className="text-lg font-bold text-slate-700">{mmatMetrics.pre}%</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
-                  <span className="text-lg font-bold text-[#233d76]">{mmatMetrics.post}%</span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between h-full">
+              <div>
+                <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                  {language === 'mr' ? 'चाचणी २' : 'Paper 2'}
+                </span>
+                <h4 className="font-bold text-sm text-slate-900 min-h-[44px] flex items-center">
+                  {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
+                </h4>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center mt-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
+                    <span className="text-lg font-bold text-slate-700">{mmatMetrics.pre}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
+                    <span className="text-lg font-bold text-[#233d76]">{mmatMetrics.post}%</span>
+                  </div>
                 </div>
               </div>
-              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs mt-3 ${
                 mmatMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : mmatMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
               }`}>
                 <span className="font-bold">
@@ -525,24 +529,26 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
             </div>
 
             {/* Paper 3: ERT */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <span className="text-[11px] font-bold text-[#233d76] uppercase">
-                {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
-              </span>
-              <h4 className="font-bold text-sm text-slate-900">
-                {language === 'mr' ? 'स्व-भावना नियमन चाचणी (ERT)' : 'Emotion Regulation Test (ERT)'}
-              </h4>
-              <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center">
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
-                  <span className="text-lg font-bold text-slate-700">{ertMetrics.pre}%</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
-                  <span className="text-lg font-bold text-[#233d76]">{ertMetrics.post}%</span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between h-full">
+              <div>
+                <span className="text-[11px] font-bold text-[#233d76] uppercase">
+                  {language === 'mr' ? 'चाचणी ३' : 'Paper 3'}
+                </span>
+                <h4 className="font-bold text-sm text-slate-900 min-h-[44px] flex items-center">
+                  {language === 'mr' ? 'स्व-भावना नियमन चाचणी (ERT)' : 'Emotion Regulation Test (ERT)'}
+                </h4>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl text-center mt-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Pre-Test (Baseline)</span>
+                    <span className="text-lg font-bold text-slate-700">{ertMetrics.pre}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Post-Test (Outcome)</span>
+                    <span className="text-lg font-bold text-[#233d76]">{ertMetrics.post}%</span>
+                  </div>
                 </div>
               </div>
-              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs mt-3 ${
                 ertMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : ertMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
               }`}>
                 <span className="font-bold">
