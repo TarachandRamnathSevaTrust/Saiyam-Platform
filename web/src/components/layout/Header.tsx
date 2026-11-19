@@ -1,19 +1,15 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Globe, School as SchoolIcon, ChevronDown, ShieldCheck, LogOut, User, Calendar } from 'lucide-react';
+import { Globe, School as SchoolIcon, ShieldCheck, LogOut, Calendar } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const {
     currentUser,
-    switchUser,
     logout,
-    users,
     organizations,
     language,
     setLanguage,
     financialYear,
-    setFinancialYear,
-    availableFinancialYears,
     selectedSchool,
     setSelectedSchool,
     schools,
@@ -83,57 +79,33 @@ export const Header: React.FC = () => {
               <span className="tracking-wide">FY {financialYear}</span>
             </div>
 
-            {/* Role Switcher (Desktop) */}
-            <div className="relative hidden sm:block">
-              <select
-                aria-label="Switch User or Role"
-                value={currentUser.id}
-                onChange={(e) => switchUser(e.target.value)}
-                className="text-[11px] sm:text-xs font-bold rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white py-1.5 sm:py-2 pl-2 sm:pl-3 pr-7 focus:outline-hidden focus:ring-2 focus:ring-[#dfaf27] cursor-pointer shadow-2xs appearance-none max-w-[220px] truncate"
-              >
-                {!users.some((u) => u.id === currentUser.id) && (
-                  <option value={currentUser.id} className="bg-[#233d76] text-white py-1">
-                    {currentUser.role === 'TRUST_ADMIN'
-                      ? `👑 ${currentUser.fullName} (Admin)`
-                      : currentUser.role === 'ORG_COORDINATOR'
-                      ? `🏢 ${currentUser.fullName} (NGO Lead)`
-                      : `👤 ${currentUser.fullName}`}
-                  </option>
-                )}
-                {users.map((user) => {
-                  const userOrg = organizations.find((o) => o.code === user.organizationCode);
-                  const orgName = userOrg ? (language === 'mr' ? userOrg.nameMr : userOrg.nameEn) : '';
-                  const orgTag = orgName ? ` [${orgName}]` : '';
-
-                  const label =
-                    user.role === 'TRUST_ADMIN'
-                      ? language === 'mr'
-                        ? `👑 ${user.fullName} (विश्वस्त)`
-                        : `👑 ${user.fullName} (Admin)`
-                      : user.role === 'ORG_COORDINATOR'
-                      ? language === 'mr'
-                        ? `🏢 ${user.fullName} (समन्वयक)${orgTag}`
-                        : `🏢 ${user.fullName} (NGO Lead)${orgTag}`
-                      : `👤 ${user.fullName}${orgTag}`;
-
-                  return (
-                    <option key={user.id} value={user.id} className="bg-[#233d76] text-white py-1">
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-[#dfaf27] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Active Authenticated User Badge (Desktop - Static & Clean) */}
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-[#3b5998] bg-[#1a2d57] text-white shadow-2xs select-none">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+              <div className="flex flex-col text-left">
+                <span className="text-xs font-bold text-white leading-tight flex items-center space-x-1">
+                  <span>{currentUser.role === 'TRUST_ADMIN' ? '👑' : currentUser.role === 'ORG_COORDINATOR' ? '🏢' : '👤'}</span>
+                  <span>{currentUser.fullName}</span>
+                </span>
+                <span className="text-[10px] text-[#f0da9a] leading-tight">
+                  {currentUser.role === 'TRUST_ADMIN'
+                    ? (language === 'mr' ? 'विश्वस्त (Admin)' : 'Trust Executive')
+                    : currentUser.role === 'ORG_COORDINATOR'
+                    ? (language === 'mr' ? 'संस्था समन्वयक' : 'NGO Coordinator')
+                    : (language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Facilitator')}
+                  {currentOrg ? ` • ${language === 'mr' ? currentOrg.nameMr : (currentOrg.nameEn || currentOrg.nameMr)}` : ''}
+                </span>
+              </div>
             </div>
 
-            {/* Logout / Switch Role Button */}
+            {/* Logout Button */}
             <button
               onClick={logout}
-              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white font-bold text-[11px] transition-colors shadow-2xs cursor-pointer"
-              title={language === 'mr' ? 'लॉगआउट करा किंवा भूमिका बदला' : 'Log Out / Switch Role'}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-2xs cursor-pointer"
+              title={language === 'mr' ? 'खात्यातून लॉगआउट करा' : 'Sign Out'}
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{language === 'mr' ? 'लॉगआउट' : 'Logout'}</span>
+              <span>{language === 'mr' ? 'लॉगआउट' : 'Logout'}</span>
             </button>
           </div>
         </div>
