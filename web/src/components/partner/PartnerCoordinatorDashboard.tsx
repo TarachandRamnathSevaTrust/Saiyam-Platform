@@ -478,11 +478,17 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                   <span className="text-lg font-bold text-[#233d76]">{mkmhMetrics.post}%</span>
                 </div>
               </div>
-              <div className="p-2.5 bg-emerald-50 rounded-xl flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-800">
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+                mkmhMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : mkmhMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
+              }`}>
+                <span className="font-bold">
                   {language === 'mr' ? 'प्रभाव वाढ (Delta):' : 'Delta Improvement:'}
                 </span>
-                <span className="font-black text-emerald-700 font-mono text-sm">+{mkmhMetrics.delta}%</span>
+                <span className={`font-black font-mono text-sm ${
+                  mkmhMetrics.delta > 0 ? 'text-emerald-700' : mkmhMetrics.delta < 0 ? 'text-rose-600' : 'text-slate-600'
+                }`}>
+                  {mkmhMetrics.delta > 0 ? `+${mkmhMetrics.delta}%` : `${mkmhMetrics.delta}%`}
+                </span>
               </div>
             </div>
 
@@ -504,11 +510,17 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                   <span className="text-lg font-bold text-[#233d76]">{mmatMetrics.post}%</span>
                 </div>
               </div>
-              <div className="p-2.5 bg-emerald-50 rounded-xl flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-800">
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+                mmatMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : mmatMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
+              }`}>
+                <span className="font-bold">
                   {language === 'mr' ? 'प्रभाव वाढ (Delta):' : 'Delta Improvement:'}
                 </span>
-                <span className="font-black text-emerald-700 font-mono text-sm">+{mmatMetrics.delta}%</span>
+                <span className={`font-black font-mono text-sm ${
+                  mmatMetrics.delta > 0 ? 'text-emerald-700' : mmatMetrics.delta < 0 ? 'text-rose-600' : 'text-slate-600'
+                }`}>
+                  {mmatMetrics.delta > 0 ? `+${mmatMetrics.delta}%` : `${mmatMetrics.delta}%`}
+                </span>
               </div>
             </div>
 
@@ -530,9 +542,17 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                   <span className="text-lg font-bold text-[#233d76]">{ertMetrics.post}%</span>
                 </div>
               </div>
-              <div className="p-2.5 bg-emerald-50 rounded-xl flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-800">Delta Improvement:</span>
-                <span className="font-black text-emerald-700 font-mono text-sm">+{ertMetrics.delta}%</span>
+              <div className={`p-2.5 rounded-xl flex items-center justify-between text-xs ${
+                ertMetrics.delta > 0 ? 'bg-emerald-50 text-emerald-800' : ertMetrics.delta < 0 ? 'bg-rose-50 text-rose-800' : 'bg-slate-50 text-slate-800'
+              }`}>
+                <span className="font-bold">
+                  {language === 'mr' ? 'प्रभाव वाढ (Delta):' : 'Delta Improvement:'}
+                </span>
+                <span className={`font-black font-mono text-sm ${
+                  ertMetrics.delta > 0 ? 'text-emerald-700' : ertMetrics.delta < 0 ? 'text-rose-600' : 'text-slate-600'
+                }`}>
+                  {ertMetrics.delta > 0 ? `+${ertMetrics.delta}%` : `${ertMetrics.delta}%`}
+                </span>
               </div>
             </div>
           </div>

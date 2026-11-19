@@ -12,6 +12,8 @@ import {
   Calendar,
   Image as ImageIcon,
   ArrowUpRight,
+  ArrowDownRight,
+  Minus,
   ShieldCheck,
   Award,
   FileCheck2,
@@ -86,6 +88,31 @@ export const AdminDashboard: React.FC = () => {
   const mkmhMetrics = calcPaperMetrics('MKMH');
   const mmatMetrics = calcPaperMetrics('MMAT');
   const ertMetrics = calcPaperMetrics('ERT');
+
+  const renderDeltaBadge = (delta: number) => {
+    if (delta > 0) {
+      return (
+        <div className="flex items-center text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full text-xs font-bold">
+          <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+          +{delta}%
+        </div>
+      );
+    }
+    if (delta < 0) {
+      return (
+        <div className="flex items-center text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full text-xs font-bold">
+          <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />
+          {delta}%
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full text-xs font-bold">
+        <Minus className="w-3.5 h-3.5 mr-0.5" />
+        0%
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -338,10 +365,7 @@ export const AdminDashboard: React.FC = () => {
                       {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य (MKMH)' : 'My Knowledge, My Health (MKMH)'}
                     </h3>
                   </div>
-                  <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
-                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-                    +{mkmhMetrics.delta}%
-                  </div>
+                  {renderDeltaBadge(mkmhMetrics.delta)}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-center">
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200">
@@ -369,10 +393,7 @@ export const AdminDashboard: React.FC = () => {
                       {language === 'mr' ? 'समज व गैरसमज (MMAT)' : 'Myths & Misconceptions (MMAT)'}
                     </h3>
                   </div>
-                  <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
-                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-                    +{mmatMetrics.delta}%
-                  </div>
+                  {renderDeltaBadge(mmatMetrics.delta)}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-center">
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200">
@@ -400,10 +421,7 @@ export const AdminDashboard: React.FC = () => {
                       {language === 'mr' ? 'स्व-भावना नियमन (ERT)' : 'Emotion Regulation Test (ERT)'}
                     </h3>
                   </div>
-                  <div className="flex items-center text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-xs font-bold">
-                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-                    +{ertMetrics.delta}%
-                  </div>
+                  {renderDeltaBadge(ertMetrics.delta)}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-center">
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200">
@@ -503,7 +521,21 @@ export const AdminDashboard: React.FC = () => {
                           <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
                           <td className="px-3.5 py-2.5 text-center font-bold">{p.postTest ? `${p.postTest.scorePercentage}%` : '—'}</td>
                           <td className="px-3.5 py-2.5 text-center font-black">
-                            {p.improvementDelta !== undefined ? `+${p.improvementDelta}%` : '—'}
+                            {p.improvementDelta !== undefined ? (
+                              <span
+                                className={
+                                  p.improvementDelta > 0
+                                    ? 'text-emerald-700'
+                                    : p.improvementDelta < 0
+                                    ? 'text-rose-600'
+                                    : 'text-slate-500'
+                                }
+                              >
+                                {p.improvementDelta > 0 ? `+${p.improvementDelta}%` : `${p.improvementDelta}%`}
+                              </span>
+                            ) : (
+                              '—'
+                            )}
                           </td>
                           <td className="px-3.5 py-2.5 text-center font-semibold">
                             {p.status === 'ALL_COMPLETED' ? 'पूर्ण' : 'Pre पूर्ण'}
