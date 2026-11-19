@@ -84,6 +84,7 @@ export const GovernancePanel: React.FC = () => {
   const [showTrainerPassword, setShowTrainerPassword] = useState(false);
   const [selectedOrgCode, setSelectedOrgCode] = useState('');
   const [isSavingTrainer, setIsSavingTrainer] = useState(false);
+  const [editingSchoolId, setEditingSchoolId] = useState<string | null>(null);
 
   // Feedback notifications
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -617,7 +618,7 @@ export const GovernancePanel: React.FC = () => {
           }`}
         >
           <SchoolIcon className="w-4 h-4 text-[#dfaf27]" />
-          <span>{language === 'mr' ? '३. शाळा व प्रशिक्षक वाटप' : '3. School Allocations'}</span>
+          <span>{language === 'mr' ? '३. शाळा व प्रशिक्षक मॅपिंग' : '3. Schools & Trainer Mapping'}</span>
           <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">
             {schools.length}
           </span>
@@ -1420,12 +1421,12 @@ export const GovernancePanel: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-slate-900 trust-heading">
-                {language === 'mr' ? 'शाळा व प्रशिक्षक थेट वाटप' : 'Direct School & Trainer Allocations'}
+                {language === 'mr' ? 'नोंदणीकृत शाळा व क्षेत्र प्रशिक्षक मॅपिंग' : 'Registered Schools & Field Trainer Mapping'}
               </h3>
               <p className="text-xs text-slate-500">
                 {language === 'mr'
-                  ? 'प्रत्येक शाळेसाठी थेट क्षेत्र प्रशिक्षक नियुक्त करा. निवडताच प्रशिक्षकाच्या खात्यात ती शाळा दिसेल.'
-                  : 'Assign field trainers directly to registered schools with instant synchronization.'}
+                  ? 'क्षेत्र प्रशिक्षकांनी नोंदवलेल्या शाळा थेट त्यांच्या खात्याशी मॅप केलेल्या आहेत.'
+                  : 'Schools registered by field trainers are automatically and directly mapped to their respective trainer account.'}
               </p>
             </div>
           </div>
@@ -1443,7 +1444,7 @@ export const GovernancePanel: React.FC = () => {
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'शाळा / संस्था' : 'School'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'गाव / शहर' : 'Location'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'अंमलबजावणी संस्था' : 'Organization'}</th>
-                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'नियुक्त क्षेत्र प्रशिक्षक' : 'Assigned Field Trainer'}</th>
+                  <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'क्षेत्र प्रशिक्षक (मॅप केलेले)' : 'Mapped Field Trainer'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -1457,12 +1458,14 @@ export const GovernancePanel: React.FC = () => {
                   </tr>
                 ) : (
                   schools.map((school) => {
-                    const effectiveTrainerId =
-                      school.assignedTrainerId ||
-                      fieldTrainers.find((t) => t.fullName === school.assignedTrainerName)?.id ||
+                    const mappedTrainer =
+                      fieldTrainers.find((t) => t.id === school.assignedTrainerId) ||
+                      fieldTrainers.find((t) => t.fullName === school.assignedTrainerName) ||
                       (fieldTrainers.filter((t) => !school.organizationCode || t.organizationCode === school.organizationCode).length === 1
-                        ? fieldTrainers.filter((t) => !school.organizationCode || t.organizationCode === school.organizationCode)[0].id
-                        : '');
+                        ? fieldTrainers.filter((t) => !school.organizationCode || t.organizationCode === school.organizationCode)[0]
+                        : null);
+
+                    const isEditing = editingSchoolId === school.id;
 
                     return (
                       <tr key={school.id} className="hover:bg-slate-50 transition-colors">
@@ -1484,21 +1487,68 @@ export const GovernancePanel: React.FC = () => {
                         </td>
 
                         <td className="px-4 py-3">
-                          <select
-                            value={effectiveTrainerId}
-                            onChange={(e) => {
-                              assignTrainerToSchool(school.id, e.target.value);
-                              triggerNotify(language === 'mr' ? 'शाळा वाटप यशस्वीरीत्या बदलले!' : 'School allocation updated!');
-                            }}
-                            className="w-full max-w-xs p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76] cursor-pointer"
-                          >
-                            <option value="">-- {language === 'mr' ? 'प्रशिक्षक निवडा' : 'Select Field Trainer'} --</option>
-                            {fieldTrainers.map((tr) => (
-                              <option key={tr.id} value={tr.id}>
-                                {tr.fullName} {tr.organizationCode ? `(${tr.organizationCode})` : ''}
-                              </option>
-                            ))}
-                          </select>
+                          {mappedTrainer && !isEditing ? (
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center space-x-2.5">
+                                <div className="w-7 h-7 rounded-full bg-[#233d76] text-[#dfaf27] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                                  {mappedTrainer.fullName.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="flex items-center space-x-1.5">
+                                    <span className="font-bold text-slate-900 text-xs">{mappedTrainer.fullName}</span>
+                                    <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200 shrink-0 inline-flex items-center space-x-1">
+                                      <UserCheck className="w-2.5 h-2.5 text-emerald-600" />
+                                      <span>{language === 'mr' ? 'थेट मॅप' : 'Directly Mapped'}</span>
+                                    </span>
+                                  </div>
+                                  <div className="text-[11px] text-slate-500 font-mono">
+                                    {mappedTrainer.email || mappedTrainer.phone || (mappedTrainer.organizationCode || 'TRST_DIRECT')}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {fieldTrainers.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSchoolId(school.id)}
+                                  className="text-[11px] font-semibold text-[#233d76] hover:text-[#dfaf27] hover:underline px-1.5 py-0.5 rounded transition-colors"
+                                >
+                                  {language === 'mr' ? 'बदला' : 'Change'}
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-1.5">
+                              <select
+                                value={school.assignedTrainerId || mappedTrainer?.id || ''}
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    assignTrainerToSchool(school.id, e.target.value);
+                                    setEditingSchoolId(null);
+                                    triggerNotify(language === 'mr' ? 'शाळा वाटप यशस्वीरीत्या बदलले!' : 'School mapping updated!');
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg border border-[#233d76] text-xs font-bold text-[#233d76] bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+                              >
+                                <option value="">-- {language === 'mr' ? 'प्रशिक्षक निवडा' : 'Select Field Trainer'} --</option>
+                                {fieldTrainers.map((tr) => (
+                                  <option key={tr.id} value={tr.id}>
+                                    {tr.fullName} {tr.organizationCode ? `(${tr.organizationCode})` : ''}
+                                  </option>
+                                ))}
+                              </select>
+                              {isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSchoolId(null)}
+                                  className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                                  title="Cancel"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
