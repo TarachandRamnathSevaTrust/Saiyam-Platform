@@ -1,15 +1,17 @@
 {
   "name": "saiyam-platform",
   "version": "1.0.0",
-  "description": "",
+  "description": "Saiyam Adolescent Anti-Addiction Platform - TRST Pune",
   "main": "index.js",
   "scripts": {
+    "start": "npm --prefix web run dev -- --host",
+    "dev": "npm --prefix web run dev -- --host",
     "build:web": "npm --prefix web run build",
-    "cap:sync": "cd web && npx cap sync android",
-    "build:apk": "npm run build:web && cd web && npx cap sync android && cd android && .\\gradlew.bat assembleDebug && copy .\\app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\..\\Saiyam-Platform-debug.apk",
+    "cap:sync": "npm run build:web && cd web && npx cap sync android",
+    "build:apk": "npm run build:web && cd web && npx cap sync android && cd android && set \"JAVA_HOME=C:\\Program Files\\Android\\Android Studio\\jbr\" && gradlew.bat assembleDebug && copy app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\..\\Saiyam-Platform-debug.apk",
     "open:android": "cd web && npx cap open android"
   },
   "keywords": [],
-  "author": "",
+  "author": "Tarachand Ramnath Seva Trust",
   "license": "ISC"
 }
