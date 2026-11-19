@@ -94,7 +94,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
       boysPresent: Number(boysPresent),
       toolsUsed,
       specialNotes,
-      conductedBy: currentUser.fullName,
+      conductedBy: currentUser.id,
       media: uploadedPhotos.map((url, i) => ({
         id: `med-${i}`,
         sessionLogId: `log-${activeSessionNumber}`,

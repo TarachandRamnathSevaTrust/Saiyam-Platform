@@ -561,6 +561,9 @@ export const apiService = {
   async createSessionLog(log: Omit<SessionLog, 'id' | 'createdAt'>): Promise<SessionLog | null> {
     if (!supabase) return null;
     try {
+      const isValidUuid = (val?: string) =>
+        Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+
       const { data, error } = await supabase
         .from('session_logs')
         .insert({
@@ -574,7 +577,7 @@ export const apiService = {
           boys_present: log.boysPresent,
           tools_used: log.toolsUsed,
           special_notes: log.specialNotes,
-          conducted_by: log.conductedBy,
+          conducted_by: isValidUuid(log.conductedBy) ? log.conductedBy : null,
         })
         .select()
         .single();
@@ -598,6 +601,102 @@ export const apiService = {
       };
     } catch (err) {
       console.warn('Supabase create session log error:', err);
+      return null;
+    }
+  },
+
+  // ============================================================================
+  // ASSESSMENTS & RESPONSES (चाचण्या व उत्तरे)
+  // ============================================================================
+  async saveAssessment(
+    studentId: string,
+    paperType: PaperType,
+    phase: 'PRE' | 'POST',
+    scoreData: {
+      totalQuestions: number;
+      answeredCount: number;
+      correctCount: number;
+      scorePercentage: number;
+      recordedBy?: string;
+    },
+    responses: { questionId: string; selectedOptionCode?: string; isCorrect?: boolean; pointsAwarded?: number }[]
+  ): Promise<string | null> {
+    if (!supabase) return null;
+    try {
+      const isValidUuid = (val?: string) =>
+        Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+
+      if (!isValidUuid(studentId)) {
+        console.warn('Cannot save assessment: studentId is not a valid UUID:', studentId);
+        return null;
+      }
+
+      // Check if assessment record already exists for this student, paperType, and phase
+      const { data: existing } = await supabase
+        .from('assessments')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('paper_type', paperType)
+        .eq('phase', phase)
+        .maybeSingle();
+
+      let assessmentId: string;
+
+      if (existing?.id) {
+        assessmentId = existing.id;
+        await supabase
+          .from('assessments')
+          .update({
+            total_questions: scoreData.totalQuestions,
+            answered_count: scoreData.answeredCount,
+            correct_count: scoreData.correctCount,
+            score_percentage: scoreData.scorePercentage,
+            completed_at: new Date().toISOString(),
+            recorded_by: isValidUuid(scoreData.recordedBy) ? scoreData.recordedBy : null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', assessmentId);
+
+        // Delete existing responses to replace with updated ones
+        await supabase.from('assessment_responses').delete().eq('assessment_id', assessmentId);
+      } else {
+        const { data: created, error } = await supabase
+          .from('assessments')
+          .insert({
+            student_id: studentId,
+            paper_type: paperType,
+            phase: phase,
+            total_questions: scoreData.totalQuestions,
+            answered_count: scoreData.answeredCount,
+            correct_count: scoreData.correctCount,
+            score_percentage: scoreData.scorePercentage,
+            completed_at: new Date().toISOString(),
+            recorded_by: isValidUuid(scoreData.recordedBy) ? scoreData.recordedBy : null,
+          })
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        assessmentId = created.id;
+      }
+
+      // Insert responses if valid question UUIDs
+      const validResponses = responses.filter((r) => isValidUuid(r.questionId));
+      if (validResponses.length > 0) {
+        await supabase.from('assessment_responses').insert(
+          validResponses.map((r) => ({
+            assessment_id: assessmentId,
+            question_id: r.questionId,
+            selected_option: r.selectedOptionCode || null,
+            is_correct: r.isCorrect ?? null,
+            points_awarded: r.pointsAwarded ?? 0,
+          }))
+        );
+      }
+
+      return assessmentId;
+    } catch (err) {
+      console.warn('Supabase save assessment error:', err);
       return null;
     }
   },

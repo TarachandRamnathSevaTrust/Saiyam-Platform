@@ -648,6 +648,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return pair;
       })
     );
+
+    // Save to Supabase backend
+    if (apiService.isConnected()) {
+      apiService
+        .saveAssessment(
+          studentId,
+          paperType,
+          phase,
+          {
+            totalQuestions: scoreResult.totalQuestions,
+            answeredCount: scoreResult.answeredCount,
+            correctCount: scoreResult.correctCount,
+            scorePercentage: scoreResult.scorePercentage,
+            recordedBy: currentUser.id,
+          },
+          responses.map((r) => {
+            const q = paperQuestions.find((pq) => pq.id === r.questionId);
+            const isCorrect = Boolean(q && q.correctOptionCode && q.correctOptionCode === r.selectedOptionCode);
+            return {
+              questionId: r.questionId,
+              selectedOptionCode: r.selectedOptionCode,
+              isCorrect,
+              pointsAwarded: isCorrect ? q?.marks || 1 : 0,
+            };
+          })
+        )
+        .catch((err) => console.warn('Failed to save assessment to Supabase:', err));
+    }
   };
 
   const saveSessionLog = (logData: Omit<SessionLog, 'id' | 'createdAt'>) => {
