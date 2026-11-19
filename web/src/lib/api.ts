@@ -821,6 +821,115 @@ export const apiService = {
     }
   },
 
+  async getAllAssessmentsWithResponses(): Promise<
+    Array<{
+      id: string;
+      studentId: string;
+      paperType: PaperType;
+      phase: 'PRE' | 'POST';
+      totalQuestions: number;
+      answeredCount: number;
+      correctCount: number;
+      scorePercentage: number;
+      completedAt: string;
+      recordedBy?: string;
+      responses: Array<{
+        questionId: string;
+        selectedOptionCode?: string;
+        isCorrect?: boolean;
+        pointsAwarded?: number;
+      }>;
+    }> | null
+  > {
+    if (!supabase) return null;
+    try {
+      const { data: assessmentRows, error } = await supabase
+        .from('assessments')
+        .select('*');
+
+      if (error) throw error;
+      if (!assessmentRows || assessmentRows.length === 0) return [];
+
+      const assessmentIds = assessmentRows.map((a) => a.id);
+
+      // Fetch all responses for these assessments
+      const { data: responseRows, error: respError } = await supabase
+        .from('assessment_responses')
+        .select('*')
+        .in('assessment_id', assessmentIds);
+
+      if (respError) {
+        console.warn('Error fetching assessment responses:', respError);
+      }
+
+      const responseMap = new Map<string, any[]>();
+      (responseRows || []).forEach((r) => {
+        const list = responseMap.get(r.assessment_id) || [];
+        list.push({
+          questionId: r.question_id,
+          selectedOptionCode: r.selected_option || undefined,
+          isCorrect: r.is_correct ?? undefined,
+          pointsAwarded: r.points_awarded ? Number(r.points_awarded) : undefined,
+        });
+        responseMap.set(r.assessment_id, list);
+      });
+
+      return assessmentRows.map((row) => ({
+        id: row.id,
+        studentId: row.student_id,
+        paperType: row.paper_type as PaperType,
+        phase: row.phase as 'PRE' | 'POST',
+        totalQuestions: row.total_questions,
+        answeredCount: row.answered_count,
+        correctCount: row.correct_count,
+        scorePercentage: Number(row.score_percentage),
+        completedAt: row.completed_at || row.created_at,
+        recordedBy: row.recorded_by || undefined,
+        responses: responseMap.get(row.id) || [],
+      }));
+    } catch (err) {
+      console.warn('Supabase fetch assessments error:', err);
+      return null;
+    }
+  },
+
+  async getStudentAssessmentResponses(
+    studentId: string,
+    paperType: PaperType,
+    phase: 'PRE' | 'POST'
+  ): Promise<Record<string, string> | null> {
+    if (!supabase) return null;
+    try {
+      const { data: assessment, error } = await supabase
+        .from('assessments')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('paper_type', paperType)
+        .eq('phase', phase)
+        .maybeSingle();
+
+      if (error || !assessment) return null;
+
+      const { data: responses, error: respError } = await supabase
+        .from('assessment_responses')
+        .select('question_id, selected_option')
+        .eq('assessment_id', assessment.id);
+
+      if (respError || !responses) return null;
+
+      const map: Record<string, string> = {};
+      responses.forEach((r) => {
+        if (r.selected_option) {
+          map[r.question_id] = r.selected_option;
+        }
+      });
+      return map;
+    } catch (err) {
+      console.warn('Supabase fetch student responses error:', err);
+      return null;
+    }
+  },
+
   // ============================================================================
   // CURRICULUM MODULES & SESSIONS (अभ्यासक्रम विभाग व २५ सत्रे)
   // ============================================================================

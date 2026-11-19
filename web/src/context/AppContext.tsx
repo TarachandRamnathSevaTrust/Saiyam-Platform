@@ -227,6 +227,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           backendModules,
           backendSessions,
           backendQuestions,
+          backendAssessments,
         ] = await Promise.all([
           apiService.getOrganizations(),
           apiService.getSchools(),
@@ -236,6 +237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           apiService.getCurriculumModules(),
           apiService.getCurriculumSessions(),
           apiService.getQuestions(),
+          apiService.getAllAssessmentsWithResponses(),
         ]);
 
         if (!isMounted) return;
@@ -272,6 +274,114 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (backendStudents && backendStudents.length > 0) {
           setStudents(backendStudents);
+
+          // Reconstruct assessment pairs for all students and papers from Supabase
+          const assessmentsList = backendAssessments || [];
+          const allPairs: StudentAssessmentPair[] = [];
+
+          backendStudents.forEach((student) => {
+            (['MKMH', 'MMAT', 'ERT'] as PaperType[]).forEach((pType) => {
+              const preRec = assessmentsList.find(
+                (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'PRE'
+              );
+              const postRec = assessmentsList.find(
+                (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'POST'
+              );
+
+              const preTest: AssessmentRecord | undefined = preRec
+                ? {
+                    id: preRec.id,
+                    studentId: preRec.studentId,
+                    studentName: student.fullName,
+                    bundleSequenceNo: student.bundleSequenceNo,
+                    paperType: preRec.paperType,
+                    phase: 'PRE',
+                    totalQuestions: preRec.totalQuestions,
+                    answeredCount: preRec.answeredCount,
+                    correctCount: preRec.correctCount,
+                    scorePercentage: preRec.scorePercentage,
+                    completedAt: preRec.completedAt,
+                    responses: preRec.responses.map((r, idx) => {
+                      const qNum =
+                        backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
+                        idx + 1;
+                      return {
+                        questionId: r.questionId,
+                        questionNumber: qNum,
+                        selectedOptionCode: r.selectedOptionCode,
+                        isCorrect: r.isCorrect,
+                        pointsAwarded: r.pointsAwarded,
+                      };
+                    }),
+                  }
+                : undefined;
+
+              const postTest: AssessmentRecord | undefined = postRec
+                ? {
+                    id: postRec.id,
+                    studentId: postRec.studentId,
+                    studentName: student.fullName,
+                    bundleSequenceNo: student.bundleSequenceNo,
+                    paperType: postRec.paperType,
+                    phase: 'POST',
+                    totalQuestions: postRec.totalQuestions,
+                    answeredCount: postRec.answeredCount,
+                    correctCount: postRec.correctCount,
+                    scorePercentage: postRec.scorePercentage,
+                    completedAt: postRec.completedAt,
+                    responses: postRec.responses.map((r, idx) => {
+                      const qNum =
+                        backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
+                        idx + 1;
+                      return {
+                        questionId: r.questionId,
+                        questionNumber: qNum,
+                        selectedOptionCode: r.selectedOptionCode,
+                        isCorrect: r.isCorrect,
+                        pointsAwarded: r.pointsAwarded,
+                      };
+                    }),
+                  }
+                : undefined;
+
+              let delta: number | undefined = undefined;
+              let pct: number | undefined = undefined;
+              let status: StudentAssessmentPair['status'] = 'PENDING_PRE';
+
+              if (preTest && postTest) {
+                status = 'ALL_COMPLETED';
+                delta = Number((postTest.scorePercentage - preTest.scorePercentage).toFixed(2));
+                pct =
+                  preTest.scorePercentage > 0
+                    ? Number(
+                        (((postTest.scorePercentage - preTest.scorePercentage) /
+                          preTest.scorePercentage) *
+                          100).toFixed(2)
+                      )
+                    : postTest.scorePercentage;
+              } else if (preTest) {
+                status = 'PRE_COMPLETED';
+              }
+
+              allPairs.push({
+                studentId: student.id,
+                financialYear: student.financialYear,
+                studentName: student.fullName,
+                bundleSequenceNo: student.bundleSequenceNo,
+                gender: student.gender,
+                standard: student.standard,
+                division: student.division,
+                paperType: pType,
+                preTest,
+                postTest,
+                improvementDelta: delta,
+                improvementPercentage: pct,
+                status,
+              });
+            });
+          });
+
+          setAssessmentPairs(allPairs);
         }
 
         if (backendLogs && backendLogs.length > 0) {
@@ -635,38 +745,66 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }),
     };
 
-    setAssessmentPairs((prev) =>
-      prev.map((pair) => {
-        if (pair.studentId === studentId && pair.paperType === paperType) {
-          const pre = phase === 'PRE' ? assessmentRecord : pair.preTest;
-          const post = phase === 'POST' ? assessmentRecord : pair.postTest;
+    setAssessmentPairs((prev) => {
+      const student = students.find((s) => s.id === studentId);
+      const existingIndex = prev.findIndex(
+        (pair) => pair.studentId === studentId && pair.paperType === paperType
+      );
 
-          let delta: number | undefined = undefined;
-          let pct: number | undefined = undefined;
-          let status: StudentAssessmentPair['status'] = pair.status;
+      if (existingIndex >= 0) {
+        return prev.map((pair, idx) => {
+          if (idx === existingIndex) {
+            const pre = phase === 'PRE' ? assessmentRecord : pair.preTest;
+            const post = phase === 'POST' ? assessmentRecord : pair.postTest;
 
-          if (pre && post) {
-            status = 'ALL_COMPLETED';
-            delta = Number((post.scorePercentage - pre.scorePercentage).toFixed(2));
-            pct = pre.scorePercentage > 0
-              ? Number((((post.scorePercentage - pre.scorePercentage) / pre.scorePercentage) * 100).toFixed(2))
-              : post.scorePercentage;
-          } else if (pre) {
-            status = 'PRE_COMPLETED';
+            let delta: number | undefined = undefined;
+            let pct: number | undefined = undefined;
+            let status: StudentAssessmentPair['status'] = pair.status;
+
+            if (pre && post) {
+              status = 'ALL_COMPLETED';
+              delta = Number((post.scorePercentage - pre.scorePercentage).toFixed(2));
+              pct =
+                pre.scorePercentage > 0
+                  ? Number(
+                      (((post.scorePercentage - pre.scorePercentage) / pre.scorePercentage) *
+                        100).toFixed(2)
+                    )
+                  : post.scorePercentage;
+            } else if (pre) {
+              status = 'PRE_COMPLETED';
+            }
+
+            return {
+              ...pair,
+              preTest: pre,
+              postTest: post,
+              improvementDelta: delta,
+              improvementPercentage: pct,
+              status,
+            };
           }
-
-          return {
-            ...pair,
-            preTest: pre,
-            postTest: post,
-            improvementDelta: delta,
-            improvementPercentage: pct,
-            status,
-          };
-        }
-        return pair;
-      })
-    );
+          return pair;
+        });
+      } else {
+        const pre = phase === 'PRE' ? assessmentRecord : undefined;
+        const post = phase === 'POST' ? assessmentRecord : undefined;
+        const newPair: StudentAssessmentPair = {
+          studentId,
+          financialYear: student?.financialYear || '2025-26',
+          studentName: student?.fullName || 'Student',
+          bundleSequenceNo: student?.bundleSequenceNo || 1,
+          gender: student?.gender || 'MALE',
+          standard: student?.standard || '8',
+          division: student?.division || 'A',
+          paperType,
+          preTest: pre,
+          postTest: post,
+          status: pre && post ? 'ALL_COMPLETED' : pre ? 'PRE_COMPLETED' : 'PENDING_PRE',
+        };
+        return [...prev, newPair];
+      }
+    });
 
     // Save to Supabase backend
     if (apiService.isConnected()) {

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { apiService } from '../../lib/api';
 import { PaperType } from '@saiyam/shared';
 import {
   Check,
@@ -61,6 +62,52 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   const activeStudent =
     schoolStudents.find((s) => s.id === selectedStudentId) || schoolStudents[0];
   const paperQuestions = questions.filter((q) => q.paperType === selectedPaper);
+
+  const activePair = assessmentPairs.find(
+    (p) => p.studentId === activeStudent?.id && p.paperType === selectedPaper
+  );
+  const savedRecord = phase === 'PRE' ? activePair?.preTest : activePair?.postTest;
+
+  // Auto-populate saved answers whenever activeStudent, selectedPaper, phase, or assessmentPairs change!
+  useEffect(() => {
+    if (!activeStudent) {
+      setAnswers({});
+      return;
+    }
+
+    // 1. Look in local assessmentPairs first for instant response
+    const pair = assessmentPairs.find(
+      (p) => p.studentId === activeStudent.id && p.paperType === selectedPaper
+    );
+    const record = phase === 'PRE' ? pair?.preTest : pair?.postTest;
+
+    if (record?.responses && record.responses.length > 0) {
+      const map: Record<string, string> = {};
+      record.responses.forEach((r) => {
+        if (r.selectedOptionCode) {
+          map[r.questionId] = r.selectedOptionCode;
+        }
+      });
+      setAnswers(map);
+      return;
+    }
+
+    // 2. Query Supabase backend if not in memory
+    if (apiService.isConnected()) {
+      apiService
+        .getStudentAssessmentResponses(activeStudent.id, selectedPaper, phase)
+        .then((backendMap) => {
+          if (backendMap && Object.keys(backendMap).length > 0) {
+            setAnswers(backendMap);
+          } else {
+            setAnswers({});
+          }
+        })
+        .catch(() => setAnswers({}));
+    } else {
+      setAnswers({});
+    }
+  }, [activeStudent?.id, selectedPaper, phase, assessmentPairs]);
 
   // Toggle answer selection (Clicking once selects; clicking again UNSELECTS it!)
   const handleSelectOption = (questionId: string, optionCode: string) => {
@@ -124,10 +171,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
       {/* Phase Switcher (सत्राच्या आधी vs सत्राच्या नंतर from Page 106 of Manual) */}
       <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-2xs flex">
         <button
-          onClick={() => {
-            setPhase('PRE');
-            setAnswers({});
-          }}
+          onClick={() => setPhase('PRE')}
           className={`flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
             phase === 'PRE'
               ? 'bg-[#233d76] text-white shadow-xs'
@@ -137,10 +181,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
           {language === 'mr' ? 'सत्राच्या आधी (पूर्व चाचणी)' : '1. Pre-Test (Baseline)'}
         </button>
         <button
-          onClick={() => {
-            setPhase('POST');
-            setAnswers({});
-          }}
+          onClick={() => setPhase('POST')}
           className={`flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
             phase === 'POST'
               ? 'bg-[#dfaf27] text-[#233d76] shadow-xs font-black'
@@ -155,10 +196,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Paper 1: MKMH */}
         <button
-          onClick={() => {
-            setSelectedPaper('MKMH');
-            setAnswers({});
-          }}
+          onClick={() => setSelectedPaper('MKMH')}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'MKMH'
               ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
@@ -172,10 +210,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
 
         {/* Paper 2: MMAT */}
         <button
-          onClick={() => {
-            setSelectedPaper('MMAT');
-            setAnswers({});
-          }}
+          onClick={() => setSelectedPaper('MMAT')}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'MMAT'
               ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
@@ -189,10 +224,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
 
         {/* Paper 3: ERT */}
         <button
-          onClick={() => {
-            setSelectedPaper('ERT');
-            setAnswers({});
-          }}
+          onClick={() => setSelectedPaper('ERT')}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
             selectedPaper === 'ERT'
               ? 'bg-[#f0da9a]/30 border-[#233d76] ring-2 ring-[#233d76]/20'
@@ -242,10 +274,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                 return (
                   <button
                     key={st.id}
-                    onClick={() => {
-                      setSelectedStudentId(st.id);
-                      setAnswers({});
-                    }}
+                    onClick={() => setSelectedStudentId(st.id)}
                     className={`w-full text-left p-3.5 flex items-center justify-between transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-[#f0da9a]/40 border-l-4 border-[#233d76]'
@@ -304,6 +333,23 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                   </span>
                 </div>
               </div>
+
+              {/* Previously Saved Status Banner */}
+              {savedRecord && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-2.5 my-3 text-xs font-semibold flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      {language === 'mr'
+                        ? `या चाचणीची उत्तरे आधीच नोंदवली आहेत: ${savedRecord.answeredCount}/${savedRecord.totalQuestions} उत्तरे • गुण: ${savedRecord.scorePercentage}%`
+                        : `Saved assessment: ${savedRecord.answeredCount}/${savedRecord.totalQuestions} answered • Score: ${savedRecord.scorePercentage}%`}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">
+                    {language === 'mr' ? 'बदलून पुन्हा सेव्ह करू शकता' : 'Editable & Auto-Loaded'}
+                  </span>
+                </div>
+              )}
 
               {/* Dynamic Question List */}
               <div className="space-y-5 my-6">
