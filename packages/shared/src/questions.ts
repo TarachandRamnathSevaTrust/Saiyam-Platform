@@ -22,7 +22,3108 @@ export const OPTIONS_ERT: QuestionOption[] = [
 
 // ZERO hardcoded questions: Populated 100% dynamically from backend/database
 // awaiting the verified list of ~90 questions with marks from TRST team.
-export const INITIAL_QUESTIONS: Question[] = [];
+export const INITIAL_QUESTIONS: Question[] = [
+  {
+    "id": "q-mkmh-1",
+    "paperType": "MKMH",
+    "questionNumber": 1,
+    "textMr": "वयात येण्याची प्रक्रिया ही मुला-मुलींमध्ये एकाच वेळी सुरू होते.",
+    "textEn": "The process of puberty triggers at the same time in both boys and girls",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-2",
+    "paperType": "MKMH",
+    "questionNumber": 2,
+    "textMr": "स्वप्नावस्था म्हणजे मुलांमध्ये दिसणारे पौगंडावस्थेचे (वयात येण्याचे) एक लक्षण आहे.",
+    "textEn": "'Wet dreams' are a symptom of pubertal changes in boys",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-3",
+    "paperType": "MKMH",
+    "questionNumber": 3,
+    "textMr": "स्त्रियांमधील दर मासिक चक्रात (पाळीपूर्वी) दोन्ही बीजांडांतून अनेक अंडपेशी बाहेर पडतात.",
+    "textEn": "During each menstrual cycle in girls, many ova (ovum) are released from both ovaries",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-4",
+    "paperType": "MKMH",
+    "questionNumber": 4,
+    "textMr": "आपल्या आवडत्या व्यक्तीला (मुलगा/मुलगी) संमतीशिवाय वारंवार फोन करणे, हाका मारणे, चिठ्ठी पाठवणे, चावट शेरेबाजी करणे, तिचा पाठलाग करणे किंवा त्या व्यक्तीबद्दल अफवा पसरवणे, हे वर्तन कधीतरी ती व्यक्ती 'पटेल' म्हणून चालू ठेवणे",
+    "textEn": "Calling your crush without his/her consent, calling him/her out in public, sending messages, passing vulgar comments, stalking or spreading rumours about the person is okay, with the hope of future acceptance",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-5",
+    "paperType": "MKMH",
+    "questionNumber": 5,
+    "textMr": "मासिक पाळी म्हणजे गर्भाशयाचे नको असलेले अस्तर गळून पडणे",
+    "textEn": "Menstrual cycle means shedding of the unwanted lining in uterus",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-6",
+    "paperType": "MKMH",
+    "questionNumber": 6,
+    "textMr": "मुलींना कधीच व्यसन लागू शकत नाही",
+    "textEn": "Girls never become addicts",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-7",
+    "paperType": "MKMH",
+    "questionNumber": 7,
+    "textMr": "फक्त दुय्यम बाह्य लक्षणांवरून (उदा. उंची, आवाज, स्तनांचा आकार इत्यादी) एखाद्या स्त्री/पुरुषाच्या प्रजनन क्षमतेचा अंदाज डॉक्टर १००% सांगू शकतात.",
+    "textEn": "Doctors can definitely predict the reproductive ability of a man/woman exclusively based on his/her secondary characteristics",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-8",
+    "paperType": "MKMH",
+    "questionNumber": 8,
+    "textMr": "माणसाच्या बाळाचे लिंग गर्भावस्थाच्या सहाव्या महिन्यात निश्चित होते.",
+    "textEn": "The sex of the baby is determined during the sixth month of mother's pregnancy",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-9",
+    "paperType": "MKMH",
+    "questionNumber": 9,
+    "textMr": "पौगंडावस्थेमध्ये (वयात येताना) मुला-मुलींमध्ये भावना अतिशय स्थिर व शांत असतात.",
+    "textEn": "Children's emotions are stable and calm during puberty",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-10",
+    "paperType": "MKMH",
+    "questionNumber": 10,
+    "textMr": "एच.आय.व्ही.चा विषाणू शरीरातील रोगप्रतिकारक शक्ती नष्ट करतो.",
+    "textEn": "HIV destroys the immune system of the body",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-11",
+    "paperType": "MKMH",
+    "questionNumber": 11,
+    "textMr": "एकदा दारूचे व्यसन लागले की संपलंच सगळं.",
+    "textEn": "Alcohol addiction leads to complete devastation",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-12",
+    "paperType": "MKMH",
+    "questionNumber": 12,
+    "textMr": "उगाचच जवळ बसणाऱ्या, अंगाला स्पर्श करणाऱ्या परिचित/अपरिचित व्यक्तीबद्दल आई-वडिलांना सांगणे आवश्यक आहे.",
+    "textEn": "A child should communicate to parents about any known/unknown person who unnecessarily tries to become intimate",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-13",
+    "paperType": "MKMH",
+    "questionNumber": 13,
+    "textMr": "मासिक पाळीमुळे स्त्री अपवित्र बनते, असे मला वाटते.",
+    "textEn": "According to my opinion menstrual cycle makes a woman impure",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-14",
+    "paperType": "MKMH",
+    "questionNumber": 14,
+    "textMr": "जीवनात यशस्वी व्हायचे असेल तर केवळ आत्मविश्वास पुरेसा नाही, तर सुंदर दिसणेही आवश्यक आहे.",
+    "textEn": "Confidence alone is not enough to be successful in life, looking beautiful/handsome is also equally essential",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-15",
+    "paperType": "MKMH",
+    "questionNumber": 15,
+    "textMr": "एखाद्या मुलीने जर तिच्या मित्राला ऐनवेळी नकार दिला आणि तो मुलगा चिडला व त्याने तिच्यावर जबरदस्ती केली, तर त्यात त्याचा काहीच दोष नाही.",
+    "textEn": "It is okay if a boy gets angry when a girl refuses his advances for friendship and forces it on her",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-16",
+    "paperType": "MKMH",
+    "questionNumber": 16,
+    "textMr": "समलिंगी संबंध ठेवणाऱ्या व्यक्ती माणूस म्हणून सर्व बाबतीत इतरांसारख्याच सक्षम असू शकतात.",
+    "textEn": "In all other aspects of life, homosexuals are just like any other human being",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-17",
+    "paperType": "MKMH",
+    "questionNumber": 17,
+    "textMr": "खूप पैसा असला ना, की व्यसन-बिसन काही फरक पडत नाही.",
+    "textEn": "When you make ample money, addiction just does not make a difference",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-18",
+    "paperType": "MKMH",
+    "questionNumber": 18,
+    "textMr": "इंटरनेटवरील इतर सोशल साइट्सवर सहज भेटलेल्या अनोळखी व्यक्तींशी मैत्री करावी, त्यामुळे नवे मित्र-मैत्रिणी मिळतात.",
+    "textEn": "One can easily communicate with unknown people on social media sites. In fact you will end up getting more friends.",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-19",
+    "paperType": "MKMH",
+    "questionNumber": 19,
+    "textMr": "मुलांना अधिक मैत्रिणी व मुलींना अधिक मित्र असल्यास त्यांचा त्यांच्या गटात भाव वाढतो.",
+    "textEn": "Having an opposite gender friend can earn more respect to a boy/girl in their friend circle",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-20",
+    "paperType": "MKMH",
+    "questionNumber": 20,
+    "textMr": "अतील कपडे (अंतर्वस्त्रे) कृत्रिम धाग्याने बनवलेली व फॅशनेबल असावीत.",
+    "textEn": "Using artificial and attractive undergarments is desirable",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-21",
+    "paperType": "MKMH",
+    "questionNumber": 21,
+    "textMr": "बाळ जन्माला येण्यापूर्वी ते मुलगा/मुलगी आहे हे तपासणे त्या पती-पत्नीच्या मर्जीवर अवलंबून आहे.",
+    "textEn": "The parents have complete right to decide if they want to check the gender of their baby before birth",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-22",
+    "paperType": "MKMH",
+    "questionNumber": 22,
+    "textMr": "मोबाईलवर खूप वेळ गेम खेळणे म्हणजे काही व्यसन नाही.",
+    "textEn": "Spending lot of time in playing games on mobile phone can't be termed as addiction",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-23",
+    "paperType": "MKMH",
+    "questionNumber": 23,
+    "textMr": "जननेंद्रियांचा आकार लहान-मोठा असण्यावर लैंगिक क्षमता अवलंबून असते.",
+    "textEn": "Sexual capacity of a person depends on the size of the reproductive organs",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-24",
+    "paperType": "MKMH",
+    "questionNumber": 24,
+    "textMr": "मुलींनी नाजूक-साजूक दिसावे व मुलांनी कणखर दिसावे, हेच योग्य आहे.",
+    "textEn": "Girls should be delicate while boys should be strong",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-25",
+    "paperType": "MKMH",
+    "questionNumber": 25,
+    "textMr": "मुलगे व मुली यांच्यात सर्व बाबतीत मुलगेच वरचढ असतात.",
+    "textEn": "Boys rock than girls in everything",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-26",
+    "paperType": "MKMH",
+    "questionNumber": 26,
+    "textMr": "चांगले वागण्याचे नियम मुला-मुलींसाठी सारखेच असले पाहिजेत.",
+    "textEn": "Both boys and girls should have the same set of rules to follow",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-27",
+    "paperType": "MKMH",
+    "questionNumber": 27,
+    "textMr": "एखादे व्यसन सुटले की सुटले, परत काही लागत नाही.",
+    "textEn": "Once a person is de-addicted, it is for life time",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-28",
+    "paperType": "MKMH",
+    "questionNumber": 28,
+    "textMr": "कोणत्याही लांबच्या प्रवासाला मुलींना सोबतीशिवाय पाठवणे योग्य नाही.",
+    "textEn": "While traveling long distances, girls should always be accompanied by someone",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-29",
+    "paperType": "MKMH",
+    "questionNumber": 29,
+    "textMr": "जड व कष्टाची कामे करावीत तर मुलांनीच.",
+    "textEn": "Hard and heavy work is always a man's job",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mkmh-30",
+    "paperType": "MKMH",
+    "questionNumber": 30,
+    "textMr": "पुरुषांनी घरातील बारीकसारीक कामे करणे व घर सांभाळणे यात काहीच गैर नाही.",
+    "textEn": "It is okay for men to do small household chores and look after the home",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 1.0,
+    "category": "Adolescent Knowledge & Health"
+  },
+  {
+    "id": "q-mmat-1",
+    "paperType": "MMAT",
+    "questionNumber": 1,
+    "textMr": "व्यसन हा एक मानसिक आजार आहे",
+    "textEn": "Addiction is a psychological disease",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-2",
+    "paperType": "MMAT",
+    "questionNumber": 2,
+    "textMr": "सिगारेट प्यायल्यामुळे आपले वजन नियंत्रणात (कंट्रोलमध्ये) राहते.",
+    "textEn": "Cigarette smoking helps in weight control",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-3",
+    "paperType": "MMAT",
+    "questionNumber": 3,
+    "textMr": "दारू प्यायल्यावर आपले सगळे ताणतणाव (टेन्शन) नाहीसे होतात.",
+    "textEn": "Alcohol (liquor) helps in getting rid of all stress and worries",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-4",
+    "paperType": "MMAT",
+    "questionNumber": 4,
+    "textMr": "कधीतरी सिगारेट किंवा बिडी ओढली तर त्याचे आपल्यावर काहीच वाईट परिणाम होत नाहीत.",
+    "textEn": "There are absolutely no ill effects on health if someone tries cigarette smoking occasionally",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-5",
+    "paperType": "MMAT",
+    "questionNumber": 5,
+    "textMr": "सरकारने गुटख्यावर बंदी आणली आहे, त्यामुळे लोक आता गुटखा खात नाहीत.",
+    "textEn": "Since government has banned Gutkha (tobacco), no one really consumes it now",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-6",
+    "paperType": "MMAT",
+    "questionNumber": 6,
+    "textMr": "इंटरनेट किंवा मोबाईलवरील गेम्स तासन्तास खेळल्यामुळे मेंदूला ताजेतवाने वाटते.",
+    "textEn": "The brain gets refreshed when one engages in mobile games for hours together",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-7",
+    "paperType": "MMAT",
+    "questionNumber": 7,
+    "textMr": "रोज माशेरी (मिश्री) लावणे याला व्यसन म्हणत नाहीत.",
+    "textEn": "Using 'misree' or 'masheri' everyday cannot be labeled as addiction",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-8",
+    "paperType": "MMAT",
+    "questionNumber": 8,
+    "textMr": "व्यसनी मित्रांच्या संगतीमुळे व्यसनाच्या जाळ्यात अडकले जाऊ शकते.",
+    "textEn": "One can get into the trap of addiction due to being friends with those who are addicted to something",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-9",
+    "paperType": "MMAT",
+    "questionNumber": 9,
+    "textMr": "मोबाईलचा वापर करता आला नाही म्हणून दुःख होणे किंवा अस्वस्थ वाटणे हे स्वाभाविकच आहे.",
+    "textEn": "It is very obvious to become restless/sad if one is not able to use his/her mobile due to some reason",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-10",
+    "paperType": "MMAT",
+    "questionNumber": 10,
+    "textMr": "व्यसनी माणसाला एकदा उपचार दिले की ते त्याला निर्व्यसनी व्हायला पुरेसे असतात.",
+    "textEn": "Once a person gets therapy for deaddiction, it is enough for keeping the person away from addiction for lifetime",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-11",
+    "paperType": "MMAT",
+    "questionNumber": 11,
+    "textMr": "शालेय वयात दर १० मुलांमागे १ मूल व्यसनामध्ये अडकत असते.",
+    "textEn": "Every tenth child in schools is getting trapped in addiction of some or the other kind",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-12",
+    "paperType": "MMAT",
+    "questionNumber": 12,
+    "textMr": "बुद्धिमान मुलांना व्यसन लागण्याची शक्यता खूप कमी असते.",
+    "textEn": "The probability of intelligent people getting addicted to something is too low",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-13",
+    "paperType": "MMAT",
+    "questionNumber": 13,
+    "textMr": "एक व्यसनी व्यक्ती स्वतःच्या कमाईचा मोठा भाग व्यसनावर खर्च करते.",
+    "textEn": "Any addict spends a huge amount of his/her income on addiction",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-14",
+    "paperType": "MMAT",
+    "questionNumber": 14,
+    "textMr": "मुली कधीही व्यसनांमध्ये अडकत नाहीत.",
+    "textEn": "Girls never get indulged in addiction",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-15",
+    "paperType": "MMAT",
+    "questionNumber": 15,
+    "textMr": "दारू, सिगारेट किंवा तंबाखूपेक्षा इंटरनेट आणि मोबाईलचे व्यसन कमी धोकादायक किंवा नुकसानकारक असते.",
+    "textEn": "The addiction to mobile and internet is far less harmful than that of alcohol and tobacco",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-16",
+    "paperType": "MMAT",
+    "questionNumber": 16,
+    "textMr": "आपल्या मनात आले की आपण व्यसनावर १००% ताबा लगेच मिळवू शकतो.",
+    "textEn": "A person can get 100% control on addiction at once when he/she decides to do so",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-17",
+    "paperType": "MMAT",
+    "questionNumber": 17,
+    "textMr": "मोबाईल किंवा कॉम्प्युटरवर अश्लील (पॉर्न) व्हिडिओ पाहिल्यामुळे मानसिक स्वास्थ्य बिघडू शकते.",
+    "textEn": "A person can get emotionally/mentally disturbed due to watching porn material on mobile/computer etc",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-18",
+    "paperType": "MMAT",
+    "questionNumber": 18,
+    "textMr": "व्यसनामुळे अनेक कुटुंबे उद्ध्वस्त होण्याचे प्रमाण खूप मोठे आहे.",
+    "textEn": "The number of families getting completely devastated due to addiction is very huge",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-19",
+    "paperType": "MMAT",
+    "questionNumber": 19,
+    "textMr": "गुटखा खाल्ल्यामुळे कधीच कर्करोग (कॅन्सर) होत नाही.",
+    "textEn": "Gutkha (tobacco) consumption never leads to cancer",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-20",
+    "paperType": "MMAT",
+    "questionNumber": 20,
+    "textMr": "व्यक्ती किती शिकलेली आहे, याचा व्यसनाशी काहीही संबंध नाही.",
+    "textEn": "There is no connection between addiction and person's education",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "CORRECT",
+    "marks": 2.0,
+    "scoringRubric": {
+      "CORRECT": 2,
+      "WRONG": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-21",
+    "paperType": "MMAT",
+    "questionNumber": 21,
+    "textMr": "व्यसनामुळे गरीबांचे जेवढे नुकसान होते, तेवढे श्रीमंतांचे होत नाही.",
+    "textEn": "The rich do not face as much loss due to addiction as compared to poor people",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-22",
+    "paperType": "MMAT",
+    "questionNumber": 22,
+    "textMr": "ज्या अर्थी चित्रपटांमध्ये दारू, सिगारेट इत्यादी गोष्टी नेहमीच दाखवल्या जातात, त्या अर्थी त्या वाईट गोष्टी नाहीत.",
+    "textEn": "As many movies/tele-serials vividly show consumption of cigarette/alcohol on screen, they are definitely not bad things",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-23",
+    "paperType": "MMAT",
+    "questionNumber": 23,
+    "textMr": "कायद्याने दारूबंदी केली असता लोक दारूपासून दूर राहतात.",
+    "textEn": "When liquor is legally banned, people keep away from it",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-24",
+    "paperType": "MMAT",
+    "questionNumber": 24,
+    "textMr": "थोड्या प्रमाणात दारू प्यायली की काम चांगले करता येते आणि कामातील उत्साह वाढतो.",
+    "textEn": "Small peg dose of alcohol helps in increasing work efficiency",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-25",
+    "paperType": "MMAT",
+    "questionNumber": 25,
+    "textMr": "ड्रग्ज खूप काळ घेत राहिल्यावरच त्यांचे व्यसन लागते.",
+    "textEn": "Drug addiction takes place only when one consumes drugs for a prolonged period of time",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-26",
+    "paperType": "MMAT",
+    "questionNumber": 26,
+    "textMr": "इतरांना त्रास न देता एखादी व्यक्ती व्यसन करत असेल, तर काही बिघडत नाही.",
+    "textEn": "Addiction (alcohol/tobacco/media) which does not trouble other people around is completely harmless",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-27",
+    "paperType": "MMAT",
+    "questionNumber": 27,
+    "textMr": "काही अमली (नशिले) पदार्थ घेतल्याने परीक्षेचा अभ्यास चांगला होतो.",
+    "textEn": "Consuming addictive drugs helps in better preparation for exams",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-28",
+    "paperType": "MMAT",
+    "questionNumber": 28,
+    "textMr": "गंभीर प्रसंगी किंवा तणावाच्या वेळी डोके हलके करण्यासाठी दारू किंवा अमली (नशिले) पदार्थ घेणे आपल्याला मदतच करते.",
+    "textEn": "Alcohol or any other such drug is a sure shot help at times of stress/tension provoking moments",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-29",
+    "paperType": "MMAT",
+    "questionNumber": 29,
+    "textMr": "दारू, सिगारेट, ड्रग्ज, गुटखा, इंटरनेट यांपैकी कशाचाही परिणाम आपल्या बौद्धिक क्षमतेवर होत नाही.",
+    "textEn": "There is absolutely no negative impact of consumption of alcohol/drugs/internet/mobile on our thinking ability",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-mmat-30",
+    "paperType": "MMAT",
+    "questionNumber": 30,
+    "textMr": "फेसबुक/इन्स्टाग्राम या ॲप्सचा लोक दुरुपयोग करत नाहीत.",
+    "textEn": "People never misuse apps like Facebook, Instagram, WhatsApp, etc.",
+    "options": [
+      {
+        "code": "CORRECT",
+        "labelMr": "बरोबर",
+        "labelEn": "Correct"
+      },
+      {
+        "code": "WRONG",
+        "labelMr": "चूक",
+        "labelEn": "Wrong"
+      },
+      {
+        "code": "DONT_KNOW",
+        "labelMr": "माहीत नाही",
+        "labelEn": "Don't Know"
+      }
+    ],
+    "correctOptionCode": "WRONG",
+    "marks": 2.0,
+    "scoringRubric": {
+      "WRONG": 2,
+      "CORRECT": 1,
+      "DONT_KNOW": 0
+    },
+    "category": "Addiction Myths & Facts"
+  },
+  {
+    "id": "q-ert-1",
+    "paperType": "ERT",
+    "questionNumber": 1,
+    "textMr": "आवडीचा पदार्थ दिसला की तो लगेच खाल्ला पाहिजे असे मला वाटते.",
+    "textEn": "I feel like eating my favourite dish as soon as I see it",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-2",
+    "paperType": "ERT",
+    "questionNumber": 2,
+    "textMr": "मित्र-मैत्रिणींनी माझ्या मनाविरुद्ध काही करण्यास सांगितले, तर मी 'नाही' म्हणू शकतो/शकते.",
+    "textEn": "I can refuse, even if my friends ask me to do something against my will",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-3",
+    "paperType": "ERT",
+    "questionNumber": 3,
+    "textMr": "मला राग कंट्रोल होत नाही",
+    "textEn": "I cannot control my anger",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-4",
+    "paperType": "ERT",
+    "questionNumber": 4,
+    "textMr": "मित्र-मैत्रिणींनी बोलावले तर मी जे काही करत असेन ते सोडून त्यांच्याबरोबर जावे असे मला वाटते.",
+    "textEn": "Whenever my friends call me, I feel like leaving my work and going with them",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-5",
+    "paperType": "ERT",
+    "questionNumber": 5,
+    "textMr": "छोट्या छोट्या गोष्टींमुळे मी अस्वस्थ (डिस्टर्ब) होतो/होते.",
+    "textEn": "I get disturbed because of small things",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-6",
+    "paperType": "ERT",
+    "questionNumber": 6,
+    "textMr": "इतरांनी केलेल्या थट्टेमुळे माझा आत्मविश्वास कमी होत नाही.",
+    "textEn": "My self confidence does not get affected even if anyone mocks me",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-7",
+    "paperType": "ERT",
+    "questionNumber": 7,
+    "textMr": "अनोळखी व्यक्तींशी बोलताना मला टेन्शन येते.",
+    "textEn": "I feel tensed while speaking to strangers",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-8",
+    "paperType": "ERT",
+    "questionNumber": 8,
+    "textMr": "काहीही मनाविरुद्ध घडले की मला टेन्शन येते.",
+    "textEn": "I instantly get upset, if something doesn't happen against my will",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-9",
+    "paperType": "ERT",
+    "questionNumber": 9,
+    "textMr": "एखाद्या कामात अपयश आल्यास त्याचा मला खूप त्रास होतो.",
+    "textEn": "It troubles me a lot if I face failure",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-10",
+    "paperType": "ERT",
+    "questionNumber": 10,
+    "textMr": "वैताग येणारी कामे असली तर मी ती सोडून देतो/देते.",
+    "textEn": "When I come across any boring task, I tend to give it up",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-11",
+    "paperType": "ERT",
+    "questionNumber": 11,
+    "textMr": "एखादी आवडती गोष्ट नंतर कर असे म्हटले की मला ती लगेच करून बघावीशी वाटते.",
+    "textEn": "Whenever I am asked to do my favourite thing later, I feel like doing it right away",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-12",
+    "paperType": "ERT",
+    "questionNumber": 12,
+    "textMr": "माझ्या मते, चांगले न शिकवल्यामुळेच बहुतेक वेळा मुलांना मार्क कमी पडतात.",
+    "textEn": "In my opinion, most of the time students get less marks because teachers don't teach well",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-13",
+    "paperType": "ERT",
+    "questionNumber": 13,
+    "textMr": "माझे मन खूप अस्वस्थ असले तरी मी माझा अभ्यास एकाग्रतेने करू शकतो/शकते.",
+    "textEn": "I can concentrate on my studies, even if my mind is restless",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-14",
+    "paperType": "ERT",
+    "questionNumber": 14,
+    "textMr": "एखादे अवघड काम करताना मदत मिळाली नाही तरी मला टेन्शन येते.",
+    "textEn": "I get stressed if I don't get any help while doing a difficult task",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-15",
+    "paperType": "ERT",
+    "questionNumber": 15,
+    "textMr": "चारचौघांमध्ये इतरांपेक्षा वेगळे मत मांडायचे असले तर मला लाज वाटते.",
+    "textEn": "I feel shy when I have to express a different opinion than others",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-16",
+    "paperType": "ERT",
+    "questionNumber": 16,
+    "textMr": "बऱ्याच दिवसांपासून ठरलेला बेत अचानक रद्द झाला की मला सहन होत नाही.",
+    "textEn": "I can't stand the sudden cancellation of a plan I had set for many days",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-17",
+    "paperType": "ERT",
+    "questionNumber": 17,
+    "textMr": "मला एखादी गोष्ट हवी असेल तर मी ती काहीही करून मिळवतोच/मिळवतेच.",
+    "textEn": "If I want something, I get it by hook or crook",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-18",
+    "paperType": "ERT",
+    "questionNumber": 18,
+    "textMr": "मी इतरांचे मन दुखवत नाही.",
+    "textEn": "I don't hurt feelings of others",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-19",
+    "paperType": "ERT",
+    "questionNumber": 19,
+    "textMr": "माझ्या कुटुंबीयांनी माझे मत ऐकले नाही तर मला खूपच वाईट वाटते.",
+    "textEn": "I feel very bad if my family members do not listen to my opinion",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-20",
+    "paperType": "ERT",
+    "questionNumber": 20,
+    "textMr": "पुढे मिळणाऱ्या संधीपेक्षा आत्ता मिळणारे बक्षीस मला जास्त महत्त्वाचे वाटते.",
+    "textEn": "For me, the reward I get now is more important than the opportunity I might get in future",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-21",
+    "paperType": "ERT",
+    "questionNumber": 21,
+    "textMr": "घरात वादावादीचे प्रसंग निर्माण झाले तर माझे कशातच लक्ष लागत नाही.",
+    "textEn": "Whenever I have an argument at home, I cannot focus on other things",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-22",
+    "paperType": "ERT",
+    "questionNumber": 22,
+    "textMr": "व्यायामाचे महत्त्व कळत असूनसुद्धा सकाळी लवकर उठून व्यायाम करणे मला जमत नाही.",
+    "textEn": "In spite of knowing the importance of exercise, I can't get up early in the morning and do exercise",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-23",
+    "paperType": "ERT",
+    "questionNumber": 23,
+    "textMr": "माझ्या मते, 'लोक काय म्हणतील' याचा विचार केला पाहिजे.",
+    "textEn": "One should always care about what people say",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-24",
+    "paperType": "ERT",
+    "questionNumber": 24,
+    "textMr": "माझ्याकडून चुका झाल्या की मला खूप त्रास होतो.",
+    "textEn": "I feel awful when I commit a mistake",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-25",
+    "paperType": "ERT",
+    "questionNumber": 25,
+    "textMr": "वर्गातील मुलीने/मुलाने माझ्याविरुद्ध काही म्हटले तर ते मला सहन होत नाही.",
+    "textEn": "I can't stand if any of my classmates has a word against me",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-26",
+    "paperType": "ERT",
+    "questionNumber": 26,
+    "textMr": "माझ्या मते, जो लकी असतो त्याला यश मिळतेच.",
+    "textEn": "In my opinion, lucky people always get success",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-27",
+    "paperType": "ERT",
+    "questionNumber": 27,
+    "textMr": "मला माझ्या नावडत्या विषयांचा अभ्यास करावासाच वाटत नाही.",
+    "textEn": "I just don't feel like studying the subjects that I dislike",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-28",
+    "paperType": "ERT",
+    "questionNumber": 28,
+    "textMr": "रांगेत उभे असताना नंबर लागल्यावर माझे काम अडले की अगदी संताप होतो.",
+    "textEn": "I get furious at sudden interruption while standing in the queue",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-29",
+    "paperType": "ERT",
+    "questionNumber": 29,
+    "textMr": "पुढे पुढे करणाऱ्या मुलांनाच वर्गात संधी मिळतात असे मला वाटते.",
+    "textEn": "I think only the students who try to please teachers, get opportunities in class",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-30",
+    "paperType": "ERT",
+    "questionNumber": 30,
+    "textMr": "मला न पटणारे मित्र-मैत्रिणींचे बोलणे मी ऐकून घेतो/घेते.",
+    "textEn": "I listen to my friends even if their opinions are not in agreement with me",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-31",
+    "paperType": "ERT",
+    "questionNumber": 31,
+    "textMr": "टी.व्ही./मोबाईलवर काही बघत असताना लाईट/नेटवर्क कधीच गेले नाही पाहिजे असे मला वाटते.",
+    "textEn": "I feel there should be no power cuts/network disturbances while one watches TV/mobiles",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-32",
+    "paperType": "ERT",
+    "questionNumber": 32,
+    "textMr": "आपण ज्याचा अभ्यास केला नाहीये तेच प्रश्न परीक्षेत आले तर काय, अशी मला भीती वाटते.",
+    "textEn": "I fear, what if questions from the syllabus I did not prepare are asked in the exam",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-33",
+    "paperType": "ERT",
+    "questionNumber": 33,
+    "textMr": "मोठ्या माणसांचे एखादे म्हणणे मला पटत नसेल तर तसे मला सांगता येते.",
+    "textEn": "I don't agree with my elders on anything, I can explicitly express it",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-34",
+    "paperType": "ERT",
+    "questionNumber": 34,
+    "textMr": "काही गोष्टी मनासारख्या झाल्या नाहीत तरी फार बिघडत नाही असे मला वाटते.",
+    "textEn": "I feel it is okay if somethings don't happen as I wish",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "ALWAYS",
+    "marks": 4.0,
+    "scoringRubric": {
+      "ALWAYS": 4,
+      "OFTEN": 3,
+      "SOMETIMES": 2,
+      "NEVER": 1
+    },
+    "category": "Emotional Self-Regulation"
+  },
+  {
+    "id": "q-ert-35",
+    "paperType": "ERT",
+    "questionNumber": 35,
+    "textMr": "मला हवे तेव्हा हवी ती वस्तू मिळाली नाही तर मी खूप नाराज होते/होतो.",
+    "textEn": "I get very upset if I do not get something when I strongly want it",
+    "options": [
+      {
+        "code": "ALWAYS",
+        "labelMr": "नेहमी",
+        "labelEn": "Always"
+      },
+      {
+        "code": "OFTEN",
+        "labelMr": "बऱ्याच वेळा",
+        "labelEn": "Frequently"
+      },
+      {
+        "code": "SOMETIMES",
+        "labelMr": "कधी कधी",
+        "labelEn": "Sometimes"
+      },
+      {
+        "code": "NEVER",
+        "labelMr": "कधीच नाही",
+        "labelEn": "Never"
+      }
+    ],
+    "correctOptionCode": "NEVER",
+    "marks": 4.0,
+    "scoringRubric": {
+      "NEVER": 4,
+      "SOMETIMES": 3,
+      "OFTEN": 2,
+      "ALWAYS": 1
+    },
+    "category": "Emotional Self-Regulation"
+  }
+];
 
 // ==============================================================================
 // OFFICIAL CURRICULUM MODULES (१० मुख्य विभाग + प्रस्तावना व समारोप)

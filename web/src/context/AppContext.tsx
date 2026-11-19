@@ -209,7 +209,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_SESSION_LOGS;
   });
 
-  const [questions] = useState<Question[]>(INITIAL_QUESTIONS);
+  const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
   const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>(CURRICULUM_MODULES);
   const [curriculumSessions, setCurriculumSessions] = useState<CurriculumSession[]>(ALL_25_SESSIONS);
 
@@ -228,6 +228,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           backendStudents,
           backendModules,
           backendSessions,
+          backendQuestions,
         ] = await Promise.all([
           apiService.getOrganizations(),
           apiService.getSchools(),
@@ -236,6 +237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           apiService.getAllStudents(),
           apiService.getCurriculumModules(),
           apiService.getCurriculumSessions(),
+          apiService.getQuestions(),
         ]);
 
         if (!isMounted) return;
@@ -277,6 +279,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (backendSessions && backendSessions.length > 0) {
           setCurriculumSessions(backendSessions);
+        }
+
+        if (backendQuestions && backendQuestions.length > 0) {
+          setQuestions(backendQuestions);
         }
       } catch (err) {
         console.warn('Hydration from Supabase error:', err);
