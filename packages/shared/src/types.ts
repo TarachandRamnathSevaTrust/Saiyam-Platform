@@ -145,11 +145,20 @@ export interface StudentAssessmentPair {
   status: 'PENDING_PRE' | 'PRE_COMPLETED' | 'ALL_COMPLETED';
 }
 
+export interface CurriculumModule {
+  moduleNumber: number;
+  nameMr: string;
+  nameEn: string;
+}
+
 export interface CurriculumSession {
   sessionNumber: number; // 1 to 25
   titleMr: string;
   titleEn: string;
   description?: string;
+  moduleNumber?: number;
+  moduleNameMr?: string;
+  moduleNameEn?: string;
 }
 
 export interface SessionLog {

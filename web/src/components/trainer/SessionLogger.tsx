@@ -55,12 +55,8 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     );
   }
 
-  // Dynamic 25 Sessions generated dynamically without hardcoded fake titles
-  const allSessionSlots = Array.from({ length: 25 }, (_, i) => ({
-    sessionNumber: i + 1,
-    titleMr: `सत्र ${i + 1}`,
-    titleEn: `Session ${i + 1}`,
-  }));
+  // Official 25 Curriculum Sessions mapped to the 10 Modules
+  const allSessionSlots = ALL_25_SESSIONS;
 
   const activeSession = allSessionSlots.find((s) => s.sessionNumber === activeSessionNumber) || allSessionSlots[0];
 
@@ -167,12 +163,22 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                       : 'hover:bg-slate-50'
                   }`}
                 >
-                  <div className="pr-2">
+                  <div className="pr-2 min-w-0 flex-1">
+                    <div className="flex items-center space-x-1.5 mb-0.5">
+                      <span className="text-[10px] font-bold text-[#233d76] bg-slate-100 px-1.5 py-0.2 rounded shrink-0">
+                        {language === 'mr' ? `सत्र ${sess.sessionNumber}` : `S-${sess.sessionNumber}`}
+                      </span>
+                      {sess.moduleNameMr && (
+                        <span className="text-[10px] text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded truncate">
+                          {language === 'mr' ? sess.moduleNameMr : sess.moduleNameEn}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs font-bold text-slate-900 block truncate">
                       {language === 'mr' ? sess.titleMr : sess.titleEn}
                     </span>
                     <span className="text-[11px] text-slate-400">
-                      {isLogged ? 'नोंद पूर्ण' : 'नोंद बाकी'}
+                      {isLogged ? (language === 'mr' ? 'नोंद पूर्ण ✓' : 'Recorded ✓') : (language === 'mr' ? 'नोंद बाकी' : 'Pending')}
                     </span>
                   </div>
 
@@ -196,12 +202,24 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
           {/* Header Sub-Tabs */}
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <div>
-              <span className="text-[10px] font-bold text-[#233d76] bg-[#f0da9a]/60 px-2 py-0.5 rounded uppercase border border-[#dfaf27]/40">
-                सत्र {activeSession.sessionNumber}
-              </span>
-              <h3 className="font-bold text-sm text-slate-900 mt-1 line-clamp-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-bold text-[#233d76] bg-[#f0da9a]/60 px-2 py-0.5 rounded uppercase border border-[#dfaf27]/40">
+                  {language === 'mr' ? `सत्र ${activeSession.sessionNumber}` : `Session ${activeSession.sessionNumber}`}
+                </span>
+                {activeSession.moduleNameMr && (
+                  <span className="text-[10px] font-medium text-amber-900 bg-amber-100/70 px-2 py-0.5 rounded">
+                    {language === 'mr' ? activeSession.moduleNameMr : activeSession.moduleNameEn}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mt-1">
                 {language === 'mr' ? activeSession.titleMr : activeSession.titleEn}
               </h3>
+              {activeSession.description && (
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {activeSession.description}
+                </p>
+              )}
             </div>
 
             <div className="flex bg-slate-200/70 p-1 rounded-xl">
