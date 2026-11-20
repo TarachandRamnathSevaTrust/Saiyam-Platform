@@ -689,7 +689,7 @@ export const apiService = {
     try {
       let query = supabase
         .from('session_logs')
-        .select('*')
+        .select('*, session_media(*)')
         .order('conducted_date', { ascending: false });
 
       if (schoolId) {
@@ -698,7 +698,7 @@ export const apiService = {
       const { data, error } = await query;
       if (error) throw error;
 
-      return (data || []).map((row) => ({
+      return (data || []).map((row: any) => ({
         id: row.id,
         schoolId: row.school_id,
         financialYear: row.financial_year || '2025-26',
@@ -711,7 +711,15 @@ export const apiService = {
         toolsUsed: row.tools_used || 'फलक, पेन',
         specialNotes: row.special_notes || '',
         conductedBy: row.conducted_by,
-        media: [],
+        media: (row.session_media || []).map((m: any) => ({
+          id: m.id,
+          sessionLogId: m.session_log_id,
+          mediaType: m.media_type,
+          fileUrl: m.file_url,
+          fileName: m.file_name,
+          fileSizeBytes: m.file_size_bytes,
+          uploadedAt: m.uploaded_at,
+        })),
         createdAt: row.created_at,
       }));
     } catch (err) {
@@ -726,25 +734,60 @@ export const apiService = {
       const isValidUuid = (val?: string) =>
         Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
+      // Use upsert on unique constraint (school_id, financial_year, session_number)
+      // to seamlessly support both insert and update without 409 unique constraint errors
       const { data, error } = await supabase
         .from('session_logs')
-        .insert({
-          school_id: log.schoolId,
-          financial_year: log.financialYear || '2025-26',
-          session_number: log.sessionNumber,
-          conducted_date: log.conductedDate,
-          duration_minutes: log.durationMinutes,
-          total_attendance: log.totalAttendance,
-          girls_present: log.girlsPresent,
-          boys_present: log.boysPresent,
-          tools_used: log.toolsUsed,
-          special_notes: log.specialNotes,
-          conducted_by: isValidUuid(log.conductedBy) ? log.conductedBy : null,
-        })
+        .upsert(
+          {
+            school_id: log.schoolId,
+            financial_year: log.financialYear || '2025-26',
+            session_number: log.sessionNumber,
+            conducted_date: log.conductedDate,
+            duration_minutes: log.durationMinutes,
+            total_attendance: log.totalAttendance,
+            girls_present: log.girlsPresent,
+            boys_present: log.boysPresent,
+            tools_used: log.toolsUsed,
+            special_notes: log.specialNotes,
+            conducted_by: isValidUuid(log.conductedBy) ? log.conductedBy : null,
+          },
+          { onConflict: 'school_id,financial_year,session_number' }
+        )
         .select()
         .single();
 
       if (error) throw error;
+
+      // Sync photos to session_media table if provided
+      let savedMedia = log.media || [];
+      if (log.media && log.media.length > 0) {
+        try {
+          await supabase.from('session_media').delete().eq('session_log_id', data.id);
+          const mediaRows = log.media.map((m, idx) => ({
+            session_log_id: data.id,
+            media_type: m.mediaType || 'PHOTO',
+            file_url: m.fileUrl,
+            file_name: m.fileName || `session_${log.sessionNumber}_photo_${idx + 1}.jpg`,
+            uploaded_at: m.uploadedAt || new Date().toISOString(),
+          }));
+          const { data: insertedMedia } = await supabase.from('session_media').insert(mediaRows).select();
+          if (insertedMedia) {
+            savedMedia = insertedMedia.map((m: any) => ({
+              id: m.id,
+              sessionLogId: m.session_log_id,
+              mediaType: m.media_type,
+              fileUrl: m.file_url,
+              fileName: m.file_name,
+              fileSizeBytes: m.file_size_bytes,
+              uploadedAt: m.uploaded_at,
+            }));
+          }
+        } catch (mediaErr) {
+          console.warn('Failed to sync session media proofs:', mediaErr);
+        }
+      }
+
       return {
         id: data.id,
         schoolId: data.school_id,
@@ -758,11 +801,11 @@ export const apiService = {
         toolsUsed: data.tools_used,
         specialNotes: data.special_notes,
         conductedBy: data.conducted_by,
-        media: [],
+        media: savedMedia,
         createdAt: data.created_at,
       };
     } catch (err) {
-      console.warn('Supabase create session log error:', err);
+      console.warn('Supabase create/upsert session log error:', err);
       return null;
     }
   },

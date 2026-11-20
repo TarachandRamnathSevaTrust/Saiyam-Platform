@@ -892,35 +892,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const saveSessionLog = (logData: Omit<SessionLog, 'id' | 'createdAt'>) => {
+    const targetFY = logData.financialYear || financialYear;
+    const existingIndex = sessionLogs.findIndex(
+      (l) => l.schoolId === logData.schoolId && l.sessionNumber === logData.sessionNumber && (l.financialYear || financialYear) === targetFY
+    );
+
     const newLog: SessionLog = {
       ...logData,
-      financialYear: logData.financialYear || financialYear,
-      id: `log-${Date.now()}`,
-      createdAt: new Date().toISOString().split('T')[0],
+      financialYear: targetFY,
+      id: existingIndex >= 0 ? sessionLogs[existingIndex].id : `log-${Date.now()}`,
+      createdAt: existingIndex >= 0 ? sessionLogs[existingIndex].createdAt : new Date().toISOString().split('T')[0],
     };
+
     setSessionLogs((prev) => {
       const filtered = prev.filter(
-        (l) => !(l.schoolId === logData.schoolId && l.sessionNumber === logData.sessionNumber && (l.financialYear || financialYear) === (logData.financialYear || financialYear))
+        (l) => !(l.schoolId === logData.schoolId && l.sessionNumber === logData.sessionNumber && (l.financialYear || financialYear) === targetFY)
       );
       return [newLog, ...filtered];
     });
 
-    setSchools((prev) =>
-      prev.map((s) => {
-        if (s.id === logData.schoolId) {
-          return {
-            ...s,
-            completedSessionsCount: Math.min(25, (s.completedSessionsCount || 0) + 1),
-          };
-        }
-        return s;
-      })
-    );
+    if (existingIndex < 0) {
+      setSchools((prev) =>
+        prev.map((s) => {
+          if (s.id === logData.schoolId) {
+            return {
+              ...s,
+              completedSessionsCount: Math.min(25, (s.completedSessionsCount || 0) + 1),
+            };
+          }
+          return s;
+        })
+      );
+    }
 
     if (apiService.isConnected()) {
-      apiService.createSessionLog(logData).catch((err) => {
-        console.warn('Failed to sync session log to Supabase:', err);
-      });
+      apiService.createSessionLog({ ...logData, financialYear: targetFY })
+        .then((saved) => {
+          if (saved) {
+            setSessionLogs((prev) =>
+              prev.map((l) =>
+                l.schoolId === saved.schoolId &&
+                l.sessionNumber === saved.sessionNumber &&
+                (l.financialYear || financialYear) === (saved.financialYear || targetFY)
+                  ? saved
+                  : l
+              )
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to sync session log to Supabase:', err);
+        });
     }
   };
 
