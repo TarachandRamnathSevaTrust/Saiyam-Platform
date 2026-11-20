@@ -462,7 +462,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [assessmentPairs]);
 
   useEffect(() => {
-    localStorage.setItem('saiyam_session_logs_v10', JSON.stringify(sessionLogs));
+    try {
+      localStorage.setItem('saiyam_session_logs_v10', JSON.stringify(sessionLogs));
+    } catch (e) {
+      console.warn('LocalStorage quota limit reached for sessionLogs:', e);
+    }
   }, [sessionLogs]);
 
   useEffect(() => {

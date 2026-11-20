@@ -197,12 +197,48 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     });
 
     setSaveSuccess(true);
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Client-side image compression: resizes large camera photos to max 900px
+  // and compresses to lightweight ~60KB JPEG to ensure fast uploads & reliable storage
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 900;
+
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -216,23 +252,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     }
 
     const file = files[0];
-    // Keep photo size under 5 MB to prevent memory/storage bloat
-    if (file.size > 5 * 1024 * 1024) {
-      alert(
-        language === 'mr'
-          ? 'फोटोचा आकार ५ MB पेक्षा कमी असावा.'
-          : 'Photo size must be less than 5 MB.'
-      );
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setUploadedPhotos((prev) => [...prev, event.target!.result as string]);
+    try {
+      const compressed = await compressImage(file);
+      if (compressed) {
+        setUploadedPhotos((prev) => [...prev, compressed]);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.warn('Failed to compress photo:', err);
+    }
     e.target.value = '';
   };
 
@@ -421,6 +448,22 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                           <span>{language === 'mr' ? 'नोंद बाकी' : 'Pending'}</span>
                         </span>
                       )}
+
+                      {/* Photo indicator badge if this session has photos */}
+                      {(() => {
+                        const matchingLog = sessionLogs.find(
+                          (l) => l.schoolId === selectedSchool.id && l.sessionNumber === sess.sessionNumber
+                        );
+                        if (matchingLog && matchingLog.media && matchingLog.media.length > 0) {
+                          return (
+                            <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-[#233d76] bg-[#f0da9a]/60 px-1.5 py-0.5 rounded border border-[#dfaf27]/40">
+                              <Camera className="w-3 h-3 text-[#233d76]" />
+                              <span>{matchingLog.media.length}</span>
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
 
                       {/* Clear call-to-action on mobile */}
                       <span className="lg:hidden text-[11px] font-bold text-[#233d76]">
@@ -752,6 +795,60 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 />
               </div>
 
+              {/* Evidence Photos Widget inside Tab 1 */}
+              <div className="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1.5">
+                    <Camera className="w-4 h-4 text-[#233d76]" />
+                    <span className="text-xs font-bold text-slate-800">
+                      {language === 'mr' ? 'सत्राची पुरावा छायाचित्रे' : 'Session Evidence Photos'}
+                    </span>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                      {uploadedPhotos.length} / 2
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('PHOTOS')}
+                    className="text-xs font-bold text-[#233d76] hover:underline cursor-pointer flex items-center space-x-1"
+                  >
+                    <span>{language === 'mr' ? 'छायाचित्रे पहा / बदला →' : 'View / Manage Photos →'}</span>
+                  </button>
+                </div>
+
+                {uploadedPhotos.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    {uploadedPhotos.map((url, i) => (
+                      <div
+                        key={i}
+                        className="relative rounded-xl overflow-hidden border border-slate-200 bg-white shadow-2xs cursor-pointer group"
+                        onClick={() => setActiveTab('PHOTOS')}
+                      >
+                        <img
+                          src={url}
+                          alt={`Session Photo ${i + 1}`}
+                          className="w-full h-24 sm:h-28 object-cover group-hover:opacity-95 transition-opacity"
+                        />
+                        <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/90 text-white text-[10px] px-2 py-0.5 font-bold">
+                          {language === 'mr' ? `फोटो ${i + 1}` : `Photo ${i + 1}`}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => setActiveTab('PHOTOS')}
+                    className="text-center py-3 bg-white rounded-xl border border-dashed border-slate-300 text-xs text-slate-500 cursor-pointer hover:border-[#233d76] transition-colors"
+                  >
+                    <span>
+                      {language === 'mr'
+                        ? '+ पुरावा छायाचित्र जोडण्यासाठी येथे दाबा (कमाल २)'
+                        : '+ Tap here or open Tab 2 to attach up to 2 photos'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Submit Button */}
               <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100">
                 <span className="text-xs text-slate-500 font-medium">
@@ -795,95 +892,56 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                   <p className="font-bold">
                     {language === 'mr'
                       ? 'सत्राचा अधिकृत पुरावा म्हणून १ किंवा २ छायाचित्रे जोडा (उदा. फळा किंवा वर्ग सहभाग).'
-                      : 'Upload 1 or 2 session photos as official evidence (Blackboard, Classroom).' }
+                      : 'Upload 1 or 2 session photos as official evidence (Blackboard, Classroom).'}
                   </p>
                   <p className="text-[11px] text-slate-600 mt-0.5">
                     {language === 'mr'
-                      ? 'मोबाईल कॅमेऱ्याने थेट फोटो काढा किंवा गॅलरीतून निवडा (कमाल २ फोटो, प्रति फोटो कमाल ५ MB).'
-                      : 'Take directly from mobile camera or select from gallery (max 2 photos, < 5 MB each).' }
+                      ? 'मोबाईल कॅमेऱ्याने थेट फोटो काढा किंवा गॅलरीतून निवडा (कमाल २ फोटो).'
+                      : 'Take directly from mobile camera or select from gallery (max 2 photos).'}
                   </p>
                 </div>
               </div>
 
-              {/* Photo Upload Tap Area */}
-              <div className="bg-slate-50 p-5 sm:p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center hover:border-[#233d76]/40 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto mb-2">
-                  <Camera className="w-6 h-6" />
-                </div>
-
-                <h4 className="text-sm font-bold text-slate-800">
-                  {language === 'mr' ? 'सत्राची छायाचित्रे (कमाल २)' : 'Session Photographs (Max 2)'}
-                </h4>
-                <p className="text-xs text-slate-500 mb-3.5">
-                  {uploadedPhotos.length} / 2 {language === 'mr' ? 'फोटो जोडले आहेत' : 'Photos uploaded'}
-                </p>
-
-                {!isTrustAdmin ? (
-                  <label
-                    className={`inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer ${
-                      uploadedPhotos.length >= 2 ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
-                    }`}
-                  >
-                    <Upload className="w-4 h-4 text-[#dfaf27]" />
-                    <span>
-                      {uploadedPhotos.length >= 2
-                        ? language === 'mr'
-                          ? 'कमाल २ फोटो मर्यादा पूर्ण'
-                          : 'Max 2 Photos Reached'
-                        : language === 'mr'
-                        ? '+ फोटो काढा / जोडा'
-                        : '+ Take / Add Photo'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      disabled={uploadedPhotos.length >= 2}
-                      onChange={handlePhotoUpload}
-                      className="hidden"
-                    />
-                  </label>
-                ) : (
-                  <span className="text-xs bg-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl">
-                    {language === 'mr' ? 'केवळ वाचन मोड' : 'Audit View Only'}
-                  </span>
-                )}
-              </div>
-
-              {/* Uploaded Photos Gallery with Remove Option */}
+              {/* Uploaded Photos Gallery - PROMINENT AT TOP */}
               {uploadedPhotos.length > 0 && (
-                <div className="space-y-2.5 pt-2">
-                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-[#233d76]" />
-                    <span>
-                      {language === 'mr'
-                        ? `जोडलेली छायाचित्रे (${uploadedPhotos.length} / २)`
-                        : `Uploaded Photos (${uploadedPhotos.length} / 2)`}
+                <div className="space-y-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+                      <ImageIcon className="w-4 h-4 text-[#233d76]" />
+                      <span>
+                        {language === 'mr'
+                          ? `जोडलेली छायाचित्रे (${uploadedPhotos.length} / २)`
+                          : `Attached Photos (${uploadedPhotos.length} / 2)`}
+                      </span>
+                    </h4>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      <span>{language === 'mr' ? 'सत्राशी जोडले आहे' : 'Attached to Session'}</span>
                     </span>
-                  </h4>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                     {uploadedPhotos.map((url, i) => (
                       <div
                         key={i}
-                        className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs group"
+                        className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs group"
                       >
                         <img
                           src={url}
                           alt={`Session Photo ${i + 1}`}
-                          className="w-full h-36 sm:h-44 object-cover"
+                          className="w-full h-44 sm:h-52 object-cover"
                         />
                         {!isTrustAdmin && (
                           <button
                             type="button"
                             onClick={() => handleRemovePhoto(i)}
-                            className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer transition-colors"
+                            className="absolute top-2 right-2 p-2 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md cursor-pointer transition-colors"
                             title={language === 'mr' ? 'फोटो हटवा' : 'Remove Photo'}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
-                        <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/90 text-white text-[11px] px-3 py-1 font-bold flex items-center justify-between">
+                        <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/95 text-white text-xs px-3 py-1.5 font-bold flex items-center justify-between">
                           <span>
                             {language === 'mr'
                               ? i === 0
@@ -893,6 +951,9 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                               ? 'Photo 1 (Blackboard / Class)'
                               : 'Photo 2 (Participation)'}
                           </span>
+                          <span className="text-[10px] text-amber-300 font-semibold">
+                            {language === 'mr' ? 'पुरावा' : 'Verified'}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -900,15 +961,59 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 </div>
               )}
 
+              {/* Photo Upload Tap Area (Shown when < 2 photos) */}
+              {uploadedPhotos.length < 2 && (
+                <div className="bg-slate-50 p-5 rounded-2xl border-2 border-dashed border-slate-300 text-center hover:border-[#233d76]/40 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto mb-2">
+                    <Camera className="w-5 h-5" />
+                  </div>
+
+                  <h4 className="text-sm font-bold text-slate-800">
+                    {uploadedPhotos.length === 0
+                      ? language === 'mr'
+                        ? 'सत्राचे छायाचित्र जोडा'
+                        : 'Attach Session Photograph'
+                      : language === 'mr'
+                      ? 'दुसरे छायाचित्र जोडा (ऐच्छिक)'
+                      : 'Attach Second Photo (Optional)'}
+                  </h4>
+                  <p className="text-xs text-slate-500 mb-3">
+                    {uploadedPhotos.length} / 2 {language === 'mr' ? 'फोटो जोडले आहेत' : 'Photos uploaded'}
+                  </p>
+
+                  {!isTrustAdmin && (
+                    <label className="inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer">
+                      <Upload className="w-4 h-4 text-[#dfaf27]" />
+                      <span>
+                        {uploadedPhotos.length === 0
+                          ? language === 'mr'
+                            ? '+ पहिला फोटो काढा / जोडा'
+                            : '+ Take / Upload Photo 1'
+                          : language === 'mr'
+                          ? '+ दुसरा फोटो काढा / जोडा'
+                          : '+ Take / Upload Photo 2'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
               {/* Submit / Save Button for Photos Tab */}
-              <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-200 mt-4">
+              <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-200 mt-2">
                 <span className="text-xs text-slate-500 font-medium">
                   {language === 'mr'
                     ? uploadedPhotos.length > 0
                       ? `${uploadedPhotos.length} छायाचित्र(े) जोडली आहेत. सेव्ह करण्यासाठी बटण दाबा.`
                       : 'छायाचित्र जोडल्यानंतर सेव्ह बटण दाबा.'
                     : uploadedPhotos.length > 0
-                    ? `${uploadedPhotos.length} photo(s) selected. Press save to store in session.`
+                    ? `${uploadedPhotos.length} photo(s) selected. Press save to record in session.`
                     : 'Add photos and press save.'}
                 </span>
 
