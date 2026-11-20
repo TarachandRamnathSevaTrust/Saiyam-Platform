@@ -485,7 +485,7 @@ export const PartnerCoordinatorDashboard: React.FC = () => {
                         <h4 className="font-bold text-base text-slate-900">{school.name}</h4>
                         <div className="flex items-center space-x-2 text-xs text-slate-500 mt-0.5">
                           <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{school.village}, {school.district} • पिन: {school.pinCode}</span>
+                          <span>{school.village}, {school.district} • {language === 'mr' ? 'पिन:' : 'PIN:'} {school.pinCode}</span>
                         </div>
                         {school.assignedTrainerName && (
                           <div className="text-[11px] text-[#233d76] font-semibold mt-1">

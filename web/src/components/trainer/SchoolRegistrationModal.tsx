@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { formatOrgName } from '../../lib/formatters';
 import { X, Building2, Save } from 'lucide-react';
 
 interface Props {
@@ -83,8 +84,10 @@ export const SchoolRegistrationModal: React.FC<Props> = ({ isOpen, onClose }) =>
                 {language === 'mr' ? 'संस्था:' : 'Organization:'}
               </span>
               <span className="font-bold text-slate-800">
-                {organizations.find((o) => o.code === (currentUser.organizationCode || organizationCode))?.nameMr ||
-                  (currentUser.organizationCode || 'TRST Direct')}
+                {(() => {
+                  const org = organizations.find((o) => o.code === (currentUser.organizationCode || organizationCode));
+                  return org ? formatOrgName(org, language) : (currentUser.organizationCode || 'Tarachand Ramnath Seva Trust (Direct)');
+                })()}
               </span>
             </div>
           </div>

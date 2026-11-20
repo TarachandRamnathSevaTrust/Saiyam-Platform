@@ -432,7 +432,13 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                   </span>
                 ) : (
                   <span className="text-xs text-slate-400">
-                    {existingLog ? 'नोंद अपडेट करा' : 'नवीन सत्र माहिती भरा'}
+                    {language === 'mr'
+                      ? existingLog
+                        ? 'नोंद अपडेट करा'
+                        : 'नवीन सत्र माहिती भरा'
+                      : existingLog
+                      ? 'Update session log'
+                      : 'Fill in new session log'}
                   </span>
                 )}
 
@@ -446,7 +452,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                   </button>
                 ) : (
                   <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-4 py-2 rounded-xl border border-[#dfaf27]/40">
-                    {language === 'mr' ? 'केवळ वाचन (Read-Only)' : 'Audit View Only'}
+                    {language === 'mr' ? 'केवळ वाचन मोड' : 'Audit View Only'}
                   </span>
                 )}
               </div>

@@ -1045,7 +1045,7 @@ export const GovernancePanel: React.FC = () => {
                                   );
                                 }}
                                 className="ml-2 px-2.5 py-1 bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white text-[10px] font-bold rounded-lg flex items-center space-x-1 shadow-2xs shrink-0 cursor-pointer"
-                                title="समन्वयक म्हणून डॅशबोर्ड पहा"
+                                title={language === 'mr' ? 'समन्वयक म्हणून डॅशबोर्ड पहा' : 'View dashboard as coordinator'}
                               >
                                 <LogIn className="w-3 h-3" />
                                 <span>{language === 'mr' ? 'खाते पहा' : 'View'}</span>
@@ -1373,7 +1373,7 @@ export const GovernancePanel: React.FC = () => {
                                 triggerNotify(language === 'mr' ? `${tr.fullName} खात्यात स्विच केले!` : `Switched to ${tr.fullName}!`, 'info');
                               }}
                               className="bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center space-x-1 shadow-2xs transition-colors cursor-pointer"
-                              title="प्रशिक्षक म्हणून पोर्टल वापरा"
+                              title={language === 'mr' ? 'प्रशिक्षक म्हणून पोर्टल वापरा' : 'Access portal as trainer'}
                             >
                               <LogIn className="w-3.5 h-3.5" />
                               <span className="hidden lg:inline">{language === 'mr' ? 'खात्यात जा' : 'Switch'}</span>
@@ -1383,7 +1383,7 @@ export const GovernancePanel: React.FC = () => {
                             <button
                               onClick={() => handleOpenEditTrainer(tr)}
                               className="text-slate-500 hover:text-[#233d76] p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                              title="बदला"
+                              title={language === 'mr' ? 'बदला' : 'Edit trainer'}
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
@@ -1397,7 +1397,7 @@ export const GovernancePanel: React.FC = () => {
                                 }
                               }}
                               className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                              title="हटवा"
+                              title={language === 'mr' ? 'हटवा' : 'Delete trainer'}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

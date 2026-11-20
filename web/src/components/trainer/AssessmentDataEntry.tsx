@@ -204,9 +204,15 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी १ / Paper 1</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-0.5">माझे ज्ञान, माझे आरोग्य चाचणी</h4>
-          <span className="text-[10px] text-slate-500 block mt-1">३ पर्याय: बरोबर / चूक / माहीत नाही</span>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">
+            {language === 'mr' ? 'चाचणी १ • MKMH' : 'Paper 1 • MKMH'}
+          </span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+            {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य चाचणी' : 'My Knowledge, My Health (MKMH)'}
+          </h4>
+          <span className="text-[10px] text-slate-500 block mt-1">
+            {language === 'mr' ? '३ पर्याय: बरोबर / चूक / माहीत नाही' : '3 Options: Correct / Wrong / Don\'t Know'}
+          </span>
         </button>
 
         {/* Paper 2: MMAT */}
@@ -218,9 +224,15 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी २ / Paper 2</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-0.5">व्यसनाधीनता समज व गैरसमज</h4>
-          <span className="text-[10px] text-slate-500 block mt-1">३ पर्याय: बरोबर / चूक / सांगता येत नाही</span>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">
+            {language === 'mr' ? 'चाचणी २ • MMAT' : 'Paper 2 • MMAT'}
+          </span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+            {language === 'mr' ? 'व्यसनाधीनता समज व गैरसमज' : 'Myths & Misconceptions Test (MMAT)'}
+          </h4>
+          <span className="text-[10px] text-slate-500 block mt-1">
+            {language === 'mr' ? '३ पर्याय: बरोबर / चूक / सांगता येत नाही' : '3 Options: Correct / Wrong / Can\'t Say'}
+          </span>
         </button>
 
         {/* Paper 3: ERT */}
@@ -232,9 +244,17 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span className="text-[11px] font-bold text-[#233d76] uppercase">चाचणी ३ / Paper 3</span>
-          <h4 className="text-sm font-bold text-slate-900 mt-0.5">स्व-भावना नियमन चाचणी</h4>
-          <span className="text-[10px] text-slate-500 block mt-1">४ पर्याय: नेहमी / बऱ्याच वेळा / कधी कधी / कधीच नाही</span>
+          <span className="text-[11px] font-bold text-[#233d76] uppercase">
+            {language === 'mr' ? 'चाचणी ३ • ERT' : 'Paper 3 • ERT'}
+          </span>
+          <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+            {language === 'mr' ? 'स्व-भावना नियमन चाचणी' : 'Emotion Regulation Test (ERT)'}
+          </h4>
+          <span className="text-[10px] text-slate-500 block mt-1">
+            {language === 'mr'
+              ? '४ पर्याय: नेहमी / बऱ्याच वेळा / कधी कधी / कधीच नाही'
+              : '4 Options: Always / Often / Sometimes / Never'}
+          </span>
         </button>
       </div>
 
@@ -325,13 +345,21 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                     <h3 className="font-bold text-base text-slate-900">{activeStudent.fullName}</h3>
                   </div>
                   <span className="text-xs text-slate-500 mt-1 block">
-                    {phase === 'PRE' ? 'सत्राच्या आधी (Pre-Test)' : 'सत्राच्या नंतर (Post-Test)'} • {selectedPaper}
+                    {phase === 'PRE'
+                      ? language === 'mr'
+                        ? 'सत्राच्या आधी (पूर्व चाचणी)'
+                        : 'Pre-Test (Baseline)'
+                      : language === 'mr'
+                      ? 'सत्राच्या नंतर (उत्तर चाचणी)'
+                      : 'Post-Test (Outcome)'}{' '}
+                    • {selectedPaper}
                   </span>
                 </div>
 
                 <div className="text-right">
                   <span className="text-xs font-bold text-[#233d76]">
-                    {Object.keys(answers).length} / {paperQuestions.length} उत्तर दिले
+                    {Object.keys(answers).length} / {paperQuestions.length}{' '}
+                    {language === 'mr' ? 'उत्तरे दिली' : 'answered'}
                   </span>
                 </div>
               </div>
@@ -463,7 +491,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                     </button>
                   ) : (
                     <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-extrabold px-4 py-2 rounded-xl border border-[#dfaf27]/40">
-                      {language === 'mr' ? 'केवळ वाचन (Read-Only)' : 'Audit View Only'}
+                      {language === 'mr' ? 'केवळ वाचन मोड' : 'Audit View Only'}
                     </span>
                   )}
                 </div>
