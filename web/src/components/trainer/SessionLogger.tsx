@@ -175,6 +175,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   const handleSaveLog = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isTrustAdmin) return;
     const numGirls = Number(girlsPresent) || 0;
     const numBoys = Number(boysPresent) || 0;
     const totalAttendance = numGirls + numBoys;
@@ -243,6 +244,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isTrustAdmin) return;
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -268,6 +270,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   };
 
   const handleRemovePhoto = (index: number) => {
+    if (isTrustAdmin) return;
     setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -631,6 +634,23 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
             </div>
           </div>
 
+          {/* Trust Admin Read-Only Audit Notice Banner */}
+          {isTrustAdmin && (
+            <div className="mx-4 sm:mx-6 mt-4 bg-[#233d76] text-white p-3.5 rounded-xl flex items-center justify-between text-xs shadow-xs">
+              <div className="flex items-center space-x-2.5">
+                <span className="text-base">👁️</span>
+                <span className="font-semibold">
+                  {language === 'mr'
+                    ? 'विश्वस्त तपासणी मोड: सत्राच्या नोंदी व उपस्थिती केवळ नेमून दिलेले क्षेत्रीय प्रशिक्षक प्रत्यक्ष भरू शकतात.'
+                    : 'Trust Audit View: Only assigned field trainers can record or edit session logs and attendance on-ground.'}
+                </span>
+              </div>
+              <span className="font-extrabold text-[11px] bg-[#dfaf27] text-[#233d76] px-2.5 py-1 rounded-lg shrink-0 ml-2">
+                {language === 'mr' ? 'केवळ वाचन' : 'Read-Only'}
+              </span>
+            </div>
+          )}
+
           {/* Success Banner when saved */}
           {saveSuccess && (
             <div className="m-4 p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
@@ -689,9 +709,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                   <input
                     type="date"
                     required
+                    disabled={isTrustAdmin}
                     value={conductedDate}
-                    onChange={(e) => setConductedDate(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white"
+                    onChange={(e) => !isTrustAdmin && setConductedDate(e.target.value)}
+                    className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                      isTrustAdmin
+                        ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                        : 'bg-white border-slate-300'
+                    }`}
                   />
                 </div>
 
@@ -702,13 +727,18 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                   <input
                     type="number"
                     required
+                    disabled={isTrustAdmin}
                     min={15}
                     max={180}
                     placeholder="45"
                     value={durationMinutes}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => handleNumericInput(e.target.value, setDurationMinutes, 180)}
-                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white font-semibold"
+                    onFocus={(e) => !isTrustAdmin && e.target.select()}
+                    onChange={(e) => !isTrustAdmin && handleNumericInput(e.target.value, setDurationMinutes, 180)}
+                    className={`w-full text-sm px-3.5 py-2.5 rounded-xl border font-semibold focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                      isTrustAdmin
+                        ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                        : 'bg-white border-slate-300'
+                    }`}
                   />
                 </div>
               </div>
@@ -720,7 +750,13 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     {language === 'mr' ? 'उपस्थिती तपशील (मुले व मुली)' : 'Attendance Breakdown (Boys & Girls)'}
                   </span>
                   <span className="text-[11px] text-slate-400">
-                    {language === 'mr' ? 'बॅकस्पेसने सहज संख्या बदला' : 'Tap to edit or backspace freely'}
+                    {isTrustAdmin
+                      ? language === 'mr'
+                        ? 'विश्वस्त तपासणी (बदल करता येत नाही)'
+                        : 'Trust Audit (Read-only)'
+                      : language === 'mr'
+                      ? 'बॅकस्पेसने सहज संख्या बदला'
+                      : 'Tap to edit or backspace freely'}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
@@ -731,11 +767,16 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isTrustAdmin}
                       placeholder="0"
                       value={girlsPresent}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleNumericInput(e.target.value, setGirlsPresent)}
-                      className="w-full text-base sm:text-lg bg-white px-2.5 py-2 rounded-xl border border-slate-300 font-bold text-center text-slate-800 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
+                      onFocus={(e) => !isTrustAdmin && e.target.select()}
+                      onChange={(e) => !isTrustAdmin && handleNumericInput(e.target.value, setGirlsPresent)}
+                      className={`w-full text-base sm:text-lg px-2.5 py-2 rounded-xl border font-bold text-center focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                        isTrustAdmin
+                          ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                          : 'bg-white border-slate-300 text-slate-800'
+                      }`}
                     />
                   </div>
                   <div>
@@ -745,11 +786,16 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isTrustAdmin}
                       placeholder="0"
                       value={boysPresent}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleNumericInput(e.target.value, setBoysPresent)}
-                      className="w-full text-base sm:text-lg bg-white px-2.5 py-2 rounded-xl border border-slate-300 font-bold text-center text-slate-800 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
+                      onFocus={(e) => !isTrustAdmin && e.target.select()}
+                      onChange={(e) => !isTrustAdmin && handleNumericInput(e.target.value, setBoysPresent)}
+                      className={`w-full text-base sm:text-lg px-2.5 py-2 rounded-xl border font-bold text-center focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                        isTrustAdmin
+                          ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                          : 'bg-white border-slate-300 text-slate-800'
+                      }`}
                     />
                   </div>
                   <div>
@@ -770,14 +816,19 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 </label>
                 <input
                   type="text"
+                  disabled={isTrustAdmin}
                   placeholder={
                     language === 'mr'
                       ? 'उदा. तक्ता, खडू, प्रात्यक्षिक साहित्य...'
                       : 'e.g. Charts, Blackboard, Demonstration Kit...'
                   }
                   value={toolsUsed}
-                  onChange={(e) => setToolsUsed(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white"
+                  onChange={(e) => !isTrustAdmin && setToolsUsed(e.target.value)}
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                    isTrustAdmin
+                      ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                      : 'bg-white border-slate-300'
+                  }`}
                 />
               </div>
 
@@ -788,14 +839,19 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 </label>
                 <textarea
                   rows={3}
+                  disabled={isTrustAdmin}
                   placeholder={
                     language === 'mr'
                       ? 'उदा. विद्यार्थ्यांचा सहभाग उत्तम होता, संकल्पना स्पष्ट समजल्या...'
                       : 'Enter session observations and feedback...'
                   }
                   value={specialNotes}
-                  onChange={(e) => setSpecialNotes(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white"
+                  onChange={(e) => !isTrustAdmin && setSpecialNotes(e.target.value)}
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:ring-2 focus:ring-[#233d76] focus:outline-hidden ${
+                    isTrustAdmin
+                      ? 'bg-slate-100 border-slate-200 text-slate-700 cursor-not-allowed select-none'
+                      : 'bg-white border-slate-300'
+                  }`}
                 />
               </div>
 
@@ -816,7 +872,15 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     onClick={() => setActiveTab('PHOTOS')}
                     className="text-xs font-bold text-[#233d76] hover:underline cursor-pointer flex items-center space-x-1"
                   >
-                    <span>{language === 'mr' ? 'छायाचित्रे पहा / बदला →' : 'View / Manage Photos →'}</span>
+                    <span>
+                      {isTrustAdmin
+                        ? language === 'mr'
+                          ? 'छायाचित्रे पहा →'
+                          : 'View Photos →'
+                        : language === 'mr'
+                        ? 'छायाचित्रे पहा / बदला →'
+                        : 'View / Manage Photos →'}
+                    </span>
                   </button>
                 </div>
 
@@ -849,7 +913,11 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     className="text-center py-3 bg-white rounded-xl border border-dashed border-slate-300 text-xs text-slate-500 cursor-pointer hover:border-[#233d76] transition-colors"
                   >
                     <span>
-                      {language === 'mr'
+                      {isTrustAdmin
+                        ? language === 'mr'
+                          ? 'या सत्रासाठी कोणतेही छायाचित्र जोडलेले नाही'
+                          : 'No evidence photos attached for this session'
+                        : language === 'mr'
                         ? '+ पुरावा छायाचित्र जोडण्यासाठी येथे दाबा (कमाल २)'
                         : '+ Tap here or open Tab 2 to attach up to 2 photos'}
                     </span>
@@ -973,8 +1041,25 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                 </div>
               )}
 
-              {/* Photo Upload Tap Area (Shown when < 2 photos) */}
-              {uploadedPhotos.length < 2 && (
+              {/* If Trust Admin and no photos exist */}
+              {isTrustAdmin && uploadedPhotos.length === 0 && (
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">
+                  <ImageIcon className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                  <p className="font-semibold text-slate-700">
+                    {language === 'mr'
+                      ? 'या सत्रासाठी अद्याप कोणतेही पुरावा छायाचित्र जोडलेले नाही.'
+                      : 'No evidence photos have been uploaded for this session yet.'}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {language === 'mr'
+                      ? 'केवळ नेमून दिलेले क्षेत्र प्रशिक्षक फोटो अपलोड करू शकतात.'
+                      : 'Photos can only be uploaded by the assigned field trainer.'}
+                  </p>
+                </div>
+              )}
+
+              {/* Photo Upload Tap Area (Shown when < 2 photos for Field Trainers only) */}
+              {!isTrustAdmin && uploadedPhotos.length < 2 && (
                 <div className="bg-slate-50 p-5 rounded-2xl border-2 border-dashed border-slate-300 text-center hover:border-[#233d76]/40 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto mb-2">
                     <Camera className="w-5 h-5" />
@@ -993,27 +1078,25 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     {uploadedPhotos.length} / 2 {language === 'mr' ? 'फोटो जोडले आहेत' : 'Photos uploaded'}
                   </p>
 
-                  {!isTrustAdmin && (
-                    <label className="inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer">
-                      <Upload className="w-4 h-4 text-[#dfaf27]" />
-                      <span>
-                        {uploadedPhotos.length === 0
-                          ? language === 'mr'
-                            ? '+ पहिला फोटो काढा / जोडा'
-                            : '+ Take / Upload Photo 1'
-                          : language === 'mr'
-                          ? '+ दुसरा फोटो काढा / जोडा'
-                          : '+ Take / Upload Photo 2'}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+                  <label className="inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer">
+                    <Upload className="w-4 h-4 text-[#dfaf27]" />
+                    <span>
+                      {uploadedPhotos.length === 0
+                        ? language === 'mr'
+                          ? '+ पहिला फोटो काढा / जोडा'
+                          : '+ Take / Upload Photo 1'
+                        : language === 'mr'
+                        ? '+ दुसरा फोटो काढा / जोडा'
+                        : '+ Take / Upload Photo 2'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
               )}
 
