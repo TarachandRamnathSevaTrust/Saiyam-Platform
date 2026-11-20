@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { School, Student, PaperType } from '@saiyam/shared';
-import { Search, X, Users, BookOpen, ClipboardCheck, FileText } from 'lucide-react';
+import { School, PaperType } from '@saiyam/shared';
+import { Search, X } from 'lucide-react';
 
 interface Props {
   onNavigateToTab?: (tab: string) => void;
 }
 
-export const AdminSupervisionTables: React.FC<Props> = ({ onNavigateToTab }) => {
+export const AdminSupervisionTables: React.FC<Props> = () => {
   const {
     schools,
-    setSelectedSchool,
     students,
     assessmentPairs,
     sessionLogs,
     users,
-    organizations,
     language,
   } = useApp();
 
@@ -209,13 +207,12 @@ export const AdminSupervisionTables: React.FC<Props> = ({ onNavigateToTab }) => 
                   <th className="py-2.5 px-3">{language === 'mr' ? 'क्षेत्र प्रशिक्षक' : 'Field Trainer'}</th>
                   <th className="py-2.5 px-3 text-center">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</th>
                   <th className="py-2.5 px-3 text-center">{language === 'mr' ? 'सत्रे (२५)' : 'Sessions (25)'}</th>
-                  <th className="py-2.5 px-3 text-center">{language === 'mr' ? 'तपासा' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredSchools.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400">
+                    <td colSpan={6} className="py-8 text-center text-slate-400">
                       {language === 'mr' ? 'शाळा आढळली नाही' : 'No schools found'}
                     </td>
                   </tr>
@@ -248,43 +245,6 @@ export const AdminSupervisionTables: React.FC<Props> = ({ onNavigateToTab }) => 
                           <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
                             {sessionCount}/25
                           </span>
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <div className="flex items-center justify-center space-x-1">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedSchool(school);
-                                onNavigateToTab?.('STUDENTS');
-                              }}
-                              className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[11px] cursor-pointer"
-                              title="Students"
-                            >
-                              {language === 'mr' ? 'विद्यार्थी' : 'Students'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedSchool(school);
-                                onNavigateToTab?.('SESSIONS');
-                              }}
-                              className="px-2 py-1 rounded bg-[#233d76] hover:bg-[#1b2f5c] text-white font-medium text-[11px] cursor-pointer"
-                              title="Session Logs"
-                            >
-                              {language === 'mr' ? 'सत्रे' : 'Sessions'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedSchool(school);
-                                onNavigateToTab?.('ASSESSMENTS');
-                              }}
-                              className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[11px] cursor-pointer"
-                              title="Pre/Post Tests"
-                            >
-                              {language === 'mr' ? 'चाचण्या' : 'Tests'}
-                            </button>
-                          </div>
                         </td>
                       </tr>
                     );
