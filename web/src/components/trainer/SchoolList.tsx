@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { SchoolRegistrationModal } from './SchoolRegistrationModal';
+import { AdminSupervisionTables } from '../admin/AdminSupervisionTables';
 import {
   Building2,
   Plus,
@@ -23,6 +24,11 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser.role === 'ORG_COORDINATOR';
+
+  // For Trust Admins, render the rich Audit & Raw Data Tables suite for Schools, Trainers, and Students
+  if (isTrustAdmin) {
+    return <AdminSupervisionTables onNavigateToTab={onNavigateToTab} />;
+  }
 
   // Role Scoping:
   // - Trust Admin: Sees all schools across all organizations
