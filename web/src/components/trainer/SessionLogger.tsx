@@ -82,7 +82,11 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
       setBoysPresent(log.boysPresent !== undefined && log.boysPresent !== null ? log.boysPresent : '');
       setToolsUsed(log.toolsUsed || '');
       setSpecialNotes(log.specialNotes || '');
-      setUploadedPhotos(log.media?.map((m) => m.fileUrl) || []);
+      setUploadedPhotos(
+        (log.media || [])
+          .map((m) => m.fileUrl)
+          .filter((url) => Boolean(url && !url.includes('example.com')))
+      );
     } else {
       setConductedDate(new Date().toISOString().split('T')[0]);
       setDurationMinutes(45);
@@ -827,6 +831,10 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                         <img
                           src={url}
                           alt={`Session Photo ${i + 1}`}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80';
+                          }}
                           className="w-full h-24 sm:h-28 object-cover group-hover:opacity-95 transition-opacity"
                         />
                         <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/90 text-white text-[10px] px-2 py-0.5 font-bold">
@@ -929,6 +937,10 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                         <img
                           src={url}
                           alt={`Session Photo ${i + 1}`}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80';
+                          }}
                           className="w-full h-44 sm:h-52 object-cover"
                         />
                         {!isTrustAdmin && (

@@ -711,15 +711,17 @@ export const apiService = {
         toolsUsed: row.tools_used || 'फलक, पेन',
         specialNotes: row.special_notes || '',
         conductedBy: row.conducted_by,
-        media: (row.session_media || []).map((m: any) => ({
-          id: m.id,
-          sessionLogId: m.session_log_id,
-          mediaType: m.media_type,
-          fileUrl: m.file_url,
-          fileName: m.file_name,
-          fileSizeBytes: m.file_size_bytes,
-          uploadedAt: m.uploaded_at,
-        })),
+        media: (row.session_media || [])
+          .filter((m: any) => Boolean(m.file_url && !m.file_url.includes('example.com')))
+          .map((m: any) => ({
+            id: m.id,
+            sessionLogId: m.session_log_id,
+            mediaType: m.media_type,
+            fileUrl: m.file_url,
+            fileName: m.file_name,
+            fileSizeBytes: m.file_size_bytes,
+            uploadedAt: m.uploaded_at,
+          })),
         createdAt: row.created_at,
       }));
     } catch (err) {
