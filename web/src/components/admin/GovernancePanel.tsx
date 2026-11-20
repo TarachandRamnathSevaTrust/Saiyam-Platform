@@ -43,7 +43,6 @@ export const GovernancePanel: React.FC = () => {
     addUser,
     deleteUser,
     updateUser,
-    switchUser,
     schools,
     students,
     assignTrainerToSchool,
@@ -1024,33 +1023,13 @@ export const GovernancePanel: React.FC = () => {
                         );
                         if (!orgCoord && !org.coordinatorUserName) return null;
                         return (
-                          <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100 flex items-center justify-between">
-                            <div className="overflow-hidden">
-                              <span className="text-[11px] font-bold text-indigo-900 block truncate">
-                                🏢 {language === 'mr' ? 'समन्वयक:' : 'Lead:'} {orgCoord?.fullName || org.coordinatorUserName}
-                              </span>
-                              <span className="text-[10px] text-indigo-600 block truncate">
-                                {orgCoord?.email || org.coordinatorEmail}
-                              </span>
-                            </div>
-                            {orgCoord && (
-                              <button
-                                onClick={() => {
-                                  switchUser(orgCoord.id);
-                                  triggerNotify(
-                                    language === 'mr'
-                                      ? `${orgCoord.fullName} खात्यात स्विच केले!`
-                                      : `Switched to ${orgCoord.fullName}!`,
-                                    'info'
-                                  );
-                                }}
-                                className="ml-2 px-2.5 py-1 bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white text-[10px] font-bold rounded-lg flex items-center space-x-1 shadow-2xs shrink-0 cursor-pointer"
-                                title={language === 'mr' ? 'समन्वयक म्हणून डॅशबोर्ड पहा' : 'View dashboard as coordinator'}
-                              >
-                                <LogIn className="w-3 h-3" />
-                                <span>{language === 'mr' ? 'खाते पहा' : 'View'}</span>
-                              </button>
-                            )}
+                          <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100">
+                            <span className="text-[11px] font-bold text-indigo-900 block truncate">
+                              🏢 {language === 'mr' ? 'समन्वयक:' : 'Lead:'} {orgCoord?.fullName || org.coordinatorUserName}
+                            </span>
+                            <span className="text-[10px] text-indigo-600 block truncate mt-0.5">
+                              {orgCoord?.email || org.coordinatorEmail}
+                            </span>
                           </div>
                         );
                       })()}
@@ -1300,7 +1279,7 @@ export const GovernancePanel: React.FC = () => {
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'संस्था' : 'Organization'}</th>
                   <th className="px-4 py-3 text-left font-bold">{language === 'mr' ? 'Supabase Auth प्रोफाइल' : 'Auth Profile'}</th>
                   <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'मॅप झालेली व्याप्ती' : 'Mapped Scope'}</th>
-                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'लॉगिन / कृती' : 'Test Login & Actions'}</th>
+                  <th className="px-4 py-3 text-center font-bold">{language === 'mr' ? 'कृती' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -1366,19 +1345,6 @@ export const GovernancePanel: React.FC = () => {
 
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center space-x-1.5">
-                            {/* Fast Login / Switch */}
-                            <button
-                              onClick={() => {
-                                switchUser(tr.id);
-                                triggerNotify(language === 'mr' ? `${tr.fullName} खात्यात स्विच केले!` : `Switched to ${tr.fullName}!`, 'info');
-                              }}
-                              className="bg-[#233d76] hover:bg-[#1a2d57] text-[#f0da9a] hover:text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center space-x-1 shadow-2xs transition-colors cursor-pointer"
-                              title={language === 'mr' ? 'प्रशिक्षक म्हणून पोर्टल वापरा' : 'Access portal as trainer'}
-                            >
-                              <LogIn className="w-3.5 h-3.5" />
-                              <span className="hidden lg:inline">{language === 'mr' ? 'खात्यात जा' : 'Switch'}</span>
-                            </button>
-
                             {/* Edit */}
                             <button
                               onClick={() => handleOpenEditTrainer(tr)}

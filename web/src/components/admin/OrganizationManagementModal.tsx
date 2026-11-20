@@ -35,7 +35,6 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     refreshProfiles,
     addUser,
     updateUser,
-    switchUser,
     schools,
     language,
   } = useApp();
@@ -244,11 +243,6 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
     setSuccessMsg(true);
     setTimeout(() => setSuccessMsg(false), 2500);
     resetForm();
-  };
-
-  const handleSwitchToCoordinator = (user: { id: string }) => {
-    switchUser(user.id);
-    onClose();
   };
 
   return (
@@ -718,16 +712,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                       </div>
                     )}
 
-                    {assignedUser ? (
-                      <button
-                        onClick={() => handleSwitchToCoordinator(assignedUser)}
-                        className="flex items-center space-x-1 text-xs font-bold text-[#233d76] bg-[#f0da9a]/60 hover:bg-[#dfaf27] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-                        title={language === 'mr' ? 'या समन्वयक म्हणून त्वरित लॉगिन करा' : 'Login as this coordinator'}
-                      >
-                        <LogIn className="w-3.5 h-3.5" />
-                        <span>{language === 'mr' ? 'समन्वयक लॉगिन करा' : 'Login as Coordinator'}</span>
-                      </button>
-                    ) : (
+                    {!assignedUser && (
                       <button
                         onClick={() => handleStartEdit(org)}
                         className="text-xs font-bold text-[#233d76] hover:underline cursor-pointer flex items-center space-x-1"
