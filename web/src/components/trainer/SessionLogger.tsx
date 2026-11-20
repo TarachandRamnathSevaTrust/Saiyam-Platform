@@ -4,8 +4,9 @@ import { ALL_25_SESSIONS, CurriculumSession } from '@saiyam/shared';
 import {
   BookOpen,
   Camera,
-  Video,
-  Mic,
+  Upload,
+  Trash2,
+  Image as ImageIcon,
   Save,
   Check,
   ChevronRight,
@@ -36,7 +37,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const [activeSessionNumber, setActiveSessionNumber] = useState<number>(1);
-  const [activeTab, setActiveTab] = useState<'LOG' | 'MEDIA'>('LOG');
+  const [activeTab, setActiveTab] = useState<'LOG' | 'PHOTOS'>('LOG');
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<number | 'ALL'>('ALL');
   const [mobileActiveView, setMobileActiveView] = useState<'LIST' | 'FORM'>('LIST');
 
@@ -198,13 +199,38 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     setSaveSuccess(true);
   };
 
-  const handleSimulatePhotoUpload = () => {
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
     if (uploadedPhotos.length >= 4) {
-      alert(language === 'mr' ? 'कमाल ४ फोटो मर्यादा संपली.' : 'Max 4 photos limit reached.');
+      alert(language === 'mr' ? 'कमाल ४ छायाचित्रांची मर्यादा आहे.' : 'Maximum 4 photos limit reached.');
       return;
     }
-    const sample = `https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80`;
-    setUploadedPhotos([...uploadedPhotos, sample]);
+
+    const file = files[0];
+    // Keep photo size under 5 MB to prevent memory/storage bloat
+    if (file.size > 5 * 1024 * 1024) {
+      alert(
+        language === 'mr'
+          ? 'फोटोचा आकार ५ MB पेक्षा कमी असावा.'
+          : 'Photo size must be less than 5 MB.'
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setUploadedPhotos((prev) => [...prev, event.target!.result as string]);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const completedCount = sessionLogs.filter((l) => l.schoolId === selectedSchool.id).length;
@@ -539,14 +565,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('MEDIA')}
+                onClick={() => setActiveTab('PHOTOS')}
                 className={`text-xs font-bold flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all cursor-pointer ${
-                  activeTab === 'MEDIA'
+                  activeTab === 'PHOTOS'
                     ? 'bg-[#233d76] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                {language === 'mr' ? '२. छायाचित्रे व पुरावे' : '2. Media Uploads'}
+                {language === 'mr' ? '२. छायाचित्रे (पुरावे)' : '2. Photos (Evidence)'}
               </button>
             </div>
           </div>
@@ -752,85 +778,97 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
             </form>
           )}
 
-          {/* Tab 2: मिडिया अपलोड (Photos & Proofs) */}
-          {activeTab === 'MEDIA' && (
-            <div className="p-4 sm:p-6 space-y-5">
-              <div className="bg-[#f0da9a]/30 p-3.5 rounded-xl border border-[#dfaf27]/40 text-xs text-[#233d76] leading-relaxed">
-                {language === 'mr'
-                  ? 'सत्रादरम्यान घेतलेले ४ फोटो, २ ऑडिओ व २ व्हिडिओ पुरावे म्हणून जोडू शकता (२० MB पेक्षा कमी).'
-                  : 'Upload up to 4 photos, 2 audios, and 2 videos as session evidence (< 20 MB).'}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Photo Upload Card */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-center">
-                  <Camera className="w-6 h-6 mx-auto text-[#233d76] mb-1.5" />
-                  <span className="text-xs font-bold text-slate-800 block">
-                    {language === 'mr' ? 'छायाचित्रे' : 'Photos'}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block mb-2.5">
-                    {uploadedPhotos.length} / 4 {language === 'mr' ? 'फोटो' : 'Photos'}
-                  </span>
-                  {!isTrustAdmin ? (
-                    <button
-                      type="button"
-                      onClick={handleSimulatePhotoUpload}
-                      className="w-full text-xs font-bold bg-[#233d76] text-white py-2 px-3 rounded-lg shadow-2xs transition-colors cursor-pointer hover:bg-[#1b2f5c]"
-                    >
-                      {language === 'mr' ? '+ फोटो जोडा' : '+ Add Photo'}
-                    </button>
-                  ) : (
-                    <span className="text-[11px] text-slate-400 font-semibold block py-1">
-                      {language === 'mr' ? 'पाहण्यासाठी उपलब्ध' : 'View Only'}
-                    </span>
-                  )}
-                </div>
-
-                {/* Video Upload Card */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-center">
-                  <Video className="w-6 h-6 mx-auto text-slate-500 mb-1.5" />
-                  <span className="text-xs font-bold text-slate-800 block">
-                    {language === 'mr' ? 'व्हिडिओ क्लिप' : 'Videos'}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block mb-2.5">
-                    0 / 2 {language === 'mr' ? 'व्हिडिओ' : 'Videos'}
-                  </span>
-                  <button
-                    type="button"
-                    className="w-full text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 py-2 px-3 rounded-lg border border-slate-200 shadow-2xs cursor-pointer"
-                  >
-                    {language === 'mr' ? '+ व्हिडिओ जोडा' : '+ Add Video'}
-                  </button>
-                </div>
-
-                {/* Audio Upload Card */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-center">
-                  <Mic className="w-6 h-6 mx-auto text-slate-500 mb-1.5" />
-                  <span className="text-xs font-bold text-slate-800 block">
-                    {language === 'mr' ? 'ऑडिओ रेकॉर्डिंग' : 'Audio'}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block mb-2.5">
-                    0 / 2 {language === 'mr' ? 'ऑडिओ' : 'Audios'}
-                  </span>
-                  <button
-                    type="button"
-                    className="w-full text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 py-2 px-3 rounded-lg border border-slate-200 shadow-2xs cursor-pointer"
-                  >
-                    {language === 'mr' ? '+ ऑडिओ जोडा' : '+ Add Audio'}
-                  </button>
-                </div>
-              </div>
-
-              {uploadedPhotos.length > 0 && (
+          {/* Tab 2: छायाचित्रे (Session Photos Evidence - Clean, Free Storage Friendly) */}
+          {activeTab === 'PHOTOS' && (
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Informational Guidance Banner */}
+              <div className="bg-[#f0da9a]/30 p-3.5 rounded-xl border border-[#dfaf27]/40 text-xs text-[#233d76] leading-relaxed flex items-start space-x-2.5">
+                <Camera className="w-4 h-4 text-[#233d76] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    {language === 'mr' ? 'अपलोड केलेले फोटो' : 'Uploaded Photos'}
+                  <p className="font-bold">
+                    {language === 'mr'
+                      ? 'सत्राचा अधिकृत पुरावा म्हणून १ ते ४ छायाचित्रे जोडा (उदा. फळा, वर्ग आणि विद्यार्थी सहभाग).'
+                      : 'Upload 1 to 4 session photos as official evidence (Blackboard, Classroom, Students).'}
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    {language === 'mr'
+                      ? 'मोबाईल कॅमेऱ्याने थेट फोटो काढा किंवा गॅलरीतून निवडा (कमाल ५ MB प्रति फोटो).'
+                      : 'Take directly from camera or pick from gallery (max 5 MB per photo).'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Photo Upload Tap Area */}
+              <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center hover:border-[#233d76]/40 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto mb-2">
+                  <Camera className="w-6 h-6" />
+                </div>
+
+                <h4 className="text-sm font-bold text-slate-800">
+                  {language === 'mr' ? 'सत्राची छायाचित्रे (कमाल ४)' : 'Session Photographs (Max 4)'}
+                </h4>
+                <p className="text-xs text-slate-500 mb-3.5">
+                  {uploadedPhotos.length} / 4 {language === 'mr' ? 'फोटो जोडले आहेत' : 'Photos uploaded'}
+                </p>
+
+                {!isTrustAdmin ? (
+                  <label
+                    className={`inline-flex items-center space-x-2 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer ${
+                      uploadedPhotos.length >= 4 ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                    }`}
+                  >
+                    <Upload className="w-4 h-4 text-[#dfaf27]" />
+                    <span>{language === 'mr' ? '+ फोटो काढा / जोडा' : '+ Take / Add Photo'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      disabled={uploadedPhotos.length >= 4}
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <span className="text-xs bg-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl">
+                    {language === 'mr' ? 'केवळ वाचन मोड' : 'Audit View Only'}
+                  </span>
+                )}
+              </div>
+
+              {/* Uploaded Photos Gallery with Remove Option */}
+              {uploadedPhotos.length > 0 && (
+                <div className="space-y-2.5 pt-2">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-[#233d76]" />
+                    <span>
+                      {language === 'mr'
+                        ? `जोडलेली छायाचित्रे (${uploadedPhotos.length} / ४)`
+                        : `Uploaded Photos (${uploadedPhotos.length} / 4)`}
+                    </span>
                   </h4>
-                  <div className="grid grid-cols-2 gap-3">
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {uploadedPhotos.map((url, i) => (
-                      <div key={i} className="relative rounded-xl overflow-hidden border border-slate-200">
-                        <img src={url} alt={`Session ${i + 1}`} className="w-full h-28 object-cover" />
-                        <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/80 text-white text-[10px] px-2 py-0.5 font-bold">
+                      <div
+                        key={i}
+                        className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs group"
+                      >
+                        <img
+                          src={url}
+                          alt={`Session Photo ${i + 1}`}
+                          className="w-full h-28 sm:h-32 object-cover"
+                        />
+                        {!isTrustAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(i)}
+                            className="absolute top-1.5 right-1.5 p-1 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer transition-colors"
+                            title={language === 'mr' ? 'फोटो हटवा' : 'Remove Photo'}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <div className="absolute bottom-0 inset-x-0 bg-[#233d76]/90 text-white text-[10px] px-2 py-0.5 font-bold">
                           {language === 'mr' ? `फोटो ${i + 1}` : `Photo ${i + 1}`}
                         </div>
                       </div>
