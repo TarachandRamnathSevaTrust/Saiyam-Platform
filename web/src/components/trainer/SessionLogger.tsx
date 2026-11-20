@@ -42,9 +42,9 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   // Form state
   const [conductedDate, setConductedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [durationMinutes, setDurationMinutes] = useState(45);
-  const [girlsPresent, setGirlsPresent] = useState(0);
-  const [boysPresent, setBoysPresent] = useState(0);
+  const [durationMinutes, setDurationMinutes] = useState<number | string>(45);
+  const [girlsPresent, setGirlsPresent] = useState<number | string>('');
+  const [boysPresent, setBoysPresent] = useState<number | string>('');
   const [toolsUsed, setToolsUsed] = useState('');
   const [specialNotes, setSpecialNotes] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -76,22 +76,50 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     );
     if (log) {
       setConductedDate(log.conductedDate || new Date().toISOString().split('T')[0]);
-      setDurationMinutes(log.durationMinutes || 45);
-      setGirlsPresent(log.girlsPresent || 0);
-      setBoysPresent(log.boysPresent || 0);
+      setDurationMinutes(log.durationMinutes ?? 45);
+      setGirlsPresent(log.girlsPresent !== undefined && log.girlsPresent !== null ? log.girlsPresent : '');
+      setBoysPresent(log.boysPresent !== undefined && log.boysPresent !== null ? log.boysPresent : '');
       setToolsUsed(log.toolsUsed || '');
       setSpecialNotes(log.specialNotes || '');
       setUploadedPhotos(log.media?.map((m) => m.fileUrl) || []);
     } else {
       setConductedDate(new Date().toISOString().split('T')[0]);
       setDurationMinutes(45);
-      setGirlsPresent(0);
-      setBoysPresent(0);
+      setGirlsPresent('');
+      setBoysPresent('');
       setToolsUsed('');
       setSpecialNotes('');
       setUploadedPhotos([]);
     }
   }, [activeSessionNumber, selectedSchool?.id, sessionLogs]);
+
+  // Clean numeric input handler:
+  // 1. Allows deleting completely with Backspace/Delete (setting empty string '')
+  // 2. Eliminates leading zeros (e.g. typing "10" over "0" or "010" becomes 10)
+  const handleNumericInput = (
+    val: string,
+    setter: (v: number | string) => void,
+    max?: number
+  ) => {
+    if (val === '') {
+      setter('');
+      return;
+    }
+    const cleanDigits = val.replace(/\D/g, '');
+    if (cleanDigits === '') {
+      setter('');
+      return;
+    }
+    let parsed = parseInt(cleanDigits, 10);
+    if (isNaN(parsed)) {
+      setter('');
+      return;
+    }
+    if (max !== undefined && parsed > max) {
+      parsed = max;
+    }
+    setter(parsed);
+  };
 
   if (!selectedSchool) {
     return (
@@ -142,16 +170,18 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   const handleSaveLog = (e: React.FormEvent) => {
     e.preventDefault();
-    const totalAttendance = Number(girlsPresent) + Number(boysPresent);
+    const numGirls = Number(girlsPresent) || 0;
+    const numBoys = Number(boysPresent) || 0;
+    const totalAttendance = numGirls + numBoys;
 
     saveSessionLog({
       schoolId: selectedSchool.id,
       sessionNumber: activeSessionNumber,
       conductedDate,
-      durationMinutes: Number(durationMinutes),
+      durationMinutes: Number(durationMinutes) || 45,
       totalAttendance,
-      girlsPresent: Number(girlsPresent),
-      boysPresent: Number(boysPresent),
+      girlsPresent: numGirls,
+      boysPresent: numBoys,
       toolsUsed,
       specialNotes,
       conductedBy: currentUser.id,
@@ -594,18 +624,25 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     required
                     min={15}
                     max={180}
+                    placeholder="45"
                     value={durationMinutes}
-                    onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white"
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => handleNumericInput(e.target.value, setDurationMinutes, 180)}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden bg-white font-semibold"
                   />
                 </div>
               </div>
 
               {/* Attendance Breakdown (Girls & Boys) */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <span className="text-xs font-bold text-slate-700 block mb-2.5">
-                  {language === 'mr' ? 'उपस्थिती तपशील (मुले व मुली)' : 'Attendance Breakdown (Boys & Girls)'}
-                </span>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-bold text-slate-700 block">
+                    {language === 'mr' ? 'उपस्थिती तपशील (मुले व मुली)' : 'Attendance Breakdown (Boys & Girls)'}
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    {language === 'mr' ? 'बॅकस्पेसने सहज संख्या बदला' : 'Tap to edit or backspace freely'}
+                  </span>
+                </div>
                 <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 mb-1">
@@ -614,8 +651,10 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     <input
                       type="number"
                       min={0}
+                      placeholder="0"
                       value={girlsPresent}
-                      onChange={(e) => setGirlsPresent(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => handleNumericInput(e.target.value, setGirlsPresent)}
                       className="w-full text-base sm:text-lg bg-white px-2.5 py-2 rounded-xl border border-slate-300 font-bold text-center text-slate-800 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
                     />
                   </div>
@@ -626,8 +665,10 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                     <input
                       type="number"
                       min={0}
+                      placeholder="0"
                       value={boysPresent}
-                      onChange={(e) => setBoysPresent(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => handleNumericInput(e.target.value, setBoysPresent)}
                       className="w-full text-base sm:text-lg bg-white px-2.5 py-2 rounded-xl border border-slate-300 font-bold text-center text-slate-800 focus:ring-2 focus:ring-[#233d76] focus:outline-hidden"
                     />
                   </div>
@@ -636,7 +677,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                       {language === 'mr' ? 'एकूण उपस्थिती' : 'Total'}
                     </label>
                     <div className="w-full text-base sm:text-lg bg-[#233d76] text-white px-2.5 py-2 rounded-xl font-black text-center flex items-center justify-center">
-                      {Number(girlsPresent) + Number(boysPresent)}
+                      {(Number(girlsPresent) || 0) + (Number(boysPresent) || 0)}
                     </div>
                   </div>
                 </div>

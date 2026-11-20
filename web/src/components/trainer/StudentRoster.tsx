@@ -44,7 +44,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   const [editGender, setEditGender] = useState<Gender>('FEMALE');
   const [editStandard, setEditStandard] = useState('8');
   const [editDivision, setEditDivision] = useState('A');
-  const [editBundleSequenceNo, setEditBundleSequenceNo] = useState(1);
+  const [editBundleSequenceNo, setEditBundleSequenceNo] = useState<number | string>(1);
 
   if (!selectedSchool) {
     return (
@@ -104,7 +104,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
       gender: editGender,
       standard: editStandard,
       division: editDivision,
-      bundleSequenceNo: editBundleSequenceNo,
+      bundleSequenceNo: Number(editBundleSequenceNo) || 1,
     });
 
     setEditingStudentId(null);
@@ -367,7 +367,16 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
                           required
                           min={1}
                           value={editBundleSequenceNo}
-                          onChange={(e) => setEditBundleSequenceNo(Number(e.target.value))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') {
+                              setEditBundleSequenceNo('');
+                              return;
+                            }
+                            const parsed = parseInt(val.replace(/\D/g, ''), 10);
+                            setEditBundleSequenceNo(isNaN(parsed) ? '' : parsed);
+                          }}
                           className="w-full font-mono font-bold bg-white px-2 py-1.5 rounded-lg border border-slate-300 text-center"
                         />
                       </div>
