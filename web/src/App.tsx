@@ -136,68 +136,74 @@ export const App: React.FC = () => {
                 </button>
               </>
             ) : (
-              /* Field Trainer Desktop Navigation */
-              <>
+              /* Field Trainer Clean Sequential Breadcrumb Navigation */
+              <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setActiveTab('SCHOOLS')}
-                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center space-x-2 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'SCHOOLS'
                       ? 'bg-[#233d76] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
                   <Building2 className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? '१. शाळा नोंदणी' : '1. Schools'}</span>
+                  <span>{language === 'mr' ? 'शाळा निवड' : 'Schools'}</span>
                 </button>
 
-                <button
-                  onClick={() => setActiveTab('STUDENTS')}
-                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    activeTab === 'STUDENTS'
-                      ? 'bg-[#233d76] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <Users className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? '२. विद्यार्थी नोंदणी' : '2. Students (Bundle)'}</span>
-                </button>
+                {selectedSchool && (
+                  <>
+                    <span className="text-slate-300 font-bold text-sm">›</span>
 
-                <button
-                  onClick={() => setActiveTab('ASSESSMENTS')}
-                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    activeTab === 'ASSESSMENTS'
-                      ? 'bg-[#233d76] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <ClipboardCheck className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? '३. पूर्व / उत्तर चाचण्या' : '3. Pre/Post Tests'}</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('STUDENTS')}
+                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        activeTab === 'STUDENTS'
+                          ? 'bg-[#233d76] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Users className="w-4 h-4 text-[#dfaf27]" />
+                      <span>{language === 'mr' ? '१. विद्यार्थी' : '1. Students'}</span>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('SESSIONS')}
-                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    activeTab === 'SESSIONS'
-                      ? 'bg-[#233d76] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <BookOpen className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? '४. सत्र नोंदी (२५)' : '4. 25 Sessions'}</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('ASSESSMENTS')}
+                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        activeTab === 'ASSESSMENTS'
+                          ? 'bg-[#233d76] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <ClipboardCheck className="w-4 h-4 text-[#dfaf27]" />
+                      <span>{language === 'mr' ? '२. पूर्व/उत्तर चाचण्या' : '2. Pre/Post Tests'}</span>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('DOCUMENTS')}
-                  className={`flex items-center space-x-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    activeTab === 'DOCUMENTS'
-                      ? 'bg-[#233d76] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <FileText className="w-4 h-4 text-[#dfaf27]" />
-                  <span>{language === 'mr' ? '५. कागदपत्रे अपलोड' : '5. Documents'}</span>
-                </button>
-              </>
+                    <button
+                      onClick={() => setActiveTab('SESSIONS')}
+                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        activeTab === 'SESSIONS'
+                          ? 'bg-[#233d76] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <BookOpen className="w-4 h-4 text-[#dfaf27]" />
+                      <span>{language === 'mr' ? '३. २५ सत्रे' : '3. 25 Sessions'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('DOCUMENTS')}
+                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        activeTab === 'DOCUMENTS'
+                          ? 'bg-[#233d76] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4 text-[#dfaf27]" />
+                      <span>{language === 'mr' ? '४. कागदपत्रे' : '4. Documents'}</span>
+                    </button>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -248,109 +254,111 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Optimized for All Phone Screens) */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-xl pb-[max(env(safe-area-inset-bottom),6px)]">
-        {isTrustAdmin ? (
-          <div className="grid grid-cols-3 h-15">
-            <button
-              onClick={() => setActiveTab('DASHBOARD')}
-              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
-                activeTab === 'DASHBOARD' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
-              }`}
-            >
-              <LayoutDashboard className={`w-5 h-5 ${activeTab === 'DASHBOARD' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('GOVERNANCE')}
-              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
-                activeTab === 'GOVERNANCE' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
-              }`}
-            >
-              <ShieldCheck className={`w-5 h-5 ${activeTab === 'GOVERNANCE' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'प्रशासन' : 'Admin'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
-                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
-              }`}
-            >
-              <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
-            </button>
-          </div>
-        ) : isOrgCoordinator ? (
-          <div className="grid grid-cols-2 h-15">
-            <button
-              onClick={() => setActiveTab('NGO_PORTAL')}
-              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
-                activeTab === 'NGO_PORTAL' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
-              }`}
-            >
-              <Building2 className={`w-5 h-5 ${activeTab === 'NGO_PORTAL' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'NGO Portal'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
-                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
-              }`}
-            >
-              <SchoolIcon className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा व प्रगती' : 'Schools'}</span>
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-5 h-15">
-            <button
-              onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'SCHOOLS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('STUDENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'STUDENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('ASSESSMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('SESSIONS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'SESSIONS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? '२५ सत्रे' : 'Sessions'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('DOCUMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <FileText className={`w-4 h-4 ${activeTab === 'DOCUMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Mobile Bottom Navigation Bar: Hidden when Field Trainer is inside a focused task (Students, Tests, Sessions, Docs) */}
+      {(!isTrustAdmin && !isOrgCoordinator && activeTab !== 'SCHOOLS') ? null : (
+        <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 shadow-xl pb-[max(env(safe-area-inset-bottom),6px)]">
+          {isTrustAdmin ? (
+            <div className="grid grid-cols-3 h-15">
+              <button
+                onClick={() => setActiveTab('DASHBOARD')}
+                className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                  activeTab === 'DASHBOARD' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                <LayoutDashboard className={`w-5 h-5 ${activeTab === 'DASHBOARD' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[10px] tracking-tight">{language === 'mr' ? 'डॅशबोर्ड' : 'Dashboard'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('GOVERNANCE')}
+                className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                  activeTab === 'GOVERNANCE' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                <ShieldCheck className={`w-5 h-5 ${activeTab === 'GOVERNANCE' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[10px] tracking-tight">{language === 'mr' ? 'प्रशासन' : 'Admin'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('SCHOOLS')}
+                className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                  activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+              </button>
+            </div>
+          ) : isOrgCoordinator ? (
+            <div className="grid grid-cols-2 h-15">
+              <button
+                onClick={() => setActiveTab('NGO_PORTAL')}
+                className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                  activeTab === 'NGO_PORTAL' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                <Building2 className={`w-5 h-5 ${activeTab === 'NGO_PORTAL' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[10px] tracking-tight">{language === 'mr' ? 'संस्था नियंत्रण कक्ष' : 'NGO Portal'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('SCHOOLS')}
+                className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                  activeTab === 'SCHOOLS' ? 'text-[#233d76] font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                <SchoolIcon className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[10px] tracking-tight">{language === 'mr' ? 'शाळा व प्रगती' : 'Schools'}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-5 h-15">
+              <button
+                onClick={() => setActiveTab('SCHOOLS')}
+                className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                  activeTab === 'SCHOOLS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+                }`}
+              >
+                <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[9px] font-bold">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('STUDENTS')}
+                className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                  activeTab === 'STUDENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+                }`}
+              >
+                <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[9px] font-bold">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('ASSESSMENTS')}
+                className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                  activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+                }`}
+              >
+                <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[9px] font-bold">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('SESSIONS')}
+                className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                  activeTab === 'SESSIONS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+                }`}
+              >
+                <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[9px] font-bold">{language === 'mr' ? '२५ सत्रे' : 'Sessions'}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('DOCUMENTS')}
+                className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+                  activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
+                }`}
+              >
+                <FileText className={`w-4 h-4 ${activeTab === 'DOCUMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+                <span className="text-[9px] font-bold">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Desktop Footer */}
       <footer className="hidden sm:block bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">

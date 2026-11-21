@@ -43,6 +43,12 @@ export const Header: React.FC = () => {
                   TRST
                 </span>
               </div>
+              {/* On mobile, show active school directly in header */}
+              {!isTrustAdmin && !isOrgCoordinator && selectedSchool && (
+                <p className="sm:hidden text-[10px] text-[#f0da9a] font-bold truncate max-w-[130px]">
+                  🏫 {selectedSchool.name}
+                </p>
+              )}
               <p className="text-[10px] sm:text-[11px] text-[#f0da9a] font-medium hidden sm:block mt-0.5">
                 {language === 'mr'
                   ? 'ताराचंद रामनाथ सेवा ट्रस्ट, पुणे'
@@ -128,34 +134,34 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Sub-Header: Active Role & Financial Year (Clean & Uncramped) */}
-      <div className="sm:hidden bg-[#1a2d57] border-t border-[#345396] px-3 py-1.5 flex items-center justify-between text-xs">
-        {/* Role Pill */}
-        <div className="flex items-center space-x-1.5 truncate max-w-[65%]">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-          <span className="text-[11px] font-bold text-[#f0da9a] truncate">
-            {isTrustAdmin
-              ? language === 'mr' ? '👑 विश्वस्त' : '👑 Trust Admin'
-              : isOrgCoordinator
-              ? language === 'mr' ? `🏢 समन्वयक: ${currentUser.fullName}` : `🏢 Lead: ${currentUser.fullName}`
-              : `👤 ${currentUser.fullName}`}
-          </span>
-          {currentOrg && (
-            <span className="text-[10px] text-slate-300 truncate font-normal">
-              [{formatOrgName(currentOrg, language)}]
+      {/* Mobile Sub-Header: Only for Admins & Coordinators who need role/organization context */}
+      {(isTrustAdmin || isOrgCoordinator) && (
+        <div className="sm:hidden bg-[#1a2d57] border-t border-[#345396] px-3 py-1.5 flex items-center justify-between text-xs">
+          {/* Role Pill */}
+          <div className="flex items-center space-x-1.5 truncate max-w-[65%]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+            <span className="text-[11px] font-bold text-[#f0da9a] truncate">
+              {isTrustAdmin
+                ? language === 'mr' ? '👑 विश्वस्त' : '👑 Trust Admin'
+                : language === 'mr' ? `🏢 समन्वयक: ${currentUser.fullName}` : `🏢 Lead: ${currentUser.fullName}`}
             </span>
-          )}
-        </div>
+            {currentOrg && (
+              <span className="text-[10px] text-slate-300 truncate font-normal">
+                [{formatOrgName(currentOrg, language)}]
+              </span>
+            )}
+          </div>
 
-        {/* Active Financial Year (Mobile Badge) */}
-        <div
-          className="shrink-0 flex items-center space-x-1 text-[10px] font-black rounded-md border border-[#dfaf27]/60 bg-[#233d76] text-[#dfaf27] px-2 py-0.5 select-none"
-          title={language === 'mr' ? 'चालू आर्थिक वर्ष' : 'Active Financial Year'}
-        >
-          <Calendar className="w-2.5 h-2.5 text-[#dfaf27]" />
-          <span>FY {financialYear}</span>
+          {/* Active Financial Year (Mobile Badge) */}
+          <div
+            className="shrink-0 flex items-center space-x-1 text-[10px] font-black rounded-md border border-[#dfaf27]/60 bg-[#233d76] text-[#dfaf27] px-2 py-0.5 select-none"
+            title={language === 'mr' ? 'चालू आर्थिक वर्ष' : 'Active Financial Year'}
+          >
+            <Calendar className="w-2.5 h-2.5 text-[#dfaf27]" />
+            <span>FY {financialYear}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Coordinator Sub-Bar for NGO Coordinator */}
       {isOrgCoordinator && (
@@ -174,9 +180,9 @@ export const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Active School Sub-Bar for Field Trainer */}
+      {/* Active School Sub-Bar for Field Trainer (Desktop only, mobile shows active school in main top bar) */}
       {!isTrustAdmin && !isOrgCoordinator && (
-        <div className="bg-[#142345] border-t border-[#294279] px-3 sm:px-8 lg:px-12 py-1.5 sm:py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#f0da9a]">
+        <div className="hidden sm:flex bg-[#142345] border-t border-[#294279] px-3 sm:px-8 lg:px-12 py-1.5 sm:py-2 flex-row items-center justify-between gap-1 text-xs text-[#f0da9a]">
           <div className="flex items-center space-x-2">
             <span className="text-[9px] sm:text-[10px] font-black bg-[#dfaf27] text-[#233d76] px-1.5 py-0.5 rounded-sm shrink-0">
               {language === 'mr' ? 'क्षेत्र कार्य' : 'Field Work'}

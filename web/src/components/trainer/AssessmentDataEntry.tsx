@@ -300,8 +300,8 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
           </div>
         </div>
 
-        {/* Quick Helper Pill */}
-        <div className="inline-flex items-center space-x-1.5 text-xs text-[#233d76] bg-[#f0da9a]/40 px-3 py-1.5 rounded-full border border-[#dfaf27]/40 font-semibold self-start sm:self-auto">
+        {/* Quick Helper Pill (Desktop) */}
+        <div className="hidden sm:inline-flex items-center space-x-1.5 text-xs text-[#233d76] bg-[#f0da9a]/40 px-3 py-1.5 rounded-full border border-[#dfaf27]/40 font-semibold self-start sm:self-auto">
           <Sparkles className="w-3.5 h-3.5 text-[#dfaf27] shrink-0" />
           <span>
             {language === 'mr'
@@ -311,210 +311,122 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
         </div>
       </div>
 
-      {/* Field Trainer Workflow Box: 3 Simple Steps */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-4 sm:p-5 space-y-4">
-        {/* Step 1: Phase (Pre vs Post) */}
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="w-5 h-5 rounded-full bg-[#233d76] text-white text-[11px] font-bold flex items-center justify-center">
-              1
-            </span>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              {language === 'mr' ? 'पायरी १: चाचणीची वेळ निवडा' : 'Step 1: Select Assessment Phase'}
-            </label>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                setPhase('PRE');
-                setSaveMessage(null);
-              }}
-              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                phase === 'PRE'
-                  ? 'bg-[#233d76] text-white border-[#233d76] shadow-xs'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs sm:text-sm">
-                  {language === 'mr' ? 'सत्राच्या आधी (पूर्व चाचणी)' : '1. Pre-Test (Baseline)'}
-                </span>
-                {phase === 'PRE' && <CheckCircle2 className="w-4 h-4 text-[#dfaf27]" />}
-              </div>
-              <p
-                className={`text-[11px] mt-0.5 ${
-                  phase === 'PRE' ? 'text-slate-200' : 'text-slate-500'
-                }`}
-              >
-                {language === 'mr'
-                  ? '२५ सत्रांची सुरुवात करण्यापूर्वी घेतलेली चाचणी'
-                  : 'Administered before starting the 25 sessions'}
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setPhase('POST');
-                setSaveMessage(null);
-              }}
-              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                phase === 'POST'
-                  ? 'bg-[#dfaf27] text-[#233d76] border-[#dfaf27] shadow-xs font-extrabold'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs sm:text-sm">
-                  {language === 'mr' ? 'सत्राच्या नंतर (उत्तर चाचणी)' : '2. Post-Test (Outcome)'}
-                </span>
-                {phase === 'POST' && <CheckCircle2 className="w-4 h-4 text-[#233d76]" />}
-              </div>
-              <p
-                className={`text-[11px] mt-0.5 ${
-                  phase === 'POST' ? 'text-[#233d76]/80 font-medium' : 'text-slate-500'
-                }`}
-              >
-                {language === 'mr'
-                  ? '२५ सत्रे पूर्ण झाल्यानंतर घेतलेली चाचणी'
-                  : 'Administered after completing all 25 sessions'}
-              </p>
-            </button>
-          </div>
+      {/* Compact Assessment Mode Toolbar (Pre/Post Phase & 3 Test Papers) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-2.5 sm:p-3 space-y-2">
+        {/* Row 1: Phase Segmented Buttons */}
+        <div className="bg-slate-100 p-1 rounded-xl flex space-x-1">
+          <button
+            type="button"
+            onClick={() => {
+              setPhase('PRE');
+              setSaveMessage(null);
+            }}
+            className={`flex-1 py-1.5 px-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+              phase === 'PRE'
+                ? 'bg-[#233d76] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>{language === 'mr' ? '१. पूर्व चाचणी (सत्राच्या आधी)' : '1. Pre-Test (Baseline)'}</span>
+            {phase === 'PRE' && <CheckCircle2 className="w-3.5 h-3.5 text-[#dfaf27]" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setPhase('POST');
+              setSaveMessage(null);
+            }}
+            className={`flex-1 py-1.5 px-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+              phase === 'POST'
+                ? 'bg-[#dfaf27] text-[#233d76] font-black shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>{language === 'mr' ? '२. उत्तर चाचणी (सत्राच्या नंतर)' : '2. Post-Test (Outcome)'}</span>
+            {phase === 'POST' && <CheckCircle2 className="w-3.5 h-3.5 text-[#233d76]" />}
+          </button>
         </div>
 
-        {/* Step 2: Choose Paper (Default MKMH) */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <span className="w-5 h-5 rounded-full bg-[#233d76] text-white text-[11px] font-bold flex items-center justify-center">
-                2
-              </span>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                {language === 'mr' ? 'पायरी २: चाचणी विषय निवडा' : 'Step 2: Choose Test Paper'}
-              </label>
-            </div>
-            <span className="text-[11px] text-slate-500 font-medium">
-              {language === 'mr'
-                ? `निवडलेला विषय: ${selectedPaper}`
-                : `Selected Paper: ${selectedPaper}`}
+        {/* Row 2: 3 Papers Pills with Live Counts */}
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedPaper('MKMH');
+              setSaveMessage(null);
+            }}
+            className={`py-2 px-1 rounded-xl text-center border transition-all cursor-pointer ${
+              selectedPaper === 'MKMH'
+                ? 'bg-[#233d76] text-white border-[#233d76] font-bold shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="block text-xs font-black truncate">
+              {language === 'mr' ? 'चाचणी १ • MKMH' : 'Paper 1 • MKMH'}
             </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            {/* Paper 1: MKMH */}
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedPaper('MKMH');
-                setSaveMessage(null);
-              }}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
-                selectedPaper === 'MKMH'
-                  ? 'bg-[#f0da9a]/35 border-[#233d76] ring-2 ring-[#233d76]/20 shadow-xs'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
+            <span
+              className={`block text-[10px] ${
+                selectedPaper === 'MKMH' ? 'text-[#f0da9a]' : 'text-slate-500'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold text-[#233d76] uppercase tracking-wide">
-                  {language === 'mr' ? 'चाचणी १ • MKMH' : 'Paper 1 • MKMH'}
-                </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    mkmhStats.done === mkmhStats.total && mkmhStats.total > 0
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
-                >
-                  {mkmhStats.done}/{mkmhStats.total} {language === 'mr' ? 'पूर्ण' : 'Done'}
-                </span>
-              </div>
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 mt-1">
-                {language === 'mr' ? 'माझे ज्ञान, माझे आरोग्य चाचणी' : 'My Knowledge, My Health'}
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                {language === 'mr' ? '३ पर्याय • ३० प्रश्न' : '3 Options • 30 Questions'}
-              </p>
-            </button>
+              {mkmhStats.done}/{mkmhStats.total} {language === 'mr' ? 'पूर्ण' : 'done'}
+            </span>
+          </button>
 
-            {/* Paper 2: MMAT */}
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedPaper('MMAT');
-                setSaveMessage(null);
-              }}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
-                selectedPaper === 'MMAT'
-                  ? 'bg-[#f0da9a]/35 border-[#233d76] ring-2 ring-[#233d76]/20 shadow-xs'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedPaper('MMAT');
+              setSaveMessage(null);
+            }}
+            className={`py-2 px-1 rounded-xl text-center border transition-all cursor-pointer ${
+              selectedPaper === 'MMAT'
+                ? 'bg-[#233d76] text-white border-[#233d76] font-bold shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="block text-xs font-black truncate">
+              {language === 'mr' ? 'चाचणी २ • MMAT' : 'Paper 2 • MMAT'}
+            </span>
+            <span
+              className={`block text-[10px] ${
+                selectedPaper === 'MMAT' ? 'text-[#f0da9a]' : 'text-slate-500'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold text-[#233d76] uppercase tracking-wide">
-                  {language === 'mr' ? 'चाचणी २ • MMAT' : 'Paper 2 • MMAT'}
-                </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    mmatStats.done === mmatStats.total && mmatStats.total > 0
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
-                >
-                  {mmatStats.done}/{mmatStats.total} {language === 'mr' ? 'पूर्ण' : 'Done'}
-                </span>
-              </div>
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 mt-1">
-                {language === 'mr' ? 'व्यसनाधीनता समज व गैरसमज' : 'Myths & Misconceptions'}
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                {language === 'mr' ? '३ पर्याय • ३० प्रश्न' : '3 Options • 30 Questions'}
-              </p>
-            </button>
+              {mmatStats.done}/{mmatStats.total} {language === 'mr' ? 'पूर्ण' : 'done'}
+            </span>
+          </button>
 
-            {/* Paper 3: ERT */}
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedPaper('ERT');
-                setSaveMessage(null);
-              }}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
-                selectedPaper === 'ERT'
-                  ? 'bg-[#f0da9a]/35 border-[#233d76] ring-2 ring-[#233d76]/20 shadow-xs'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedPaper('ERT');
+              setSaveMessage(null);
+            }}
+            className={`py-2 px-1 rounded-xl text-center border transition-all cursor-pointer ${
+              selectedPaper === 'ERT'
+                ? 'bg-[#233d76] text-white border-[#233d76] font-bold shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="block text-xs font-black truncate">
+              {language === 'mr' ? 'चाचणी ३ • ERT' : 'Paper 3 • ERT'}
+            </span>
+            <span
+              className={`block text-[10px] ${
+                selectedPaper === 'ERT' ? 'text-[#f0da9a]' : 'text-slate-500'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold text-[#233d76] uppercase tracking-wide">
-                  {language === 'mr' ? 'चाचणी ३ • ERT' : 'Paper 3 • ERT'}
-                </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    ertStats.done === ertStats.total && ertStats.total > 0
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
-                >
-                  {ertStats.done}/{ertStats.total} {language === 'mr' ? 'पूर्ण' : 'Done'}
-                </span>
-              </div>
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 mt-1">
-                {language === 'mr' ? 'स्व-भावना नियमन चाचणी' : 'Emotion Regulation Test'}
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                {language === 'mr' ? '४ पर्याय • १० प्रश्न' : '4 Options • 10 Questions'}
-              </p>
-            </button>
-          </div>
+              {ertStats.done}/{ertStats.total} {language === 'mr' ? 'पूर्ण' : 'done'}
+            </span>
+          </button>
         </div>
       </div>
 
       {/* Main Section: Students List (Left) + Question Paper Stepper (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Student Roster Sidebar */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col h-fit">
+        {/* Left Column: Student Roster Sidebar (Desktop only, mobile uses the quick dropdown jumper) */}
+        <div className="hidden lg:flex lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex-col h-fit">
           <div className="p-3.5 bg-slate-50 border-b border-slate-200 space-y-2.5">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
@@ -694,64 +606,52 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
         <div className="lg:col-span-8 space-y-4">
           {activeStudent ? (
             <>
-              {/* Sequential Student Navigation Stepper (Essential for grading physical bundles) */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-3.5 sm:p-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              {/* Sequential Student Navigation Stepper (With direct dropdown jumper) */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-2.5 sm:p-3.5">
+                <div className="flex items-center justify-between gap-2">
                   {/* Previous Student Button */}
                   <button
                     type="button"
                     disabled={!hasPrevStudent}
                     onClick={handlePrevStudent}
-                    className={`w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                    className={`inline-flex items-center justify-center space-x-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold border transition-colors shrink-0 ${
                       hasPrevStudent
-                        ? 'border-slate-300 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer'
+                        ? 'border-slate-300 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer shadow-2xs'
                         : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
                     }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span>
+                    <span className="hidden sm:inline">
                       {language === 'mr'
                         ? prevStudent
-                          ? `मागील (S-${prevStudent.bundleSequenceNo})`
-                          : 'मागील विद्यार्थी'
+                          ? `S-${prevStudent.bundleSequenceNo}`
+                          : 'मागील'
                         : prevStudent
-                        ? `Prev (S-${prevStudent.bundleSequenceNo})`
-                        : 'Previous'}
+                        ? `S-${prevStudent.bundleSequenceNo}`
+                        : 'Prev'}
                     </span>
                   </button>
 
-                  {/* Active Student Center Card & Dropdown */}
-                  <div className="flex-1 text-center w-full sm:w-auto">
-                    <div className="inline-flex items-center justify-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 max-w-full">
-                      <span className="font-mono text-xs font-black bg-[#233d76] text-white px-2 py-0.5 rounded">
-                        S-{activeStudent.bundleSequenceNo}
-                      </span>
-                      <h3 className="font-bold text-sm text-slate-900 truncate">
-                        {activeStudent.fullName}
-                      </h3>
-                      <span className="text-xs text-slate-500 hidden sm:inline">
-                        ({activeStudent.gender === 'FEMALE' ? (language === 'mr' ? 'मुलगी' : 'F') : (language === 'mr' ? 'मुलगा' : 'M')})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-center space-x-2 mt-1 text-[11px] text-slate-500">
-                      <span>
-                        {language === 'mr'
-                          ? `विद्यार्थी ${currentStudentIndex + 1} / ${schoolStudents.length}`
-                          : `Student ${currentStudentIndex + 1} of ${schoolStudents.length}`}
-                      </span>
-                      <span>•</span>
-                      <span className="font-semibold text-[#233d76]">
-                        {phase === 'PRE'
-                          ? language === 'mr'
-                            ? 'पूर्व चाचणी'
-                            : 'Pre-Test'
-                          : language === 'mr'
-                          ? 'उत्तर चाचणी'
-                          : 'Post-Test'}
-                        {' '}({selectedPaper})
-                      </span>
-                    </div>
+                  {/* Active Student Dropdown Jumper & Info */}
+                  <div className="flex-1 min-w-0">
+                    <select
+                      value={activeStudent.id}
+                      onChange={(e) => goToStudent(e.target.value)}
+                      className="w-full text-xs font-bold text-[#233d76] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl py-2 px-2 text-center cursor-pointer truncate focus:ring-1 focus:ring-[#233d76]"
+                    >
+                      {schoolStudents.map((st, idx) => {
+                        const pair = assessmentPairs.find(
+                          (p) => p.studentId === st.id && p.paperType === selectedPaper
+                        );
+                        const record = phase === 'PRE' ? pair?.preTest : pair?.postTest;
+                        const isDone = Boolean(record);
+                        return (
+                          <option key={st.id} value={st.id}>
+                            {idx + 1}. {isDone ? '✓ ' : '○ '}S-{st.bundleSequenceNo} : {st.fullName} ({st.gender === 'FEMALE' ? (language === 'mr' ? 'मुलगी' : 'F') : (language === 'mr' ? 'मुलगा' : 'M')}) — {isDone ? `${record?.scorePercentage}%` : (language === 'mr' ? 'शिल्लक' : 'Pending')}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
 
                   {/* Next Student Button */}
@@ -759,19 +659,19 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
                     type="button"
                     disabled={!hasNextStudent}
                     onClick={handleNextStudent}
-                    className={`w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                    className={`inline-flex items-center justify-center space-x-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold border transition-colors shrink-0 ${
                       hasNextStudent
-                        ? 'border-slate-300 bg-white hover:bg-slate-50 text-[#233d76] cursor-pointer'
+                        ? 'border-slate-300 bg-white hover:bg-slate-50 text-[#233d76] cursor-pointer shadow-2xs font-extrabold'
                         : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
                     }`}
                   >
-                    <span>
+                    <span className="hidden sm:inline">
                       {language === 'mr'
                         ? nextStudent
-                          ? `पुढील (S-${nextStudent.bundleSequenceNo})`
-                          : 'पुढील विद्यार्थी'
+                          ? `S-${nextStudent.bundleSequenceNo}`
+                          : 'पुढील'
                         : nextStudent
-                        ? `Next (S-${nextStudent.bundleSequenceNo})`
+                        ? `S-${nextStudent.bundleSequenceNo}`
                         : 'Next'}
                     </span>
                     <ChevronRight className="w-4 h-4" />
