@@ -170,23 +170,23 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                   </div>
                 </div>
 
-                {/* 4 Action / Inspection Buttons */}
-                <div className="p-4 bg-white grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* 3 Core Field Training Activity Buttons */}
+                <div className="p-4 bg-white grid grid-cols-3 gap-2.5 sm:gap-3">
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
                       onNavigateToTab?.('STUDENTS');
                     }}
-                    className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                    className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
                       <Users className="w-4 h-4 text-[#233d76]" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'विद्यार्थी यादी' : 'Student Roster'}
+                      {language === 'mr' ? '१. विद्यार्थी यादी' : '1. Students'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">
-                      {isTrustAdmin ? (language === 'mr' ? 'तपासा' : 'View') : (language === 'mr' ? 'गठ्ठा क्रमाने' : 'By Stack')}
+                    <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-full">
+                      {isTrustAdmin ? (language === 'mr' ? 'तपासा' : 'View') : (language === 'mr' ? 'नोंदणी व बंडल' : 'Roster')}
                     </span>
                   </button>
 
@@ -195,16 +195,16 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       setSelectedSchool(school);
                       onNavigateToTab?.('ASSESSMENTS');
                     }}
-                    className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                    className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[#dfaf27]/20 text-[#233d76] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#dfaf27]/20 text-[#233d76] flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
                       <ClipboardCheck className="w-4 h-4 text-[#233d76]" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'पूर्व / उत्तर चाचण्या' : 'Pre / Post Tests'}
+                      {language === 'mr' ? '२. चाचण्या' : '2. Tests'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">
-                      {language === 'mr' ? '३ पेपर्स (MKMH, MMAT, ERT)' : '3 Papers (MKMH, MMAT, ERT)'}
+                    <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-full">
+                      {language === 'mr' ? 'पूर्व / उत्तर' : 'Pre / Post'}
                     </span>
                   </button>
 
@@ -213,35 +213,50 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                       setSelectedSchool(school);
                       onNavigateToTab?.('SESSIONS');
                     }}
-                    className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                    className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
                       <BookOpen className="w-4 h-4 text-[#233d76]" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'सत्र नोंदी' : 'Session Logs'}
+                      {language === 'mr' ? '३. २५ सत्रे' : '3. Sessions'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">
-                      {language === 'mr' ? '२५ सत्रे व मिडिया' : '25 Sessions & Media'}
+                    <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-full">
+                      {language === 'mr' ? 'नोंदी व फोटो' : '25 Logs & Media'}
                     </span>
                   </button>
+                </div>
 
+                {/* Dedicated School Documents & Seal Action Bar */}
+                <div className="px-4 pb-4 bg-white">
                   <button
                     onClick={() => {
                       setSelectedSchool(school);
                       onNavigateToTab?.('DOCUMENTS');
                     }}
-                    className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-[#f0da9a]/30 hover:border-[#dfaf27] flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                    className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-[#f0da9a]/30 border border-slate-200 hover:border-[#dfaf27] transition-all cursor-pointer group shadow-2xs"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[#dfaf27]/20 text-[#233d76] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
-                      <FileText className="w-4 h-4 text-[#233d76]" />
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#dfaf27]/25 text-[#233d76] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <FileText className="w-4 h-4 text-[#233d76]" />
+                      </div>
+                      <div className="text-left truncate">
+                        <span className="text-xs font-bold text-slate-900 block truncate">
+                          {language === 'mr'
+                            ? 'शाळा कागदपत्रे व अधिकृत शिक्का'
+                            : 'School Documents & Official Seal'}
+                        </span>
+                        <span className="text-[10px] text-slate-500 block truncate">
+                          {language === 'mr'
+                            ? 'मुख्याध्यापक संमती पत्र व अंतिम लॉगबुक शिक्का'
+                            : 'HM Permission Letter & Stamped Logbook'}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'कागदपत्रे पुरावे' : 'Documents'}
-                    </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">
-                      {language === 'mr' ? 'सही व शिक्का' : 'HM Stamp & Consent'}
-                    </span>
+                    <div className="flex items-center space-x-1.5 shrink-0 text-xs font-extrabold text-[#233d76] bg-white px-2.5 py-1 rounded-lg border border-slate-200 group-hover:border-[#dfaf27]">
+                      <span>{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
+                      <span className="text-[#dfaf27]">→</span>
+                    </div>
                   </button>
                 </div>
               </div>

@@ -190,17 +190,15 @@ export const App: React.FC = () => {
                       <span>{language === 'mr' ? '३. २५ सत्रे' : '3. 25 Sessions'}</span>
                     </button>
 
-                    <button
-                      onClick={() => setActiveTab('DOCUMENTS')}
-                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        activeTab === 'DOCUMENTS'
-                          ? 'bg-[#233d76] text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <FileText className="w-4 h-4 text-[#dfaf27]" />
-                      <span>{language === 'mr' ? '४. कागदपत्रे' : '4. Documents'}</span>
-                    </button>
+                    {activeTab === 'DOCUMENTS' && (
+                      <button
+                        onClick={() => setActiveTab('DOCUMENTS')}
+                        className="flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer bg-[#233d76] text-white shadow-xs"
+                      >
+                        <FileText className="w-4 h-4 text-[#dfaf27]" />
+                        <span>{language === 'mr' ? 'शाळा कागदपत्रे व शिक्का' : 'School Documents'}</span>
+                      </button>
+                    )}
                   </>
                 )}
               </div>
@@ -308,51 +306,42 @@ export const App: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-5 h-15">
+          <div className="grid grid-cols-4 h-15">
             <button
               onClick={() => setActiveTab('SCHOOLS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
                 activeTab === 'SCHOOLS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
-              <Building2 className={`w-4 h-4 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
+              <Building2 className={`w-5 h-5 ${activeTab === 'SCHOOLS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] font-bold">{language === 'mr' ? 'शाळा' : 'Schools'}</span>
             </button>
             <button
               onClick={() => setActiveTab('STUDENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
                 activeTab === 'STUDENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
-              <Users className={`w-4 h-4 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
+              <Users className={`w-5 h-5 ${activeTab === 'STUDENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] font-bold">{language === 'mr' ? 'विद्यार्थी' : 'Students'}</span>
             </button>
             <button
               onClick={() => setActiveTab('ASSESSMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
                 activeTab === 'ASSESSMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
-              <ClipboardCheck className={`w-4 h-4 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
+              <ClipboardCheck className={`w-5 h-5 ${activeTab === 'ASSESSMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] font-bold">{language === 'mr' ? 'चाचण्या' : 'Tests'}</span>
             </button>
             <button
               onClick={() => setActiveTab('SESSIONS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
                 activeTab === 'SESSIONS' ? 'text-[#233d76] font-black' : 'text-slate-500'
               }`}
             >
-              <BookOpen className={`w-4 h-4 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? '२५ सत्रे' : 'Sessions'}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('DOCUMENTS')}
-              className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-colors ${
-                activeTab === 'DOCUMENTS' ? 'text-[#233d76] font-black' : 'text-slate-500'
-              }`}
-            >
-              <FileText className={`w-4 h-4 ${activeTab === 'DOCUMENTS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
-              <span className="text-[9px] font-bold">{language === 'mr' ? 'कागदपत्रे' : 'Docs'}</span>
+              <BookOpen className={`w-5 h-5 ${activeTab === 'SESSIONS' ? 'text-[#233d76]' : 'text-slate-400'}`} />
+              <span className="text-[10px] font-bold">{language === 'mr' ? '२५ सत्रे' : 'Sessions'}</span>
             </button>
           </div>
         )}
