@@ -32,7 +32,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
-  const [isAdding, setIsAdding] = useState(!isTrustAdmin);
+  const [isAdding, setIsAdding] = useState(false);
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState<Gender>('FEMALE');
   const [standard, setStandard] = useState('8');
@@ -153,14 +153,18 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
             }}
             className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#dfaf27]" />
+            {isAdding ? (
+              <X className="w-4 h-4 text-[#dfaf27]" />
+            ) : (
+              <Plus className="w-4 h-4 text-[#dfaf27]" />
+            )}
             <span>
               {isAdding
                 ? language === 'mr'
                   ? 'फॉर्म बंद करा'
                   : 'Close Form'
                 : language === 'mr'
-                ? 'नवीन विद्यार्थी'
+                ? 'नवीन विद्यार्थी जोडा'
                 : 'Add Student'}
             </span>
           </button>
@@ -321,11 +325,21 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
               <p className="text-sm font-semibold text-slate-700">
                 {language === 'mr' ? 'अद्याप विद्यार्थी नोंदवलेले नाहीत' : 'No students added yet'}
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-400 mt-1 mb-4">
                 {language === 'mr'
-                  ? 'वरील फॉर्ममध्ये नाव लिहून "सेव्ह" करा.'
-                  : 'Enter student details in the form above and click save.'}
+                  ? 'विद्यार्थी नोंदवण्यासाठी खालील बटणावर क्लिक करा.'
+                  : 'Click below to register the first student.'}
               </p>
+              {!isTrustAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(true)}
+                  className="inline-flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? 'नवीन विद्यार्थी जोडा' : 'Add First Student'}</span>
+                </button>
+              )}
             </div>
           ) : (
             schoolStudents.map((student) => {
