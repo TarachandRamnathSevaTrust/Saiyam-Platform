@@ -27,6 +27,8 @@ interface Props {
 export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => {
   const {
     selectedSchool,
+    setSelectedSchool,
+    schools,
     students,
     questions,
     saveAssessmentSubmission,
@@ -36,6 +38,14 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+
+  // Available schools for current user
+  const availableSchools =
+    currentUser.role === 'FIELD_TRAINER'
+      ? schools.filter((s) => s.assignedTrainerId === currentUser.id || !s.assignedTrainerId)
+      : schools;
+
+  const activeSchool = selectedSchool || availableSchools[0] || null;
 
   // 1. Default to Paper 1 (MKMH) as expected by field trainers
   const [phase, setPhase] = useState<'PRE' | 'POST'>('PRE');
@@ -50,27 +60,11 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   const [studentFilter, setStudentFilter] = useState<'ALL' | 'PENDING' | 'DONE'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  if (!selectedSchool) {
-    return (
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
-        <p className="text-slate-600 font-semibold mb-3">
-          {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
-        </p>
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
-          >
-            {language === 'mr' ? '← शाळा यादीकडे जा' : '← Back to Schools'}
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  const schoolStudents = students
-    .filter((s) => s.schoolId === selectedSchool.id)
-    .sort((a, b) => a.bundleSequenceNo - b.bundleSequenceNo);
+  const schoolStudents = activeSchool
+    ? students
+        .filter((s) => s.schoolId === activeSchool.id)
+        .sort((a, b) => a.bundleSequenceNo - b.bundleSequenceNo)
+    : [];
 
   const activeStudent =
     schoolStudents.find((s) => s.id === selectedStudentId) || schoolStudents[0];
@@ -239,6 +233,24 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   const answeredCount = paperQuestions.filter((q) => Boolean(answers[q.id])).length;
   const currentPaperStats = getPaperStats(selectedPaper);
 
+  if (!activeSchool) {
+    return (
+      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
+        <p className="text-slate-600 font-semibold mb-3">
+          {language === 'mr' ? 'कोणतीही शाळा उपलब्ध नाही.' : 'No schools available.'}
+        </p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-xs bg-[#233d76] text-white font-bold py-2 px-4 rounded-xl cursor-pointer"
+          >
+            {language === 'mr' ? '← शाळा यादीकडे जा' : '← Back to Schools'}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 w-full">
       {/* Top Header & Back Button */}
@@ -257,9 +269,34 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
             <h2 className="text-lg font-bold text-slate-900">
               {language === 'mr' ? 'विद्यार्थी चाचण्या नोंदणी (Pre / Post Tests)' : 'Pre & Post Assessments Entry'}
             </h2>
-            <p className="text-xs text-slate-500">
-              {selectedSchool.name} • {selectedSchool.village}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
+              <span className="text-xs text-slate-500 font-semibold">
+                {activeSchool.name} • {activeSchool.village}
+              </span>
+              {availableSchools.length > 1 && (
+                <div className="flex items-center space-x-1">
+                  <span className="text-[10px] text-slate-400 font-medium">| {language === 'mr' ? 'शाळा बदला:' : 'Switch:'}</span>
+                  <select
+                    value={activeSchool.id}
+                    onChange={(e) => {
+                      const found = availableSchools.find((s) => s.id === e.target.value);
+                      if (found) {
+                        setSelectedSchool(found);
+                        setSelectedStudentId('');
+                        setAnswers({});
+                      }
+                    }}
+                    className="text-[11px] font-bold bg-slate-50 hover:bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-[#233d76] cursor-pointer focus:ring-1 focus:ring-[#233d76]"
+                  >
+                    {availableSchools.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({s.village})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

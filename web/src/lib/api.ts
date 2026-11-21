@@ -9,6 +9,7 @@ import {
   UserProfile,
   CurriculumModule,
   CurriculumSession,
+  SchoolDocument,
 } from '@saiyam/shared';
 
 /**
@@ -1070,6 +1071,109 @@ export const apiService = {
     } catch (err) {
       console.warn('Supabase fetch curriculum sessions error (falling back to shared master):', err);
       return null;
+    }
+  },
+
+  // ============================================================================
+  // SCHOOL DOCUMENTS (शाळा कागदपत्रे - मुख्याध्यापक विनंती पत्र, सही व शिक्का)
+  // ============================================================================
+  async getSchoolDocuments(schoolId: string): Promise<SchoolDocument[] | null> {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('school_documents')
+        .select('*')
+        .eq('school_id', schoolId)
+        .order('uploaded_at', { ascending: false });
+
+      if (error) {
+        console.warn('Supabase fetch school_documents error:', error);
+        return null;
+      }
+
+      return (data || []).map((d: any) => ({
+        id: d.id,
+        schoolId: d.school_id,
+        financialYear: d.financial_year,
+        documentType: d.document_type,
+        title: d.title,
+        fileUrl: d.file_url,
+        fileSizeBytes: d.file_size_bytes,
+        uploadedBy: d.uploaded_by,
+        uploadedAt: d.uploaded_at,
+      }));
+    } catch (err) {
+      console.warn('Supabase getSchoolDocuments error:', err);
+      return null;
+    }
+  },
+
+  async saveSchoolDocument(doc: {
+    schoolId: string;
+    financialYear?: string;
+    documentType: 'REQUEST_LETTER' | 'STAMPED_COMPLETION_SHEET' | 'OTHER';
+    title: string;
+    fileUrl: string;
+    fileSizeBytes?: number;
+    uploadedBy?: string;
+  }): Promise<SchoolDocument | null> {
+    if (!supabase) return null;
+    try {
+      // First delete existing doc of same type for this school
+      await supabase
+        .from('school_documents')
+        .delete()
+        .eq('school_id', doc.schoolId)
+        .eq('document_type', doc.documentType);
+
+      const { data, error } = await supabase
+        .from('school_documents')
+        .insert({
+          school_id: doc.schoolId,
+          financial_year: doc.financialYear || '2025-26',
+          document_type: doc.documentType,
+          title: doc.title,
+          file_url: doc.fileUrl,
+          file_size_bytes: doc.fileSizeBytes || null,
+          uploaded_by: doc.uploadedBy || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Supabase saveSchoolDocument error:', error);
+        return null;
+      }
+
+      return {
+        id: data.id,
+        schoolId: data.school_id,
+        financialYear: data.financial_year,
+        documentType: data.document_type,
+        title: data.title,
+        fileUrl: data.file_url,
+        fileSizeBytes: data.file_size_bytes,
+        uploadedBy: data.uploaded_by,
+        uploadedAt: data.uploaded_at,
+      };
+    } catch (err) {
+      console.warn('Supabase saveSchoolDocument exception:', err);
+      return null;
+    }
+  },
+
+  async deleteSchoolDocument(schoolId: string, documentType: string): Promise<boolean> {
+    if (!supabase) return false;
+    try {
+      const { error } = await supabase
+        .from('school_documents')
+        .delete()
+        .eq('school_id', schoolId)
+        .eq('document_type', documentType);
+      return !error;
+    } catch (err) {
+      console.warn('Supabase deleteSchoolDocument exception:', err);
+      return false;
     }
   },
 };
