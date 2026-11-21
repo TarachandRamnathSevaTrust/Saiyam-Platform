@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
   const currentOrg = organizations.find((o) => o.code === currentUser.organizationCode);
 
   return (
-    <header className="bg-[#233d76] text-white sticky top-0 z-40 shadow-md pt-[max(env(safe-area-inset-top,0px),32px)] sm:pt-0">
+    <header className="bg-[#233d76] text-white sticky top-0 z-40 shadow-md pt-[env(safe-area-inset-top,0px)]">
       {/* Primary Top Bar */}
       <div className="w-full max-w-[1650px] mx-auto px-3 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-14 sm:h-18">

@@ -159,7 +159,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex flex-col justify-between p-3 sm:p-6 lg:p-8 pt-[max(env(safe-area-inset-top,0px),32px)] sm:pt-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex flex-col justify-between p-3 sm:p-6 lg:p-8 pt-[env(safe-area-inset-top,0px)] sm:pt-6">
       {/* Top Navbar: Clean & Free of Any Filter */}
       <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2">
         <div className="flex items-center space-x-2 text-xs text-[#f0da9a]">
