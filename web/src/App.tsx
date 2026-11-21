@@ -206,7 +206,7 @@ export const App: React.FC = () => {
       {/* Main Content Viewport: Full Width with Generous Margins & Safe Area Bottom */}
       <main className="w-full max-w-[1650px] mx-auto px-3 sm:px-8 lg:px-10 py-4 sm:py-8 flex-1 pb-24 sm:pb-8">
         {requiresSchool ? (
-          <div className="space-y-4 max-w-5xl mx-auto">
+          <div className="space-y-4 w-full">
             <div className="bg-[#f0da9a]/40 border border-[#dfaf27] rounded-2xl p-4 sm:p-5 text-[#233d76] flex items-center space-x-3.5 shadow-2xs">
               <AlertCircle className="w-6 h-6 text-[#233d76] shrink-0" />
               <div className="text-xs sm:text-sm font-bold">

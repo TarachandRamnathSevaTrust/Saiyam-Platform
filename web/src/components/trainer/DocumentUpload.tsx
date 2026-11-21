@@ -32,7 +32,7 @@ export const DocumentUpload: React.FC<Props> = ({ onBack }) => {
   }
 
   return (
-    <div className="space-y-5 max-w-4xl mx-auto">
+    <div className="space-y-5 w-full">
       {/* Top Header & Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">

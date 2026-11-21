@@ -122,7 +122,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   };
 
   return (
-    <div className="space-y-5 max-w-4xl mx-auto">
+    <div className="space-y-5 w-full">
       {/* Back button & Title Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">

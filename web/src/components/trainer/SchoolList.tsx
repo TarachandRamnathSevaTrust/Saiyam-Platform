@@ -51,7 +51,7 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
       );
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 w-full">
       {/* Top Trainer Bar (Only shown for Field Trainers who conduct visits) */}
       {!isTrustAdmin ? (
         <div className="bg-[#233d76] text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

@@ -99,7 +99,7 @@ export const AdminSupervisionTables: React.FC<Props> = () => {
   };
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
+    <div className="space-y-4 w-full">
       {/* Simple Sub-Tabs */}
       <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center space-x-1 sm:space-x-2">

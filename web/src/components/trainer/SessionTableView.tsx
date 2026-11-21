@@ -172,7 +172,7 @@ export const SessionTableView: React.FC<Props> = ({
   });
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto">
+    <div className="space-y-5 w-full">
       {/* Top Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex items-center space-x-3.5">

@@ -139,7 +139,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   };
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto">
+    <div className="space-y-5 w-full">
       {/* Top Header & Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">

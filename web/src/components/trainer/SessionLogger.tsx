@@ -292,7 +292,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
       <div className="space-y-4">
         {/* If field trainer, allow switching between Table and Form mode */}
         {!isTrustAdmin && (
-          <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs max-w-7xl mx-auto">
+          <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs w-full">
             <span className="text-xs text-slate-600 font-semibold">
               {language === 'mr'
                 ? '📋 सत्रांचा सविस्तर तक्ता (प्रशिक्षकांचे नाव व उपस्थिती)'
@@ -322,7 +322,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   }
 
   return (
-    <div className="space-y-4 max-w-5xl mx-auto">
+    <div className="space-y-4 w-full">
       {/* Top Header & Back Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex items-center space-x-3">
