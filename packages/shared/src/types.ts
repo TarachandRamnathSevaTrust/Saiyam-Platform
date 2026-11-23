@@ -131,6 +131,8 @@ export interface AssessmentRecord {
 
 export interface StudentAssessmentPair {
   studentId: string;
+  schoolId?: string;
+  schoolName?: string;
   financialYear?: string;
   studentName: string;
   bundleSequenceNo: number;

@@ -395,6 +395,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
               allPairs.push({
                 studentId: student.id,
+                schoolId: student.schoolId,
+                schoolName: (backendSchools || schools).find((s) => s.id === student.schoolId)?.name,
                 financialYear: student.financialYear,
                 studentName: student.fullName,
                 bundleSequenceNo: student.bundleSequenceNo,
@@ -958,7 +960,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         })
       : assessmentPairs;
 
-    const rows = formatRowsForExcelExport(filteredPairs);
+    const rows = formatRowsForExcelExport(filteredPairs, schools, students);
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();

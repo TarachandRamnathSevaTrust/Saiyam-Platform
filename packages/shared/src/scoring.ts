@@ -5,6 +5,7 @@ import {
   Question,
   StudentAssessmentPair,
   Student,
+  School,
 } from './types';
 
 /**
@@ -128,23 +129,47 @@ export function computeStudentPair(
   };
 }
 
-export function formatRowsForExcelExport(pairs: StudentAssessmentPair[]) {
-  return pairs.map((p) => ({
-    'आर्थिक वर्ष (Financial Year)': p.financialYear || '2025-26',
-    'गठ्ठा अनुक्रमांक (Bundle #)': `S-${p.bundleSequenceNo}`,
-    'विद्यार्थ्याचे नाव (Name)': p.studentName,
-    'लिंग (Gender)': p.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा',
-    'इयत्ता (Class)': p.standard,
-    'तुकडी (Division)': p.division,
-    'चाचणी प्रकार (Paper)': p.paperType,
-    'Pre उत्तरे / एकूण': p.preTest ? `${p.preTest.answeredCount} / ${p.preTest.totalQuestions}` : '—',
-    'पूर्व चाचणी स्कोअर (Pre %)': p.preTest ? `${p.preTest.scorePercentage}%` : 'घेतली नाही',
-    'Post उत्तरे / एकूण': p.postTest ? `${p.postTest.answeredCount} / ${p.postTest.totalQuestions}` : '—',
-    'उत्तर चाचणी स्कोअर (Post %)': p.postTest ? `${p.postTest.scorePercentage}%` : 'घेतली नाही',
-    'फरक (Improvement Delta %)':
-      p.improvementDelta !== undefined
-        ? `${p.improvementDelta > 0 ? '+' : ''}${p.improvementDelta}%`
-        : '—',
-    'स्थिती (Status)': p.status === 'ALL_COMPLETED' ? 'दोन्ही चाचण्या पूर्ण' : 'पूर्व चाचणी पूर्ण',
-  }));
+export function formatRowsForExcelExport(
+  pairs: StudentAssessmentPair[],
+  schools?: School[],
+  students?: Student[]
+) {
+  const schoolMap = new Map<string, string>();
+  if (schools) {
+    schools.forEach((s) => schoolMap.set(s.id, `${s.name}${s.village ? ` (${s.village})` : ''}`));
+  }
+  const studentSchoolMap = new Map<string, string>();
+  if (students) {
+    students.forEach((st) => studentSchoolMap.set(st.id, st.schoolId));
+  }
+
+  return pairs.map((p) => {
+    const schoolId = p.schoolId || studentSchoolMap.get(p.studentId);
+    const schoolName = p.schoolName || (schoolId ? schoolMap.get(schoolId) : '') || '—';
+
+    return {
+      'आर्थिक वर्ष (Financial Year)': p.financialYear || '2025-26',
+      'शाळेचे नाव (School Name)': schoolName,
+      'गठ्ठा अनुक्रमांक (Bundle #)': `S-${p.bundleSequenceNo}`,
+      'विद्यार्थ्याचे नाव (Name)': p.studentName,
+      'लिंग (Gender)': p.gender === 'FEMALE' ? 'मुलगी' : 'मुलगा',
+      'इयत्ता (Class)': p.standard,
+      'तुकडी (Division)': p.division,
+      'चाचणी प्रकार (Paper)': p.paperType,
+      'Pre उत्तरे / एकूण': p.preTest ? `${p.preTest.answeredCount} / ${p.preTest.totalQuestions}` : '—',
+      'पूर्व चाचणी स्कोअर (Pre %)': p.preTest ? `${p.preTest.scorePercentage}%` : 'घेतली नाही',
+      'Post उत्तरे / एकूण': p.postTest ? `${p.postTest.answeredCount} / ${p.postTest.totalQuestions}` : '—',
+      'उत्तर चाचणी स्कोअर (Post %)': p.postTest ? `${p.postTest.scorePercentage}%` : 'घेतली नाही',
+      'फरक (Improvement Delta %)':
+        p.improvementDelta !== undefined
+          ? `${p.improvementDelta > 0 ? '+' : ''}${p.improvementDelta}%`
+          : '—',
+      'स्थिती (Status)':
+        p.status === 'ALL_COMPLETED'
+          ? 'दोन्ही चाचण्या पूर्ण'
+          : p.status === 'PRE_COMPLETED'
+          ? 'पूर्व चाचणी पूर्ण'
+          : 'बाकी',
+    };
+  });
 }

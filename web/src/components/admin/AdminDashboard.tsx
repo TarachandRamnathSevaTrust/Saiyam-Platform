@@ -674,6 +674,9 @@ export const AdminDashboard: React.FC = () => {
                           {language === 'mr' ? 'विद्यार्थ्याचे नाव' : 'Student Name'}
                         </th>
                         <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                          {language === 'mr' ? 'शाळा' : 'School'}
+                        </th>
+                        <th className="px-3.5 py-3 text-left font-bold border-b border-white">
                           {language === 'mr' ? 'लिंग' : 'Gender'}
                         </th>
                         <th className="px-3.5 py-3 text-left font-bold border-b border-white">
@@ -695,7 +698,7 @@ export const AdminDashboard: React.FC = () => {
                     <tbody className="text-[#233d76]">
                       {filteredPairs.length === 0 ? (
                         <tr>
-                          <td colSpan={9} className="p-8 text-center bg-white">
+                          <td colSpan={10} className="p-8 text-center bg-white">
                             <div className="max-w-md mx-auto space-y-2">
                               <div className="w-10 h-10 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto">
                                 <Info className="w-5 h-5 text-[#233d76]" />
@@ -715,6 +718,9 @@ export const AdminDashboard: React.FC = () => {
                         </tr>
                       ) : (
                         displayedPairs.map((p, idx) => {
+                          const student = students.find((s) => s.id === p.studentId);
+                          const school = student ? schools.find((sc) => sc.id === student.schoolId) : undefined;
+                          const schoolName = p.schoolName || (school ? school.name : '—');
                           const isCompleted = Boolean(p.preTest && p.postTest);
                           const isPreOnly = Boolean(p.preTest && !p.postTest);
                           const isPostOnly = Boolean(!p.preTest && p.postTest);
@@ -733,6 +739,11 @@ export const AdminDashboard: React.FC = () => {
                             >
                               <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
                               <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
+                              <td className="px-3.5 py-2.5 text-slate-700 font-medium">
+                                <span className="truncate max-w-[130px] block" title={school ? `${school.name} (${school.village})` : schoolName}>
+                                  {schoolName}
+                                </span>
+                              </td>
                               <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
                               <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
                               <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
