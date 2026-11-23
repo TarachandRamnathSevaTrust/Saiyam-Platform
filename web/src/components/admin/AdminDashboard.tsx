@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { OrganizationManagementModal } from './OrganizationManagementModal';
 import { formatOrgName, formatGender, formatAssessmentStatus } from '../../lib/formatters';
@@ -26,7 +26,10 @@ import {
   Search,
   X,
   RotateCcw,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import { ALL_25_SESSIONS } from '@saiyam/shared';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -41,6 +44,7 @@ export const AdminDashboard: React.FC = () => {
     selectedOrgFilter,
     setSelectedOrgFilter,
     financialYear,
+    curriculumSessions,
   } = useApp();
 
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
@@ -51,6 +55,13 @@ export const AdminDashboard: React.FC = () => {
   const [tablePaperFilter, setTablePaperFilter] = useState<string>('ALL');
   const [tableStatusFilter, setTableStatusFilter] = useState<string>('ALL');
   const [tableClassFilter, setTableClassFilter] = useState<string>('ALL');
+
+  // Show only 2 students initially, with 'Show More' / 'Show Less' toggle
+  const [showAllStudents, setShowAllStudents] = useState<boolean>(false);
+  // Curriculum Phase filter state ('ALL', 1, 2, 3)
+  const [curriculumPhaseFilter, setCurriculumPhaseFilter] = useState<'ALL' | 1 | 2 | 3>('ALL');
+  // Trust Verification Standards collapsible state
+  const [isStandardsOpen, setIsStandardsOpen] = useState<boolean>(false);
 
   // Filter schools by financial year and selected organization
   const orgSchools = schools.filter((s) => {
@@ -106,6 +117,71 @@ export const AdminDashboard: React.FC = () => {
     }
     return true;
   });
+
+  // Group / paginate filteredPairs to display only first 2 distinct students when collapsed
+  const { displayedPairs, totalUniqueStudents, isTruncated } = useMemo(() => {
+    const distinctIds: string[] = [];
+    for (const p of filteredPairs) {
+      if (!distinctIds.includes(p.studentId)) {
+        distinctIds.push(p.studentId);
+      }
+    }
+    const totalCount = distinctIds.length;
+
+    if (showAllStudents || totalCount <= 2) {
+      return {
+        displayedPairs: filteredPairs,
+        totalUniqueStudents: totalCount,
+        isTruncated: false,
+      };
+    }
+
+    const allowedIds = new Set(distinctIds.slice(0, 2));
+    const sliced = filteredPairs.filter((p) => allowedIds.has(p.studentId));
+
+    return {
+      displayedPairs: sliced,
+      totalUniqueStudents: totalCount,
+      isTruncated: true,
+    };
+  }, [filteredPairs, showAllStudents]);
+
+  // Master Curriculum sessions (fallback to ALL_25_SESSIONS)
+  const masterSessions = useMemo(() => {
+    return curriculumSessions && curriculumSessions.length > 0
+      ? curriculumSessions
+      : ALL_25_SESSIONS;
+  }, [curriculumSessions]);
+
+  // Filter master sessions by selected Phase
+  const phaseFilteredSessions = useMemo(() => {
+    if (curriculumPhaseFilter === 'ALL') return masterSessions;
+    return masterSessions.filter((s) => s.phaseNumber === curriculumPhaseFilter);
+  }, [masterSessions, curriculumPhaseFilter]);
+
+  // Set of session numbers that have been logged for the active filter scope
+  const conductedSessionNumbers = useMemo(() => {
+    return new Set(
+      sessionLogs
+        .filter((l) => {
+          const matchesFY = !l.financialYear || l.financialYear === financialYear;
+          if (!matchesFY) return false;
+          if (selectedSchoolFilter !== 'ALL') {
+            return l.schoolId === selectedSchoolFilter;
+          }
+          if (selectedOrgFilter !== 'ALL') {
+            const school = schools.find((s) => s.id === l.schoolId);
+            if (!school || (school.organizationCode || 'TRST_DIRECT') !== selectedOrgFilter) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .map((l) => l.sessionNumber)
+    );
+  }, [sessionLogs, financialYear, selectedSchoolFilter, selectedOrgFilter, schools]);
+
+  const conductedCount = conductedSessionNumbers.size;
 
   const activeOrg = organizations.find((o) => o.code === selectedOrgFilter);
 
@@ -507,7 +583,9 @@ export const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-slate-600 font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
-                    {filteredPairs.length} {language === 'mr' ? 'नोंदी' : 'records'}
+                    {isTruncated
+                      ? `${displayedPairs.length} / ${filteredPairs.length} ${language === 'mr' ? 'नोंदी' : 'records'} (२ ${language === 'mr' ? 'विद्यार्थी' : 'students'})`
+                      : `${filteredPairs.length} ${language === 'mr' ? 'नोंदी' : 'records'} (${totalUniqueStudents} ${language === 'mr' ? 'विद्यार्थी' : 'students'})`}
                   </span>
                 </div>
               </div>
@@ -587,9 +665,9 @@ export const AdminDashboard: React.FC = () => {
                       <option value="ALL">
                         {language === 'mr' ? '📝 सर्व चाचण्या' : '📝 All Papers'}
                       </option>
-                      <option value="MKMH">चाचणी १ • MKMH</option>
-                      <option value="MMAT">चाचणी २ • MMAT</option>
-                      <option value="ERT">चाचणी ३ • ERT</option>
+                      <option value="MKMH">{language === 'mr' ? 'चाचणी १ • MKMH' : 'Paper 1 • MKMH'}</option>
+                      <option value="MMAT">{language === 'mr' ? 'चाचणी २ • MMAT' : 'Paper 2 • MMAT'}</option>
+                      <option value="ERT">{language === 'mr' ? 'चाचणी ३ • ERT' : 'Paper 3 • ERT'}</option>
                     </select>
                   </div>
 
@@ -696,7 +774,7 @@ export const AdminDashboard: React.FC = () => {
                         </td>
                       </tr>
                     ) : (
-                      filteredPairs.map((p, idx) => {
+                      displayedPairs.map((p, idx) => {
                         const isCompleted = Boolean(p.preTest && p.postTest);
                         const isPreOnly = Boolean(p.preTest && !p.postTest);
                         const isPostOnly = Boolean(!p.preTest && p.postTest);
@@ -758,132 +836,332 @@ export const AdminDashboard: React.FC = () => {
                     )}
                   </tbody>
                 </table>
+
+                {/* Show More / Show Less Students Pagination Control */}
+                {totalUniqueStudents > 2 && (
+                  <div className="p-3 bg-slate-50 border-t border-[#233d76]/20 flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <span className="text-xs text-slate-600 font-semibold">
+                      {language === 'mr'
+                        ? isTruncated
+                          ? `सध्या २ विद्यार्थ्यांच्या नोंदी दाखवत आहे (एकूण ${totalUniqueStudents} विद्यार्थ्यांपैकी)`
+                          : `सर्व ${totalUniqueStudents} विद्यार्थ्यांच्या नोंदी दाखवत आहे (${filteredPairs.length} एकूण नोंदी)`
+                        : isTruncated
+                        ? `Showing records for 2 of ${totalUniqueStudents} students`
+                        : `Showing all ${totalUniqueStudents} students (${filteredPairs.length} total records)`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllStudents(!showAllStudents)}
+                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    >
+                      <span>
+                        {showAllStudents
+                          ? language === 'mr'
+                            ? 'कमी दाखवा (केवळ २ विद्यार्थी)'
+                            : 'Show Less (Only 2 Students)'
+                          : language === 'mr'
+                          ? `आणखी दाखवा (+${totalUniqueStudents - 2} विद्यार्थी)`
+                          : `Show More (+${totalUniqueStudents - 2} More Students)`}
+                      </span>
+                      {showAllStudents ? (
+                        <ChevronUp className="w-3.5 h-3.5 text-[#dfaf27]" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 text-[#dfaf27]" />
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Column (4 cols): Curriculum Progression Roadmap & Trust Governance */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-5">
           {/* 25-Session Curriculum Framework */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-            <div className="flex items-center space-x-2 pb-4 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center font-bold">
-                <Layers className="w-4 h-4 text-[#233d76]" />
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#233d76]/10 text-[#233d76] flex items-center justify-center font-bold">
+                  <Layers className="w-4 h-4 text-[#233d76]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm trust-heading">
+                    {language === 'mr' ? '२५ सत्रांचा आराखडा संच' : 'Curriculum Architecture'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    {language === 'mr' ? '३ टप्प्यांमधील मूल्यशिक्षण व आरोग्य' : '3-Phase Life Skills & Values Roadmap'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm trust-heading">
-                  {language === 'mr' ? '२५ सत्रांचा आराखडा संच' : 'Curriculum Architecture'}
-                </h3>
-                <p className="text-[11px] text-slate-500">
-                  {language === 'mr' ? '३ टप्प्यांमधील अभ्यासक्रम' : '3-Phase Intervention Plan'}
-                </p>
+              <span className="font-mono text-xs font-bold bg-[#f0da9a]/60 text-[#233d76] px-2 py-0.5 rounded-md border border-[#dfaf27]/40">
+                {conductedCount} / 25
+              </span>
+            </div>
+
+            {/* Overall Progress Bar */}
+            <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-bold text-[#233d76]">
+                  {language === 'mr' ? 'अभ्यासक्रम पूर्तता' : 'Intervention Progress'}
+                </span>
+                <span className="font-mono font-bold text-slate-700">
+                  {Math.round((conductedCount / 25) * 100)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-[#233d76] h-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, (conductedCount / 25) * 100)}%` }}
+                />
               </div>
             </div>
 
-            <div className="mt-5 space-y-3.5 text-xs">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-[#233d76]">
-                    {language === 'mr' ? 'सत्र प्रगती' : 'Session Progress'}
-                  </span>
-                  <span className="font-mono font-bold text-[#233d76] bg-[#f0da9a]/60 px-2.5 py-0.5 rounded">
-                    {sessionLogs.length} / 25
-                  </span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-[#233d76] h-full transition-all"
-                    style={{ width: `${Math.min(100, (sessionLogs.length / 25) * 100)}%` }}
-                  />
-                </div>
-              </div>
+            {/* Phase Filter Tabs */}
+            <div className="grid grid-cols-4 gap-1 mt-3 bg-slate-100 p-1 rounded-xl text-[11px] font-bold text-center">
+              <button
+                type="button"
+                onClick={() => setCurriculumPhaseFilter('ALL')}
+                className={`py-1.5 rounded-lg cursor-pointer transition-colors ${
+                  curriculumPhaseFilter === 'ALL'
+                    ? 'bg-white text-[#233d76] shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {language === 'mr' ? 'सर्व (२५)' : 'All (25)'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurriculumPhaseFilter(1)}
+                className={`py-1.5 rounded-lg cursor-pointer transition-colors ${
+                  curriculumPhaseFilter === 1
+                    ? 'bg-white text-[#233d76] shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {language === 'mr' ? 'टप्पा १ (१-६)' : 'Phase 1'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurriculumPhaseFilter(2)}
+                className={`py-1.5 rounded-lg cursor-pointer transition-colors ${
+                  curriculumPhaseFilter === 2
+                    ? 'bg-white text-[#233d76] shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {language === 'mr' ? 'टप्पा २ (७-१८)' : 'Phase 2'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurriculumPhaseFilter(3)}
+                className={`py-1.5 rounded-lg cursor-pointer transition-colors ${
+                  curriculumPhaseFilter === 3
+                    ? 'bg-white text-[#233d76] shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {language === 'mr' ? 'टप्पा ३ (१९-२५)' : 'Phase 3'}
+              </button>
+            </div>
 
-              <div className="p-3.5 rounded-xl bg-[#f0da9a]/30 border border-[#dfaf27]/40 text-slate-700 leading-relaxed text-[11px]">
-                <strong className="text-[#233d76] block mb-1">
-                  {language === 'mr' ? '२५ सत्रांची अधिकृत रचना:' : 'Official 25 Sessions Index:'}
-                </strong>
-                {language === 'mr'
-                  ? 'TRST शैक्षणिक टीमकडून २५ सत्रांची अधिकृत अनुक्रमणिका व उद्दिष्टे प्राप्त होताच ती थेट डेटाबेसद्वारे येथे अपडेट होतील. कोणताही डमी मजकूर भरला जाणार नाही.'
-                  : 'Awaiting verified 25-session syllabus and objectives from the TRST team. No synthetic descriptions are populated.'}
-              </div>
+            {/* Phase Description Banner */}
+            <div className="mt-2.5 px-3 py-2 rounded-lg bg-[#f0da9a]/25 border border-[#dfaf27]/40 text-[11px] text-[#233d76]">
+              {curriculumPhaseFilter === 1 && (
+                <p>
+                  <strong>{language === 'mr' ? 'टप्पा १ (सत्रे १-६): ' : 'Phase 1 (Sessions 1-6): '}</strong>
+                  {language === 'mr'
+                    ? 'पायाभूत मूल्ये, पंचकोश संकल्पना, शारीरिक व मानसिक आरोग्य.'
+                    : 'Foundation values, Panchakosh concepts, physical & mental health awareness.'}
+                </p>
+              )}
+              {curriculumPhaseFilter === 2 && (
+                <p>
+                  <strong>{language === 'mr' ? 'टप्पा २ (सत्रे ७-१८): ' : 'Phase 2 (Sessions 7-18): '}</strong>
+                  {language === 'mr'
+                    ? 'गैरसमज निर्मूलन, लिंग संवेदनशीलता, भावनिक संतुलन व वर्तन विकास.'
+                    : 'Myths eradication, gender sensitivity, emotion regulation & habit coaching.'}
+                </p>
+              )}
+              {curriculumPhaseFilter === 3 && (
+                <p>
+                  <strong>{language === 'mr' ? 'टप्पा ३ (सत्रे १९-२५): ' : 'Phase 3 (Sessions 19-25): '}</strong>
+                  {language === 'mr'
+                    ? 'निर्णयक्षमता, स्व-नियंत्रण (संयम), सामूहिक चिंतन व अंतिम मूल्यमापन.'
+                    : 'Decision making, self-control (Saiyam), group reflection & outcome evaluation.'}
+                </p>
+              )}
+              {curriculumPhaseFilter === 'ALL' && (
+                <p>
+                  <strong>{language === 'mr' ? '२५ सत्रांची अधिकृत रचना: ' : '25-Session Standard Framework: '}</strong>
+                  {language === 'mr'
+                    ? 'प्रत्येक सत्राचे नाव, विभाग आणि मुख्य उद्दिष्टे खालील यादीत तपासा.'
+                    : 'Click any phase above or scroll to explore modules, objectives, and live status.'}
+                </p>
+              )}
+            </div>
+
+            {/* Scrollable Session List */}
+            <div className="mt-3.5 space-y-2 max-h-[460px] overflow-y-auto pr-1">
+              {phaseFilteredSessions.map((s) => {
+                const isConducted = conductedSessionNumbers.has(s.sessionNumber);
+                const title = language === 'mr' ? (s.titleMr || s.sessionNameMr) : (s.titleEn || s.sessionNameEn);
+                const subTitle = language === 'mr' ? (s.titleEn || s.sessionNameEn) : (s.titleMr || s.sessionNameMr);
+                const desc = language === 'mr' ? s.descriptionMr : s.descriptionEn;
+                const modName = language === 'mr' ? s.moduleNameMr : s.moduleNameEn;
+
+                return (
+                  <div
+                    key={s.sessionNumber}
+                    className={`p-3 rounded-xl border transition-all text-xs ${
+                      isConducted
+                        ? 'bg-emerald-50/50 border-emerald-200'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="flex items-center space-x-2">
+                        <span
+                          className={`w-6 h-6 rounded-md font-mono text-[11px] font-bold flex items-center justify-center shrink-0 ${
+                            isConducted
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-[#233d76] text-white'
+                          }`}
+                        >
+                          #{s.sessionNumber}
+                        </span>
+                        <div>
+                          <h4 className="font-bold text-slate-900 leading-tight">
+                            {title}
+                          </h4>
+                          {subTitle && (
+                            <span className="text-[10px] text-slate-400">
+                              {subTitle}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${
+                          isConducted
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        {isConducted
+                          ? language === 'mr' ? '✓ पूर्ण' : '✓ Conducted'
+                          : language === 'mr' ? 'नियोजित' : 'Scheduled'}
+                      </span>
+                    </div>
+
+                    {modName && (
+                      <span className="inline-block text-[10px] font-semibold text-[#233d76] bg-[#f0da9a]/40 px-2 py-0.5 rounded mb-1">
+                        {modName}
+                      </span>
+                    )}
+
+                    {desc && (
+                      <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                        {desc}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Trust Field Governance & Audit Panel */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-            <div className="flex items-center space-x-2 pb-4 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-lg bg-[#dfaf27]/20 text-[#233d76] flex items-center justify-center font-bold">
-                <FileCheck2 className="w-4 h-4 text-[#233d76]" />
+          {/* Trust Verification Standards: Compact & Collapsible */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setIsStandardsOpen(!isStandardsOpen)}
+              className="w-full flex items-center justify-between text-left cursor-pointer"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0 border border-emerald-200">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs trust-heading">
+                    {language === 'mr' ? 'विश्वस्त पडताळणी मानके (४ निकष)' : 'Trust Verification Standards (4 Checks)'}
+                  </h4>
+                  <p className="text-[10px] text-slate-500">
+                    {language === 'mr' ? 'ऑन-ग्राउंड पारदर्शकता व DPDP अनुपालन' : 'Audit, compliance & evidence checklist'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm trust-heading">
-                  {language === 'mr' ? 'विश्वस्त पडताळणी मानके' : 'Trust Verification Standards'}
-                </h3>
-                <p className="text-[11px] text-slate-500">
-                  {language === 'mr' ? 'ऑन-ग्राउंड पारदर्शकता' : 'Audit & Compliance Checklist'}
-                </p>
+              <div className="flex items-center space-x-1 text-xs font-bold text-[#233d76]">
+                <span>{isStandardsOpen ? (language === 'mr' ? 'लपवा' : 'Hide') : (language === 'mr' ? 'तपासा' : 'View')}</span>
+                {isStandardsOpen ? (
+                  <ChevronUp className="w-4 h-4 text-[#dfaf27]" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#dfaf27]" />
+                )}
               </div>
-            </div>
+            </button>
 
-            <div className="mt-4 space-y-3 text-xs">
-              <div className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-slate-700">
-                  {language === 'mr' ? (
-                    <>
-                      <strong>मुख्याध्यापक सही व शिक्का:</strong> प्रत्येक शाळेचे अधिकृत संमतीपत्र व सत्र पूर्तता पत्रक.
-                    </>
-                  ) : (
-                    <>
-                      <strong>HM Sign & Stamp:</strong> Official school consent letter and session completion certificate.
-                    </>
-                  )}
-                </span>
+            {isStandardsOpen && (
+              <div className="mt-3.5 pt-3.5 border-t border-slate-100 space-y-2.5 text-xs animate-fadeIn">
+                <div className="flex items-start space-x-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="text-slate-700">
+                    {language === 'mr' ? (
+                      <>
+                        <strong>मुख्याध्यापक सही व शिक्का:</strong> प्रत्येक शाळेचे अधिकृत संमतीपत्र व सत्र पूर्तता पत्रक.
+                      </>
+                    ) : (
+                      <>
+                        <strong>HM Sign & Stamp:</strong> Official school consent letter and session completion certificate.
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-start space-x-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="text-slate-700">
+                    {language === 'mr' ? (
+                      <>
+                        <strong>DPDP Act (2023) अनुपालन:</strong> अल्पवयीन विद्यार्थ्यांची ओळख गोपनीय (S-1 ते S-N गट क्रमांक).
+                      </>
+                    ) : (
+                      <>
+                        <strong>DPDP Act (2023) Compliance:</strong> Minor student identities masked via S-1 to S-N bundle codes.
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-start space-x-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="text-slate-700">
+                    {language === 'mr' ? (
+                      <>
+                        <strong>३ मूल्यांकन चाचण्या (९५ प्रश्न):</strong> चाचणी १ (३०), चाचणी २ (३०), चाचणी ३ (३५) - रुब्रिक वेटेज व प्रोरिटेड स्कोअरिंग.
+                      </>
+                    ) : (
+                      <>
+                        <strong>3 Standardized Papers (95 Qs):</strong> Paper 1 (30), Paper 2 (30), Paper 3 (35) with rubric weightage.
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-start space-x-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="text-slate-700">
+                    {language === 'mr' ? (
+                      <>
+                        <strong>सत्र छायाचित्रे पुरावा:</strong> प्रत्येक वर्गाचे प्रत्यक्ष उपस्थिती व सत्राचे फोटो.
+                      </>
+                    ) : (
+                      <>
+                        <strong>Session Media Evidence:</strong> Classroom photo proof and session attendance records.
+                      </>
+                    )}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-slate-700">
-                  {language === 'mr' ? (
-                    <>
-                      <strong>DPDP Act (2023) अनुपालन:</strong> अल्पवयीन विद्यार्थ्यांची ओळख गोपनीय (S-1 ते S-N गट क्रमांक).
-                    </>
-                  ) : (
-                    <>
-                      <strong>DPDP Act (2023) Compliance:</strong> Minor student identities masked via S-1 to S-N bundle codes.
-                    </>
-                  )}
-                </span>
-              </div>
-              <div className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-slate-700">
-                  {language === 'mr' ? (
-                    <>
-                      <strong>३ मूल्यांकन चाचण्या (एकूण ९५ प्रश्न):</strong> चाचणी १ (३० प्रश्न), चाचणी २ (३० प्रश्न), चाचणी ३ (३५ प्रश्न) - रुब्रिक वेटेज व प्रोरिटेड स्कोअरिंग.
-                    </>
-                  ) : (
-                    <>
-                      <strong>3 Standardized Papers (95 Questions Total):</strong> Paper 1 (30 Qs), Paper 2 (30 Qs), Paper 3 (35 Qs) with rubric weightage & prorated scoring.
-                    </>
-                  )}
-                </span>
-              </div>
-              <div className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-slate-700">
-                  {language === 'mr' ? (
-                    <>
-                      <strong>सत्र छायाचित्रे पुरावा:</strong> प्रत्येक वर्गाचे प्रत्यक्ष उपस्थिती व सत्राचे फोटो.
-                    </>
-                  ) : (
-                    <>
-                      <strong>Session Media Evidence:</strong> Verified classroom photo proof and session attendance records.
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
