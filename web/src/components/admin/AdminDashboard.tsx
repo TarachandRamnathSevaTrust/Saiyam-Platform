@@ -660,121 +660,125 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-[#233d76] rounded-xl shadow-xs">
-                <table className="min-w-full text-xs border-collapse">
-                  <thead className="bg-[#233d76] text-white">
-                    <tr>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
-                        {language === 'mr' ? 'गठ्ठा क्र.' : 'Bundle #'}
-                      </th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
-                        {language === 'mr' ? 'विद्यार्थ्याचे नाव' : 'Student Name'}
-                      </th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
-                        {language === 'mr' ? 'लिंग' : 'Gender'}
-                      </th>
-                      <th className="px-3.5 py-3 text-left font-bold border-b border-white">
-                        {language === 'mr' ? 'इयत्ता' : 'Class'}
-                      </th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
-                        {language === 'mr' ? 'चाचणी' : 'Test Paper'}
-                      </th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">Pre %</th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">Post %</th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
-                        {language === 'mr' ? 'फरक' : 'Delta'}
-                      </th>
-                      <th className="px-3.5 py-3 text-center font-bold border-b border-white">
-                        {language === 'mr' ? 'स्थिती' : 'Status'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-[#233d76]">
-                    {filteredPairs.length === 0 ? (
+              {/* Outer Card with Rounded Border: Stays fixed, does not scroll horizontally */}
+              <div className="border border-[#233d76] rounded-xl shadow-xs overflow-hidden bg-white">
+                {/* Scroll container for the table rows ONLY */}
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-xs border-collapse">
+                    <thead className="bg-[#233d76] text-white">
                       <tr>
-                        <td colSpan={9} className="p-8 text-center bg-white">
-                          <div className="max-w-md mx-auto space-y-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto">
-                              <Info className="w-5 h-5 text-[#233d76]" />
-                            </div>
-                            <h5 className="font-bold text-slate-800 text-sm">
-                              {language === 'mr'
-                                ? 'कोणत्याही नोंदी आढळल्या नाहीत'
-                                : 'No matching assessment records found'}
-                            </h5>
-                            <p className="text-xs text-slate-500">
-                              {language === 'mr'
-                                ? 'निवडलेल्या फिल्टरनुसार कोणतीही चाचणी नोंद सापडली नाही. कृपया फिल्टर तपासा किंवा साफ करा.'
-                                : 'No assessment records match the selected filters. Please adjust or reset the filters.'}
-                            </p>
-                          </div>
-                        </td>
+                        <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                          {language === 'mr' ? 'गठ्ठा क्र.' : 'Bundle #'}
+                        </th>
+                        <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                          {language === 'mr' ? 'विद्यार्थ्याचे नाव' : 'Student Name'}
+                        </th>
+                        <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                          {language === 'mr' ? 'लिंग' : 'Gender'}
+                        </th>
+                        <th className="px-3.5 py-3 text-left font-bold border-b border-white">
+                          {language === 'mr' ? 'इयत्ता' : 'Class'}
+                        </th>
+                        <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                          {language === 'mr' ? 'चाचणी' : 'Test Paper'}
+                        </th>
+                        <th className="px-3.5 py-3 text-center font-bold border-b border-white">Pre %</th>
+                        <th className="px-3.5 py-3 text-center font-bold border-b border-white">Post %</th>
+                        <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                          {language === 'mr' ? 'फरक' : 'Delta'}
+                        </th>
+                        <th className="px-3.5 py-3 text-center font-bold border-b border-white">
+                          {language === 'mr' ? 'स्थिती' : 'Status'}
+                        </th>
                       </tr>
-                    ) : (
-                      displayedPairs.map((p, idx) => {
-                        const isCompleted = Boolean(p.preTest && p.postTest);
-                        const isPreOnly = Boolean(p.preTest && !p.postTest);
-                        const isPostOnly = Boolean(!p.preTest && p.postTest);
-                        const computedStatus = isCompleted
-                          ? 'ALL_COMPLETED'
-                          : isPreOnly
-                          ? 'PRE_COMPLETED'
-                          : isPostOnly
-                          ? 'POST_ONLY'
-                          : 'PENDING_PRE';
+                    </thead>
+                    <tbody className="text-[#233d76]">
+                      {filteredPairs.length === 0 ? (
+                        <tr>
+                          <td colSpan={9} className="p-8 text-center bg-white">
+                            <div className="max-w-md mx-auto space-y-2">
+                              <div className="w-10 h-10 rounded-full bg-[#f0da9a]/40 text-[#233d76] flex items-center justify-center mx-auto">
+                                <Info className="w-5 h-5 text-[#233d76]" />
+                              </div>
+                              <h5 className="font-bold text-slate-800 text-sm">
+                                {language === 'mr'
+                                  ? 'कोणत्याही नोंदी आढळल्या नाहीत'
+                                  : 'No matching assessment records found'}
+                              </h5>
+                              <p className="text-xs text-slate-500">
+                                {language === 'mr'
+                                  ? 'निवडलेल्या फिल्टरनुसार कोणतीही चाचणी नोंद सापडली नाही. कृपया फिल्टर तपासा किंवा साफ करा.'
+                                  : 'No assessment records match the selected filters. Please adjust or reset the filters.'}
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        displayedPairs.map((p, idx) => {
+                          const isCompleted = Boolean(p.preTest && p.postTest);
+                          const isPreOnly = Boolean(p.preTest && !p.postTest);
+                          const isPostOnly = Boolean(!p.preTest && p.postTest);
+                          const computedStatus = isCompleted
+                            ? 'ALL_COMPLETED'
+                            : isPreOnly
+                            ? 'PRE_COMPLETED'
+                            : isPostOnly
+                            ? 'POST_ONLY'
+                            : 'PENDING_PRE';
 
-                        return (
-                          <tr
-                            key={`${p.studentId}-${p.paperType}-${idx}`}
-                            className={idx % 2 === 0 ? 'bg-[#f0da9a]/25' : 'bg-white'}
-                          >
-                            <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
-                            <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
-                            <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
-                            <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
-                            <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
-                            <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
-                            <td className="px-3.5 py-2.5 text-center font-bold">{p.postTest ? `${p.postTest.scorePercentage}%` : '—'}</td>
-                            <td className="px-3.5 py-2.5 text-center font-black">
-                              {p.improvementDelta !== undefined ? (
+                          return (
+                            <tr
+                              key={`${p.studentId}-${p.paperType}-${idx}`}
+                              className={idx % 2 === 0 ? 'bg-[#f0da9a]/25' : 'bg-white'}
+                            >
+                              <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
+                              <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
+                              <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
+                              <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
+                              <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
+                              <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
+                              <td className="px-3.5 py-2.5 text-center font-bold">{p.postTest ? `${p.postTest.scorePercentage}%` : '—'}</td>
+                              <td className="px-3.5 py-2.5 text-center font-black">
+                                {p.improvementDelta !== undefined ? (
+                                  <span
+                                    className={
+                                      p.improvementDelta > 0
+                                        ? 'text-emerald-700'
+                                        : p.improvementDelta < 0
+                                        ? 'text-rose-600'
+                                        : 'text-slate-500'
+                                    }
+                                  >
+                                    {p.improvementDelta > 0 ? `+${p.improvementDelta}%` : `${p.improvementDelta}%`}
+                                  </span>
+                                ) : (
+                                  '—'
+                                )}
+                              </td>
+                              <td className="px-3.5 py-2.5 text-center font-semibold">
                                 <span
-                                  className={
-                                    p.improvementDelta > 0
-                                      ? 'text-emerald-700'
-                                      : p.improvementDelta < 0
-                                      ? 'text-rose-600'
-                                      : 'text-slate-500'
-                                  }
+                                  className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
+                                    isCompleted
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : isPreOnly
+                                      ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                      : isPostOnly
+                                      ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                                      : 'bg-slate-100 text-slate-500 border border-slate-200'
+                                  }`}
                                 >
-                                  {p.improvementDelta > 0 ? `+${p.improvementDelta}%` : `${p.improvementDelta}%`}
+                                  {formatAssessmentStatus(computedStatus, language)}
                                 </span>
-                              ) : (
-                                '—'
-                              )}
-                            </td>
-                            <td className="px-3.5 py-2.5 text-center font-semibold">
-                              <span
-                                className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
-                                  isCompleted
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : isPreOnly
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    : isPostOnly
-                                    ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                                    : 'bg-slate-100 text-slate-500 border border-slate-200'
-                                }`}
-                              >
-                                {formatAssessmentStatus(computedStatus, language)}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-                {/* Show More / Show Less Students Pagination Control */}
+                {/* Show More / Show Less Students Pagination Control: Stays fixed, never scrolls horizontally */}
                 {totalUniqueStudents > 2 && (
                   <div className="p-3 bg-slate-50 border-t border-[#233d76]/20 flex flex-col sm:flex-row items-center justify-between gap-2">
                     <span className="text-xs text-slate-600 font-semibold">
@@ -789,7 +793,7 @@ export const AdminDashboard: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowAllStudents(!showAllStudents)}
-                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
+                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
                     >
                       <span>
                         {showAllStudents
