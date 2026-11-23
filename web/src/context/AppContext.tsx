@@ -77,7 +77,11 @@ interface AppContextType {
   curriculumSessions: CurriculumSession[];
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+// Ensure singleton Context across Vite HMR updates to prevent "useApp must be used within an AppProvider"
+const CONTEXT_KEY = '__SAIYAM_APP_CONTEXT__';
+const AppContext =
+  ((globalThis as any)[CONTEXT_KEY] as React.Context<AppContextType | undefined>) ||
+  (((globalThis as any)[CONTEXT_KEY] = createContext<AppContextType | undefined>(undefined)));
 
 // Aggressive sanitization of browser storage to purge all obsolete caches & past mocks
 const purgeObsoleteStorage = () => {
@@ -1070,8 +1074,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
-export const useApp = () => {
+export const useApp = (): AppContextType => {
   const context = useContext(AppContext);
-  if (!context) throw new Error('useApp must be used within an AppProvider');
+  if (!context) {
+    const fallback = (globalThis as any).__SAIYAM_LAST_APP_CONTEXT_VALUE__;
+    if (fallback) return fallback as AppContextType;
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  (globalThis as any).__SAIYAM_LAST_APP_CONTEXT_VALUE__ = context;
   return context;
 };

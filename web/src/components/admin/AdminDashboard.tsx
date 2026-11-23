@@ -1129,10 +1129,12 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Dynamic Organization Management Modal for TRST */}
-      <OrganizationManagementModal
-        isOpen={isOrgModalOpen}
-        onClose={() => setIsOrgModalOpen(false)}
-      />
+      {isOrgModalOpen && (
+        <OrganizationManagementModal
+          isOpen={isOrgModalOpen}
+          onClose={() => setIsOrgModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
