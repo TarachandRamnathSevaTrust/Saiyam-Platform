@@ -50,11 +50,8 @@ export const AdminDashboard: React.FC = () => {
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
-  // Table-specific interactive filter states
+  // Quick search query for student table (student name or S-bundle #)
   const [tableSearchQuery, setTableSearchQuery] = useState<string>('');
-  const [tablePaperFilter, setTablePaperFilter] = useState<string>('ALL');
-  const [tableStatusFilter, setTableStatusFilter] = useState<string>('ALL');
-  const [tableClassFilter, setTableClassFilter] = useState<string>('ALL');
 
   // Show only 2 students initially, with 'Show More' / 'Show Less' toggle
   const [showAllStudents, setShowAllStudents] = useState<boolean>(false);
@@ -73,12 +70,7 @@ export const AdminDashboard: React.FC = () => {
 
   const orgSchoolIds = new Set(orgSchools.map((s) => s.id));
 
-  // Available unique class/division options for the table filter dropdown
-  const availableClasses = Array.from(
-    new Set(students.map((s) => `${s.standard}-${s.division}`))
-  ).sort();
-
-  // Filter student pairs by financial year, organization, school, search, paper, status, and class
+  // Filter student pairs by financial year, organization, school (from top scope bar), and search query
   const filteredPairs = assessmentPairs.filter((p) => {
     const matchesFY = !p.financialYear || p.financialYear === financialYear;
     if (!matchesFY) return false;
@@ -97,23 +89,6 @@ export const AdminDashboard: React.FC = () => {
         `s-${p.bundleSequenceNo}`.toLowerCase().includes(q) ||
         `${p.bundleSequenceNo}` === q;
       if (!matchName && !matchBundle) return false;
-    }
-    // Paper filter
-    if (tablePaperFilter !== 'ALL' && p.paperType !== tablePaperFilter) {
-      return false;
-    }
-    // Status filter
-    if (tableStatusFilter !== 'ALL') {
-      const isCompleted = Boolean(p.preTest && p.postTest);
-      const isPreOnly = Boolean(p.preTest && !p.postTest);
-      const isPending = Boolean(!p.preTest && !p.postTest);
-      if (tableStatusFilter === 'ALL_COMPLETED' && !isCompleted) return false;
-      if (tableStatusFilter === 'PRE_COMPLETED' && !isPreOnly) return false;
-      if (tableStatusFilter === 'PENDING' && !isPending) return false;
-    }
-    // Class filter
-    if (tableClassFilter !== 'ALL' && `${p.standard}-${p.division}` !== tableClassFilter) {
-      return false;
     }
     return true;
   });
@@ -657,137 +632,32 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Interactive Filter Toolbar for Student Records Table */}
-              <div className="bg-slate-50/90 p-3 rounded-xl border border-slate-200 mb-3 space-y-2.5 shadow-2xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
-                  {/* Search Input */}
-                  <div className="relative lg:col-span-2">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
-                    <input
-                      type="text"
-                      placeholder={
-                        language === 'mr'
-                          ? 'विद्यार्थी नाव किंवा S-क्र. शोधा...'
-                          : 'Search student name or S-bundle...'
-                      }
-                      value={tableSearchQuery}
-                      onChange={(e) => setTableSearchQuery(e.target.value)}
-                      className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76]"
-                    />
-                    {tableSearchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setTableSearchQuery('')}
-                        className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                        title="Clear search"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* School Filter Dropdown */}
-                  <div>
-                    <select
-                      value={selectedSchoolFilter}
-                      onChange={(e) => setSelectedSchoolFilter(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">
-                        {language === 'mr' ? '🏫 सर्व शाळा' : '🏫 All Schools'} ({orgSchools.length})
-                      </option>
-                      {orgSchools.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name} ({s.village})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Class Filter Dropdown */}
-                  <div>
-                    <select
-                      value={tableClassFilter}
-                      onChange={(e) => setTableClassFilter(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">
-                        {language === 'mr' ? '🎓 सर्व वर्ग' : '🎓 All Classes'}
-                      </option>
-                      {availableClasses.map((cls) => (
-                        <option key={cls} value={cls}>
-                          {cls}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Test Paper Filter */}
-                  <div>
-                    <select
-                      value={tablePaperFilter}
-                      onChange={(e) => setTablePaperFilter(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">
-                        {language === 'mr' ? '📝 सर्व चाचण्या' : '📝 All Papers'}
-                      </option>
-                      <option value="MKMH">{language === 'mr' ? 'चाचणी १ • MKMH' : 'Paper 1 • MKMH'}</option>
-                      <option value="MMAT">{language === 'mr' ? 'चाचणी २ • MMAT' : 'Paper 2 • MMAT'}</option>
-                      <option value="ERT">{language === 'mr' ? 'चाचणी ३ • ERT' : 'Paper 3 • ERT'}</option>
-                    </select>
-                  </div>
-
-                  {/* Status Filter */}
-                  <div>
-                    <select
-                      value={tableStatusFilter}
-                      onChange={(e) => setTableStatusFilter(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">
-                        {language === 'mr' ? '⚡ सर्व स्थिती' : '⚡ All Statuses'}
-                      </option>
-                      <option value="ALL_COMPLETED">
-                        ✓ {language === 'mr' ? 'दोन्ही पूर्ण' : 'Completed (Pre+Post)'}
-                      </option>
-                      <option value="PRE_COMPLETED">
-                        ⏳ {language === 'mr' ? 'केवळ Pre पूर्ण' : 'Pre Done'}
-                      </option>
-                      <option value="PENDING">
-                        ○ {language === 'mr' ? 'बाकी' : 'Pending'}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Filter Summary & Reset Pill */}
-                {(tableSearchQuery || selectedSchoolFilter !== 'ALL' || tablePaperFilter !== 'ALL' || tableStatusFilter !== 'ALL' || tableClassFilter !== 'ALL') && (
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
-                    <div className="flex items-center space-x-1.5 text-slate-500">
-                      <Filter className="w-3 h-3 text-[#233d76]" />
-                      <span>
-                        {language === 'mr'
-                          ? `फिल्टर सक्रिय: ${filteredPairs.length} नोंदी आढळल्या`
-                          : `Filter active: ${filteredPairs.length} records found`}
-                      </span>
-                    </div>
+              {/* Quick Search for Student Records Table */}
+              <div className="mb-3">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder={
+                      language === 'mr'
+                        ? 'विद्यार्थी नाव किंवा गट क्र. शोधा (उदा. S-1, S-2...)'
+                        : 'Search student name or bundle (e.g. S-1, S-2...)'
+                    }
+                    value={tableSearchQuery}
+                    onChange={(e) => setTableSearchQuery(e.target.value)}
+                    className="w-full text-xs pl-8.5 pr-8 py-2 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] transition-colors"
+                  />
+                  {tableSearchQuery && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setTableSearchQuery('');
-                        setSelectedSchoolFilter('ALL');
-                        setTablePaperFilter('ALL');
-                        setTableStatusFilter('ALL');
-                        setTableClassFilter('ALL');
-                      }}
-                      className="flex items-center space-x-1 text-rose-600 hover:text-rose-800 font-bold cursor-pointer"
+                      onClick={() => setTableSearchQuery('')}
+                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                      title="Clear search"
                     >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>{language === 'mr' ? 'फिल्टर साफ करा' : 'Reset Filters'}</span>
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               <div className="overflow-x-auto border border-[#233d76] rounded-xl shadow-xs">
