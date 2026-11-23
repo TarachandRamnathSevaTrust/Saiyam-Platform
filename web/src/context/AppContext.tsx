@@ -94,8 +94,7 @@ const purgeObsoleteStorage = () => {
           val.includes('u-trainer-trst') ||
           val.includes('u-field-trainer') ||
           val.includes('JPIP') ||
-          val.includes('VOPA') ||
-          val.includes('admin@trst.org.in')
+          val.includes('VOPA')
         ) {
           localStorage.removeItem(key);
         }
@@ -144,6 +143,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('saiyam_logged_in_v10');
+    localStorage.removeItem('saiyam_user_v10');
     setSelectedSchool(null);
     if (apiService.isConnected()) {
       apiService.signOut().catch(() => {});
@@ -246,11 +246,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           // When Supabase backend is connected, use real backend profiles only (no mock data)
           setUsers(backendProfiles);
           setCurrentUser((prev) => {
-            if (!prev) return backendProfiles[0];
+            if (!prev) return backendProfiles.find((u) => u.role === 'TRUST_ADMIN') || backendProfiles[0];
             const matched = backendProfiles.find(
               (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
             );
-            return matched || backendProfiles[0];
+            return matched || prev;
           });
         }
 
@@ -497,11 +497,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (backendProfiles && backendProfiles.length > 0) {
         setUsers(backendProfiles);
         setCurrentUser((prev) => {
-          if (!prev) return backendProfiles[0];
+          if (!prev) return backendProfiles.find((u) => u.role === 'TRUST_ADMIN') || backendProfiles[0];
           const matched = backendProfiles.find(
             (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
           );
-          return matched || backendProfiles[0];
+          return matched || prev;
         });
         return backendProfiles;
       }

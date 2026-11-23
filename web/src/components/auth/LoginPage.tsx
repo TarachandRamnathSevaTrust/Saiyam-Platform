@@ -87,9 +87,9 @@ export const LoginPage: React.FC = () => {
   // Demo 1: Trust Admin
   const handleDemoAdmin = () => {
     const adminUser = users.find((u) => u.role === 'TRUST_ADMIN') || {
-      id: 'u-trust-admin',
-      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'Trust Executive',
-      email: 'admin@trst.org.in',
+      id: 'de77cac3-3743-443f-8cf0-c4808c5bae8f',
+      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'TRST Admin',
+      email: 'test-admin@trst.org.in',
       role: 'TRUST_ADMIN',
       isActive: true,
       createdAt: '2026-01-01',

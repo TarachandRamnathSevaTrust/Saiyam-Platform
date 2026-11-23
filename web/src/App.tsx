@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from './context/AppContext';
 import { Header } from './components/layout/Header';
 import { LoginPage } from './components/auth/LoginPage';
@@ -34,8 +34,30 @@ export const App: React.FC = () => {
     isTrustAdmin ? 'DASHBOARD' : isOrgCoordinator ? 'NGO_PORTAL' : 'SCHOOLS'
   );
 
-  // Sync activeTab when role changes or user switches
+  const prevUserIdRef = useRef<string | null>(currentUser?.id || null);
+  const prevLoggedInRef = useRef<boolean>(isLoggedIn);
+
+  // Sync activeTab when role changes, user logs in, or user switches
   useEffect(() => {
+    const justLoggedIn = isLoggedIn && !prevLoggedInRef.current;
+    const userSwitched = currentUser?.id !== prevUserIdRef.current;
+    prevLoggedInRef.current = isLoggedIn;
+    prevUserIdRef.current = currentUser?.id || null;
+
+    if (justLoggedIn || userSwitched) {
+      if (isTrustAdmin) {
+        setActiveTab('DASHBOARD');
+        return;
+      } else if (isOrgCoordinator) {
+        setActiveTab('NGO_PORTAL');
+        return;
+      } else {
+        setActiveTab('SCHOOLS');
+        return;
+      }
+    }
+
+    // Role-based route guard for ongoing session
     if (isTrustAdmin) {
       if (activeTab !== 'DASHBOARD' && activeTab !== 'GOVERNANCE' && activeTab !== 'SCHOOLS') {
         setActiveTab('DASHBOARD');
@@ -50,7 +72,7 @@ export const App: React.FC = () => {
         setActiveTab('SCHOOLS');
       }
     }
-  }, [currentUser?.id, currentUser?.role]);
+  }, [currentUser?.id, currentUser?.role, isLoggedIn, isTrustAdmin, isOrgCoordinator]);
 
   // If not logged in, show the official Login Page first!
   if (!isLoggedIn) {

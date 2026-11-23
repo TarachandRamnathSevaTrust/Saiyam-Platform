@@ -47,10 +47,11 @@ export const apiService = {
       }
 
       // Fetch matching profile from public.profiles
+      const cleanEmail = (data.user.email || email).trim().toLowerCase();
       const { data: profileRow } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', data.user.id)
+        .or(`id.eq.${data.user.id},auth_user_id.eq.${data.user.id},email.eq.${cleanEmail}`)
         .maybeSingle();
 
       if (profileRow) {
