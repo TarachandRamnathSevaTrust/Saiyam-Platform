@@ -123,14 +123,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('saiyam_user_v10');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed?.id) return parsed;
-      } catch (e) {}
+    const isLogged = localStorage.getItem('saiyam_logged_in_v10') === 'true';
+    if (isLogged) {
+      const saved = localStorage.getItem('saiyam_user_v10');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed?.id) return parsed;
+        } catch (e) {}
+      }
     }
-    return INITIAL_USERS[0];
+    return {
+      id: '',
+      fullName: '',
+      email: '',
+      role: 'FIELD_TRAINER',
+      isActive: false,
+      createdAt: '',
+    };
   });
 
   const login = (user: UserProfile) => {
@@ -218,6 +228,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
     async function hydrateFromBackend() {
       try {
+        // 1. Authenticate & cryptographically verify active session with Supabase Auth
+        const activeAuthUser = await apiService.getCurrentSessionUser();
+        if (isMounted) {
+          if (activeAuthUser) {
+            setCurrentUser(activeAuthUser);
+            setIsLoggedIn(true);
+            localStorage.setItem('saiyam_logged_in_v10', 'true');
+            localStorage.setItem('saiyam_user_v10', JSON.stringify(activeAuthUser));
+          } else {
+            // Not authenticated in Supabase Auth - purge local session
+            setIsLoggedIn(false);
+            setCurrentUser({
+              id: '',
+              fullName: '',
+              email: '',
+              role: 'FIELD_TRAINER',
+              isActive: false,
+              createdAt: '',
+            });
+            localStorage.removeItem('saiyam_logged_in_v10');
+            localStorage.removeItem('saiyam_user_v10');
+          }
+        }
+
         const [
           backendOrgs,
           backendSchools,
@@ -246,7 +280,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           // When Supabase backend is connected, use real backend profiles only (no mock data)
           setUsers(backendProfiles);
           setCurrentUser((prev) => {
-            if (!prev) return backendProfiles.find((u) => u.role === 'TRUST_ADMIN') || backendProfiles[0];
+            if (!prev || !prev.id) return prev;
             const matched = backendProfiles.find(
               (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
             );
@@ -497,7 +531,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (backendProfiles && backendProfiles.length > 0) {
         setUsers(backendProfiles);
         setCurrentUser((prev) => {
-          if (!prev) return backendProfiles.find((u) => u.role === 'TRUST_ADMIN') || backendProfiles[0];
+          if (!prev || !prev.id) return prev;
           const matched = backendProfiles.find(
             (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
           );
@@ -546,8 +580,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteUser = (id: string) => {
     setUsers((prev) => prev.filter((u) => u.id !== id));
     if (currentUser.id === id) {
-      const fallback = users.find((u) => u.id !== id && u.role === 'TRUST_ADMIN') || INITIAL_USERS[0];
-      setCurrentUser(fallback);
+      logout();
     }
   };
 

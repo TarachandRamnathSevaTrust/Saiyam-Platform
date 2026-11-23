@@ -27,6 +27,54 @@ export const apiService = {
   // ============================================================================
   // SUPABASE AUTH (ईमेल व पासवर्ड थेट लॉगिन)
   // ============================================================================
+  async getCurrentSessionUser(): Promise<UserProfile | null> {
+    if (!supabase) return null;
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      if (error || !session?.user) return null;
+
+      const cleanEmail = (session.user.email || '').trim().toLowerCase();
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`id.eq.${session.user.id},auth_user_id.eq.${session.user.id},email.eq.${cleanEmail}`)
+        .maybeSingle();
+
+      if (profileRow) {
+        return {
+          id: profileRow.id,
+          authUserId: profileRow.auth_user_id || profileRow.id,
+          fullName: profileRow.full_name || profileRow.email,
+          email: profileRow.email,
+          role: profileRow.role || 'FIELD_TRAINER',
+          phone: profileRow.phone || undefined,
+          organizationId: profileRow.organization_id || undefined,
+          organizationCode: profileRow.organization_code || undefined,
+          isActive: profileRow.is_active ?? true,
+          createdAt: profileRow.created_at,
+        };
+      }
+
+      return {
+        id: session.user.id,
+        authUserId: session.user.id,
+        fullName:
+          session.user.user_metadata?.full_name ||
+          session.user.email?.split('@')[0] ||
+          'User',
+        email: session.user.email || '',
+        role: (session.user.user_metadata?.role as any) || 'FIELD_TRAINER',
+        isActive: true,
+        createdAt: session.user.created_at,
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+
   async signIn(
     email: string,
     password: string

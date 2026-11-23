@@ -75,7 +75,7 @@ export const App: React.FC = () => {
   }, [currentUser?.id, currentUser?.role, isLoggedIn, isTrustAdmin, isOrgCoordinator]);
 
   // If not logged in, show the official Login Page first!
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !currentUser || !currentUser.id) {
     return <LoginPage />;
   }
 
