@@ -186,7 +186,20 @@ export const AdminDashboard: React.FC = () => {
   const activeOrg = organizations.find((o) => o.code === selectedOrgFilter);
 
   const calcPaperMetrics = (pType: 'MKMH' | 'MMAT' | 'ERT') => {
-    const pairs = assessmentPairs.filter((p) => p.paperType === pType && p.preTest && p.postTest);
+    const pairs = assessmentPairs.filter((p) => {
+      const matchesFY = !p.financialYear || p.financialYear === financialYear;
+      if (!matchesFY) return false;
+      if (p.paperType !== pType || !p.preTest || !p.postTest) return false;
+      const student = students.find((s) => s.id === p.studentId);
+      if (selectedOrgFilter !== 'ALL') {
+        if (!student || !orgSchoolIds.has(student.schoolId)) return false;
+      }
+      if (selectedSchoolFilter !== 'ALL') {
+        if (!student || student.schoolId !== selectedSchoolFilter) return false;
+      }
+      return true;
+    });
+
     if (pairs.length === 0) {
       return { pre: 0, post: 0, delta: 0, count: 0 };
     }
@@ -428,6 +441,66 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Unified School & Progress Scope Control Bar (Controls Both Analytics & Curriculum) */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-9 h-9 rounded-xl bg-[#233d76] text-[#dfaf27] flex items-center justify-center font-bold shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                {language === 'mr' ? 'शाळा व्याप्ती निवड (विश्लेषण व सत्रे)' : 'School Scope Filter (Analytics & Sessions)'}
+              </h3>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                {language === 'mr' ? 'दोन्ही विभागांसाठी समान' : 'Syncs Both Sections'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {selectedSchoolFilter === 'ALL'
+                ? language === 'mr'
+                  ? `सर्व ${orgSchools.length} शाळांमधील चाचणी निकाल व २५ सत्रांची प्रगती एकत्रित दाखवत आहे.`
+                  : `Showing aggregated test deltas & 25-session progress across all ${orgSchools.length} schools.`
+                : language === 'mr'
+                ? `सध्या निवडलेली शाळा: ${schools.find((s) => s.id === selectedSchoolFilter)?.name || ''} • चाचण्या व सत्रे आपोआप अपडेट झाली आहेत.`
+                : `Active School: ${schools.find((s) => s.id === selectedSchoolFilter)?.name || ''} • Test analytics & 25 sessions updated.`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center space-x-2 text-xs bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 w-full sm:w-auto shadow-2xs">
+            <Filter className="w-4 h-4 text-[#233d76] shrink-0" />
+            <select
+              aria-label="Select School Scope"
+              value={selectedSchoolFilter}
+              onChange={(e) => setSelectedSchoolFilter(e.target.value)}
+              className="bg-transparent font-bold text-[#233d76] focus:outline-hidden cursor-pointer text-xs w-full sm:w-auto"
+            >
+              <option value="ALL">
+                {language === 'mr' ? '🏫 सर्व शाळा (एकत्रित)' : '🏫 All Schools (Aggregated)'} ({orgSchools.length})
+              </option>
+              {orgSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.village})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedSchoolFilter !== 'ALL' && (
+            <button
+              type="button"
+              onClick={() => setSelectedSchoolFilter('ALL')}
+              className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors border border-slate-200 cursor-pointer"
+              title={language === 'mr' ? 'सर्व शाळा रीसेट करा' : 'Reset to All Schools'}
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Main Executive Content: 2-Column Balanced Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (8 cols): Pre vs Post Impact Engine & Assessment Records */}
@@ -450,22 +523,16 @@ export const AdminDashboard: React.FC = () => {
                 </p>
               </div>
 
-              {/* School Filter Dropdown */}
-              <div className="flex items-center space-x-2 text-xs text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 shrink-0">
-                <Filter className="w-4 h-4 text-[#233d76]" />
-                <select
-                  aria-label="Filter by School"
-                  value={selectedSchoolFilter}
-                  onChange={(e) => setSelectedSchoolFilter(e.target.value)}
-                  className="bg-transparent font-bold text-[#233d76] focus:outline-hidden cursor-pointer text-xs"
-                >
-                  <option value="ALL">{language === 'mr' ? 'सर्व शाळा' : 'All Schools'}</option>
-                  {schools.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Active School Scope Indicator Badge */}
+              <div className="flex items-center space-x-2 shrink-0">
+                <span className="text-xs font-bold text-[#233d76] bg-[#f0da9a]/50 px-3 py-1.5 rounded-xl border border-[#dfaf27]/40 flex items-center space-x-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-[#233d76]" />
+                  <span>
+                    {selectedSchoolFilter === 'ALL'
+                      ? language === 'mr' ? 'सर्व शाळा (एकत्रित)' : 'All Schools'
+                      : schools.find((s) => s.id === selectedSchoolFilter)?.name || ''}
+                  </span>
+                </span>
               </div>
             </div>
 
@@ -894,9 +961,19 @@ export const AdminDashboard: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <span className="font-mono text-xs font-bold bg-[#f0da9a]/60 text-[#233d76] px-2 py-0.5 rounded-md border border-[#dfaf27]/40">
-                {conductedCount} / 25
-              </span>
+              <div className="flex items-center space-x-2 shrink-0">
+                <span className="text-xs font-bold text-[#233d76] bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 hidden sm:inline-flex items-center space-x-1">
+                  <Building2 className="w-3 h-3 text-[#233d76]" />
+                  <span className="truncate max-w-[120px]">
+                    {selectedSchoolFilter === 'ALL'
+                      ? language === 'mr' ? 'सर्व शाळा' : 'All Schools'
+                      : schools.find((s) => s.id === selectedSchoolFilter)?.name || ''}
+                  </span>
+                </span>
+                <span className="font-mono text-xs font-bold bg-[#f0da9a]/60 text-[#233d76] px-2 py-0.5 rounded-md border border-[#dfaf27]/40">
+                  {conductedCount} / 25
+                </span>
+              </div>
             </div>
 
             {/* Overall Progress Bar */}
