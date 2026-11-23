@@ -23,6 +23,9 @@ import {
   Sparkles,
   Info,
   Settings,
+  Search,
+  X,
+  RotateCcw,
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -43,6 +46,12 @@ export const AdminDashboard: React.FC = () => {
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>('ALL');
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
+  // Table-specific interactive filter states
+  const [tableSearchQuery, setTableSearchQuery] = useState<string>('');
+  const [tablePaperFilter, setTablePaperFilter] = useState<string>('ALL');
+  const [tableStatusFilter, setTableStatusFilter] = useState<string>('ALL');
+  const [tableClassFilter, setTableClassFilter] = useState<string>('ALL');
+
   // Filter schools by financial year and selected organization
   const orgSchools = schools.filter((s) => {
     const matchesFY = !s.financialYear || s.financialYear === financialYear;
@@ -53,7 +62,12 @@ export const AdminDashboard: React.FC = () => {
 
   const orgSchoolIds = new Set(orgSchools.map((s) => s.id));
 
-  // Filter student pairs by financial year, organization and school
+  // Available unique class/division options for the table filter dropdown
+  const availableClasses = Array.from(
+    new Set(students.map((s) => `${s.standard}-${s.division}`))
+  ).sort();
+
+  // Filter student pairs by financial year, organization, school, search, paper, status, and class
   const filteredPairs = assessmentPairs.filter((p) => {
     const matchesFY = !p.financialYear || p.financialYear === financialYear;
     if (!matchesFY) return false;
@@ -63,6 +77,32 @@ export const AdminDashboard: React.FC = () => {
     }
     if (selectedSchoolFilter !== 'ALL') {
       if (!student || student.schoolId !== selectedSchoolFilter) return false;
+    }
+    // Search query filter (matches student name or bundle sequence like 'S-1' or '1')
+    if (tableSearchQuery.trim()) {
+      const q = tableSearchQuery.toLowerCase().trim();
+      const matchName = p.studentName.toLowerCase().includes(q);
+      const matchBundle =
+        `s-${p.bundleSequenceNo}`.toLowerCase().includes(q) ||
+        `${p.bundleSequenceNo}` === q;
+      if (!matchName && !matchBundle) return false;
+    }
+    // Paper filter
+    if (tablePaperFilter !== 'ALL' && p.paperType !== tablePaperFilter) {
+      return false;
+    }
+    // Status filter
+    if (tableStatusFilter !== 'ALL') {
+      const isCompleted = Boolean(p.preTest && p.postTest);
+      const isPreOnly = Boolean(p.preTest && !p.postTest);
+      const isPending = Boolean(!p.preTest && !p.postTest);
+      if (tableStatusFilter === 'ALL_COMPLETED' && !isCompleted) return false;
+      if (tableStatusFilter === 'PRE_COMPLETED' && !isPreOnly) return false;
+      if (tableStatusFilter === 'PENDING' && !isPending) return false;
+    }
+    // Class filter
+    if (tableClassFilter !== 'ALL' && `${p.standard}-${p.division}` !== tableClassFilter) {
+      return false;
     }
     return true;
   });
@@ -454,7 +494,7 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Student-by-Student Live Assessment Records Table */}
             <div className="mt-8">
-              <div className="flex items-center justify-between mb-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 trust-heading">
                     {language === 'mr' ? 'विद्यार्थी निहाय पूर्व व उत्तर चाचणी नोंदी' : 'Student-by-Student Records'}
@@ -465,9 +505,144 @@ export const AdminDashboard: React.FC = () => {
                       : 'Physical paper bundle sequence (S-1, S-2...) verified'}
                   </p>
                 </div>
-                <span className="text-xs text-slate-500 font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-md">
-                  {filteredPairs.length} {language === 'mr' ? 'नोंदी' : 'records'}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-slate-600 font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                    {filteredPairs.length} {language === 'mr' ? 'नोंदी' : 'records'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Interactive Filter Toolbar for Student Records Table */}
+              <div className="bg-slate-50/90 p-3 rounded-xl border border-slate-200 mb-3 space-y-2.5 shadow-2xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
+                  {/* Search Input */}
+                  <div className="relative lg:col-span-2">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                    <input
+                      type="text"
+                      placeholder={
+                        language === 'mr'
+                          ? 'विद्यार्थी नाव किंवा S-क्र. शोधा...'
+                          : 'Search student name or S-bundle...'
+                      }
+                      value={tableSearchQuery}
+                      onChange={(e) => setTableSearchQuery(e.target.value)}
+                      className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76]"
+                    />
+                    {tableSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setTableSearchQuery('')}
+                        className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Clear search"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* School Filter Dropdown */}
+                  <div>
+                    <select
+                      value={selectedSchoolFilter}
+                      onChange={(e) => setSelectedSchoolFilter(e.target.value)}
+                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">
+                        {language === 'mr' ? '🏫 सर्व शाळा' : '🏫 All Schools'} ({orgSchools.length})
+                      </option>
+                      {orgSchools.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.village})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Class Filter Dropdown */}
+                  <div>
+                    <select
+                      value={tableClassFilter}
+                      onChange={(e) => setTableClassFilter(e.target.value)}
+                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">
+                        {language === 'mr' ? '🎓 सर्व वर्ग' : '🎓 All Classes'}
+                      </option>
+                      {availableClasses.map((cls) => (
+                        <option key={cls} value={cls}>
+                          {cls}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Test Paper Filter */}
+                  <div>
+                    <select
+                      value={tablePaperFilter}
+                      onChange={(e) => setTablePaperFilter(e.target.value)}
+                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">
+                        {language === 'mr' ? '📝 सर्व चाचण्या' : '📝 All Papers'}
+                      </option>
+                      <option value="MKMH">चाचणी १ • MKMH</option>
+                      <option value="MMAT">चाचणी २ • MMAT</option>
+                      <option value="ERT">चाचणी ३ • ERT</option>
+                    </select>
+                  </div>
+
+                  {/* Status Filter */}
+                  <div>
+                    <select
+                      value={tableStatusFilter}
+                      onChange={(e) => setTableStatusFilter(e.target.value)}
+                      className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#233d76] font-semibold text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">
+                        {language === 'mr' ? '⚡ सर्व स्थिती' : '⚡ All Statuses'}
+                      </option>
+                      <option value="ALL_COMPLETED">
+                        ✓ {language === 'mr' ? 'दोन्ही पूर्ण' : 'Completed (Pre+Post)'}
+                      </option>
+                      <option value="PRE_COMPLETED">
+                        ⏳ {language === 'mr' ? 'केवळ Pre पूर्ण' : 'Pre Done'}
+                      </option>
+                      <option value="PENDING">
+                        ○ {language === 'mr' ? 'बाकी' : 'Pending'}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Filter Summary & Reset Pill */}
+                {(tableSearchQuery || selectedSchoolFilter !== 'ALL' || tablePaperFilter !== 'ALL' || tableStatusFilter !== 'ALL' || tableClassFilter !== 'ALL') && (
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                    <div className="flex items-center space-x-1.5 text-slate-500">
+                      <Filter className="w-3 h-3 text-[#233d76]" />
+                      <span>
+                        {language === 'mr'
+                          ? `फिल्टर सक्रिय: ${filteredPairs.length} नोंदी आढळल्या`
+                          : `Filter active: ${filteredPairs.length} records found`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTableSearchQuery('');
+                        setSelectedSchoolFilter('ALL');
+                        setTablePaperFilter('ALL');
+                        setTableStatusFilter('ALL');
+                        setTableClassFilter('ALL');
+                      }}
+                      className="flex items-center space-x-1 text-rose-600 hover:text-rose-800 font-bold cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>{language === 'mr' ? 'फिल्टर साफ करा' : 'Reset Filters'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="overflow-x-auto border border-[#233d76] rounded-xl shadow-xs">
@@ -509,60 +684,77 @@ export const AdminDashboard: React.FC = () => {
                             </div>
                             <h5 className="font-bold text-slate-800 text-sm">
                               {language === 'mr'
-                                ? 'अद्याप प्रत्यक्ष चाचणी नोंदी भरलेल्या नाहीत'
-                                : 'Awaiting Field Assessment Records'}
+                                ? 'कोणत्याही नोंदी आढळल्या नाहीत'
+                                : 'No matching assessment records found'}
                             </h5>
                             <p className="text-xs text-slate-500">
                               {language === 'mr'
-                                ? 'क्षेत्र प्रशिक्षकांनी शाळांमध्ये जाऊन प्रत्यक्ष पेपर चाचण्या (Pre / Post Tests) घेतल्यानंतर भरलेला डेटा येथे थेट दिसेल. कोणताही डमी किंवा खोटा डेटा दाखवला जाणार नाही.'
-                                : 'Real data entered by field trainers from on-ground physical paper stacks will appear here. No synthetic mock data is populated.'}
+                                ? 'निवडलेल्या फिल्टरनुसार कोणतीही चाचणी नोंद सापडली नाही. कृपया फिल्टर तपासा किंवा साफ करा.'
+                                : 'No assessment records match the selected filters. Please adjust or reset the filters.'}
                             </p>
                           </div>
                         </td>
                       </tr>
                     ) : (
-                      filteredPairs.map((p, idx) => (
-                        <tr
-                          key={`${p.studentId}-${p.paperType}-${idx}`}
-                          className={idx % 2 === 0 ? 'bg-[#f0da9a]/25' : 'bg-white'}
-                        >
-                          <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
-                          <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
-                          <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
-                          <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
-                          <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
-                          <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
-                          <td className="px-3.5 py-2.5 text-center font-bold">{p.postTest ? `${p.postTest.scorePercentage}%` : '—'}</td>
-                          <td className="px-3.5 py-2.5 text-center font-black">
-                            {p.improvementDelta !== undefined ? (
+                      filteredPairs.map((p, idx) => {
+                        const isCompleted = Boolean(p.preTest && p.postTest);
+                        const isPreOnly = Boolean(p.preTest && !p.postTest);
+                        const isPostOnly = Boolean(!p.preTest && p.postTest);
+                        const computedStatus = isCompleted
+                          ? 'ALL_COMPLETED'
+                          : isPreOnly
+                          ? 'PRE_COMPLETED'
+                          : isPostOnly
+                          ? 'POST_ONLY'
+                          : 'PENDING_PRE';
+
+                        return (
+                          <tr
+                            key={`${p.studentId}-${p.paperType}-${idx}`}
+                            className={idx % 2 === 0 ? 'bg-[#f0da9a]/25' : 'bg-white'}
+                          >
+                            <td className="px-3.5 py-2.5 font-mono font-bold">S-{p.bundleSequenceNo}</td>
+                            <td className="px-3.5 py-2.5 font-bold">{p.studentName}</td>
+                            <td className="px-3.5 py-2.5">{formatGender(p.gender, language)}</td>
+                            <td className="px-3.5 py-2.5">{p.standard}-{p.division}</td>
+                            <td className="px-3.5 py-2.5 text-center font-bold">{p.paperType}</td>
+                            <td className="px-3.5 py-2.5 text-center font-bold">{p.preTest ? `${p.preTest.scorePercentage}%` : '—'}</td>
+                            <td className="px-3.5 py-2.5 text-center font-bold">{p.postTest ? `${p.postTest.scorePercentage}%` : '—'}</td>
+                            <td className="px-3.5 py-2.5 text-center font-black">
+                              {p.improvementDelta !== undefined ? (
+                                <span
+                                  className={
+                                    p.improvementDelta > 0
+                                      ? 'text-emerald-700'
+                                      : p.improvementDelta < 0
+                                      ? 'text-rose-600'
+                                      : 'text-slate-500'
+                                  }
+                                >
+                                  {p.improvementDelta > 0 ? `+${p.improvementDelta}%` : `${p.improvementDelta}%`}
+                                </span>
+                              ) : (
+                                '—'
+                              )}
+                            </td>
+                            <td className="px-3.5 py-2.5 text-center font-semibold">
                               <span
-                                className={
-                                  p.improvementDelta > 0
-                                    ? 'text-emerald-700'
-                                    : p.improvementDelta < 0
-                                    ? 'text-rose-600'
-                                    : 'text-slate-500'
-                                }
+                                className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
+                                  isCompleted
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : isPreOnly
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : isPostOnly
+                                    ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                                    : 'bg-slate-100 text-slate-500 border border-slate-200'
+                                }`}
                               >
-                                {p.improvementDelta > 0 ? `+${p.improvementDelta}%` : `${p.improvementDelta}%`}
+                                {formatAssessmentStatus(computedStatus, language)}
                               </span>
-                            ) : (
-                              '—'
-                            )}
-                          </td>
-                          <td className="px-3.5 py-2.5 text-center font-semibold">
-                            <span
-                              className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
-                                p.status === 'ALL_COMPLETED'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
-                              }`}
-                            >
-                              {formatAssessmentStatus(p.status, language)}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

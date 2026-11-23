@@ -298,10 +298,13 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="sm:col-span-1 flex items-end">
                 <button
                   type="submit"
-                  className="w-full bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold p-2.5 rounded-xl shadow-xs flex items-center justify-center cursor-pointer transition-colors"
+                  className="w-full bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold p-2.5 rounded-xl shadow-xs flex items-center justify-center space-x-2 cursor-pointer transition-colors"
                   title={language === 'mr' ? 'जतन करा' : 'Save Student'}
                 >
                   <Check className="w-4 h-4 text-[#dfaf27]" />
+                  <span className="sm:hidden font-bold text-xs">
+                    {language === 'mr' ? 'विद्यार्थी जतन करा' : 'Save Student'}
+                  </span>
                 </button>
               </div>
             </div>

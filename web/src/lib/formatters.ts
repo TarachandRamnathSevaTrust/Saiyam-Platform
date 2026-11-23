@@ -47,5 +47,7 @@ export const formatAssessmentStatus = (
   language: 'mr' | 'en'
 ): string => {
   if (status === 'ALL_COMPLETED') return language === 'mr' ? 'पूर्ण' : 'Completed';
-  return language === 'mr' ? 'Pre पूर्ण' : 'Pre Done';
+  if (status === 'PRE_COMPLETED') return language === 'mr' ? 'Pre पूर्ण' : 'Pre Done';
+  if (status === 'POST_COMPLETED' || status === 'POST_ONLY') return language === 'mr' ? 'Post पूर्ण' : 'Post Done';
+  return language === 'mr' ? 'बाकी' : 'Pending';
 };
