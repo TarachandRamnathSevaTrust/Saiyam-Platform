@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
-  const { schools, selectedSchool, setSelectedSchool, language, currentUser } = useApp();
+  const { schools, selectedSchool, setSelectedSchool, language, currentUser, sessionLogs } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
@@ -161,9 +161,25 @@ export const SchoolList: React.FC<Props> = ({ onNavigateToTab }) => {
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-2.5 py-1 rounded-full border border-[#dfaf27]/40">
-                      {school.completedSessionsCount || 0} / 25 {language === 'mr' ? 'सत्रे पूर्ण' : 'Sessions Done'}
-                    </span>
+                    {(() => {
+                      const distinctSessionsCount = new Set(
+                        (sessionLogs || [])
+                          .filter((l) => l.schoolId === school.id)
+                          .map((l) => l.sessionNumber)
+                      ).size;
+                      const count = distinctSessionsCount || school.completedSessionsCount || 0;
+                      return (
+                        <span
+                          className={`text-xs font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                            count > 0
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : 'bg-[#f0da9a]/60 text-[#233d76] border-[#dfaf27]/40'
+                          }`}
+                        >
+                          {count} / 25 {language === 'mr' ? 'सत्रे पूर्ण' : 'Sessions Done'}
+                        </span>
+                      );
+                    })()}
                     <span className="text-[11px] text-slate-400 block mt-1">
                       {language === 'mr' ? 'प्रतिनिधी:' : 'POC:'} {school.representativeName}
                     </span>

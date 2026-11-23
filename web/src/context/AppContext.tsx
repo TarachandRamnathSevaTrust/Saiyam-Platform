@@ -298,13 +298,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (backendSchools && backendSchools.length > 0) {
           const resolvedSchools = backendSchools.map((s) => {
+            const schoolLogs = (backendLogs || []).filter((l) => l.schoolId === s.id);
+            const dynamicSessionsCount = new Set(schoolLogs.map((l) => l.sessionNumber)).size;
+            let updated = {
+              ...s,
+              completedSessionsCount: dynamicSessionsCount,
+            };
             if (!s.assignedTrainerId) {
               const matchedByName = (backendProfiles || []).find(
                 (p) => p.role === 'FIELD_TRAINER' && p.fullName?.trim().toLowerCase() === (s.assignedTrainerName || '').trim().toLowerCase()
               );
               if (matchedByName) {
                 return {
-                  ...s,
+                  ...updated,
                   assignedTrainerId: matchedByName.id,
                   assignedTrainerName: matchedByName.fullName,
                 };
@@ -314,7 +320,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               );
               if (orgTrainers.length === 1) {
                 return {
-                  ...s,
+                  ...updated,
                   assignedTrainerId: orgTrainers[0].id,
                   assignedTrainerName: orgTrainers[0].fullName,
                 };
@@ -322,10 +328,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             } else if (!s.assignedTrainerName) {
               const tr = (backendProfiles || []).find((p) => p.id === s.assignedTrainerId);
               if (tr) {
-                return { ...s, assignedTrainerName: tr.fullName };
+                return { ...updated, assignedTrainerName: tr.fullName };
               }
             }
-            return s;
+            return updated;
           });
           setSchools(resolvedSchools);
           // Auto-align selectedSchool to match the real Supabase school with real UUID
@@ -954,19 +960,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return [newLog, ...filtered];
     });
 
-    if (existingIndex < 0) {
-      setSchools((prev) =>
-        prev.map((s) => {
-          if (s.id === logData.schoolId) {
-            return {
-              ...s,
-              completedSessionsCount: Math.min(25, (s.completedSessionsCount || 0) + 1),
-            };
-          }
-          return s;
-        })
-      );
-    }
+    // 2. Increment completedSessionsCount dynamically for this school
+    setSchools((prev) =>
+      prev.map((s) => {
+        if (s.id === logData.schoolId) {
+          const updatedLogs = [
+            newLog,
+            ...sessionLogs.filter(
+              (l) =>
+                !(
+                  l.schoolId === logData.schoolId &&
+                  l.sessionNumber === logData.sessionNumber &&
+                  (l.financialYear || financialYear) === targetFY
+                )
+            ),
+          ];
+          const schoolLogs = updatedLogs.filter((l) => l.schoolId === s.id);
+          const distinctCount = new Set(schoolLogs.map((l) => l.sessionNumber)).size;
+          return {
+            ...s,
+            completedSessionsCount: distinctCount,
+          };
+        }
+        return s;
+      })
+    );
+
+    setSelectedSchool((prev) => {
+      if (prev && prev.id === logData.schoolId) {
+        const updatedLogs = [
+          newLog,
+          ...sessionLogs.filter(
+            (l) =>
+              !(
+                l.schoolId === logData.schoolId &&
+                l.sessionNumber === logData.sessionNumber &&
+                (l.financialYear || financialYear) === targetFY
+              )
+          ),
+        ];
+        const schoolLogs = updatedLogs.filter((l) => l.schoolId === prev.id);
+        const distinctCount = new Set(schoolLogs.map((l) => l.sessionNumber)).size;
+        return {
+          ...prev,
+          completedSessionsCount: distinctCount,
+        };
+      }
+      return prev;
+    });
 
     if (apiService.isConnected()) {
       apiService.createSessionLog({ ...logData, financialYear: targetFY })

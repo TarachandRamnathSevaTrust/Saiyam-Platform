@@ -284,7 +284,9 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const completedCount = sessionLogs.filter((l) => l.schoolId === selectedSchool.id).length;
+  const completedCount = new Set(
+    sessionLogs.filter((l) => l.schoolId === selectedSchool.id).map((l) => l.sessionNumber)
+  ).size;
 
   // For Trust Admins or when toggled to Table View, display the comprehensive 25-Session Table
   if (viewMode === 'TABLE') {
