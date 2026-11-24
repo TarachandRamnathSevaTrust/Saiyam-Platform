@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import {
   School,
@@ -32,12 +32,13 @@ import { INITIAL_QUESTIONS } from '@saiyam/shared';
 
 interface AppContextType {
   isLoggedIn: boolean;
-  login: (user: UserProfile) => void;
+  login: (user: UserProfile) => Promise<void>;
   logout: () => void;
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
   users: UserProfile[];
   refreshProfiles: () => Promise<UserProfile[]>;
+  refreshData: () => Promise<void>;
   addUser: (userData: Omit<UserProfile, 'id' | 'createdAt'>) => UserProfile;
   updateUser: (id: string, updates: Partial<UserProfile>) => void;
   deleteUser: (id: string) => void;
@@ -147,13 +148,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   });
 
-  const login = (user: UserProfile) => {
-    setCurrentUser(user);
-    setIsLoggedIn(true);
-    localStorage.setItem('saiyam_logged_in_v10', 'true');
-    localStorage.setItem('saiyam_user_v10', JSON.stringify(user));
-  };
-
   const logout = () => {
     setIsLoggedIn(false);
     // Securely purge all session & student PII from browser localStorage
@@ -249,254 +243,253 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>(CURRICULUM_MODULES);
   const [curriculumSessions, setCurriculumSessions] = useState<CurriculumSession[]>(ALL_25_SESSIONS);
 
-  // Auto-hydrate from Supabase PostgreSQL backend if available
-  useEffect(() => {
+  // Auto-hydrate from Supabase PostgreSQL backend
+  const hydrateFromBackend = useCallback(async () => {
     if (!apiService.isConnected()) return;
 
-    let isMounted = true;
-    async function hydrateFromBackend() {
-      try {
-        // 1. Authenticate & cryptographically verify active session with Supabase Auth
-        const activeAuthUser = await apiService.getCurrentSessionUser();
+    try {
+      // 1. Authenticate & cryptographically verify active session with Supabase Auth
+      const activeAuthUser = await apiService.getCurrentSessionUser();
+      if (activeAuthUser) {
+        setCurrentUser(activeAuthUser);
+        setIsLoggedIn(true);
+        localStorage.setItem('saiyam_logged_in_v10', 'true');
+        localStorage.setItem('saiyam_user_v10', JSON.stringify(activeAuthUser));
+      }
 
-        if (isMounted) {
-          if (activeAuthUser) {
-            setCurrentUser(activeAuthUser);
-            setIsLoggedIn(true);
-            localStorage.setItem('saiyam_logged_in_v10', 'true');
-            localStorage.setItem('saiyam_user_v10', JSON.stringify(activeAuthUser));
-          }
-        }
+      const [
+        backendOrgs,
+        backendSchools,
+        backendLogs,
+        backendProfiles,
+        backendStudents,
+        backendModules,
+        backendSessions,
+        backendQuestions,
+        backendAssessments,
+      ] = await Promise.all([
+        apiService.getOrganizations(),
+        apiService.getSchools(),
+        apiService.getSessionLogs(),
+        apiService.getProfiles(),
+        apiService.getAllStudents(),
+        apiService.getCurriculumModules(),
+        apiService.getCurriculumSessions(),
+        apiService.getQuestions(),
+        apiService.getAllAssessmentsWithResponses(),
+      ]);
 
-        const [
-          backendOrgs,
-          backendSchools,
-          backendLogs,
-          backendProfiles,
-          backendStudents,
-          backendModules,
-          backendSessions,
-          backendQuestions,
-          backendAssessments,
-        ] = await Promise.all([
-          apiService.getOrganizations(),
-          apiService.getSchools(),
-          apiService.getSessionLogs(),
-          apiService.getProfiles(),
-          apiService.getAllStudents(),
-          apiService.getCurriculumModules(),
-          apiService.getCurriculumSessions(),
-          apiService.getQuestions(),
-          apiService.getAllAssessmentsWithResponses(),
-        ]);
+      if (backendProfiles && backendProfiles.length > 0) {
+        setUsers(backendProfiles);
+        setCurrentUser((prev) => {
+          if (!prev || !prev.id) return prev;
+          const matched = backendProfiles.find(
+            (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
+          );
+          return matched || prev;
+        });
+      }
 
-        if (!isMounted) return;
+      if (backendOrgs && backendOrgs.length > 0) {
+        setOrganizations(backendOrgs);
+      }
 
-        if (backendProfiles && backendProfiles.length > 0) {
-          // When Supabase backend is connected, use real backend profiles only (no mock data)
-          setUsers(backendProfiles);
-          setCurrentUser((prev) => {
-            if (!prev || !prev.id) return prev;
-            const matched = backendProfiles.find(
-              (u) => u.id === prev.id || u.email.toLowerCase() === prev.email.toLowerCase()
+      if (backendSchools && backendSchools.length > 0) {
+        const resolvedSchools = backendSchools.map((s) => {
+          const schoolLogs = (backendLogs || []).filter((l) => l.schoolId === s.id);
+          const dynamicSessionsCount = new Set(schoolLogs.map((l) => l.sessionNumber)).size;
+          let updated = {
+            ...s,
+            completedSessionsCount: dynamicSessionsCount,
+          };
+          if (!s.assignedTrainerId) {
+            const matchedByName = (backendProfiles || []).find(
+              (p) => p.role === 'FIELD_TRAINER' && p.fullName?.trim().toLowerCase() === (s.assignedTrainerName || '').trim().toLowerCase()
             );
-            return matched || prev;
-          });
-        }
-
-        if (backendOrgs && backendOrgs.length > 0) {
-          setOrganizations(backendOrgs);
-        }
-
-        if (backendSchools && backendSchools.length > 0) {
-          const resolvedSchools = backendSchools.map((s) => {
-            const schoolLogs = (backendLogs || []).filter((l) => l.schoolId === s.id);
-            const dynamicSessionsCount = new Set(schoolLogs.map((l) => l.sessionNumber)).size;
-            let updated = {
-              ...s,
-              completedSessionsCount: dynamicSessionsCount,
-            };
-            if (!s.assignedTrainerId) {
-              const matchedByName = (backendProfiles || []).find(
-                (p) => p.role === 'FIELD_TRAINER' && p.fullName?.trim().toLowerCase() === (s.assignedTrainerName || '').trim().toLowerCase()
-              );
-              if (matchedByName) {
-                return {
-                  ...updated,
-                  assignedTrainerId: matchedByName.id,
-                  assignedTrainerName: matchedByName.fullName,
-                };
-              }
-              const orgTrainers = (backendProfiles || []).filter(
-                (p) => p.role === 'FIELD_TRAINER' && (!s.organizationCode || p.organizationCode === s.organizationCode)
-              );
-              if (orgTrainers.length === 1) {
-                return {
-                  ...updated,
-                  assignedTrainerId: orgTrainers[0].id,
-                  assignedTrainerName: orgTrainers[0].fullName,
-                };
-              }
-            } else if (!s.assignedTrainerName) {
-              const tr = (backendProfiles || []).find((p) => p.id === s.assignedTrainerId);
-              if (tr) {
-                return { ...updated, assignedTrainerName: tr.fullName };
-              }
+            if (matchedByName) {
+              return {
+                ...updated,
+                assignedTrainerId: matchedByName.id,
+                assignedTrainerName: matchedByName.fullName,
+              };
             }
-            return updated;
-          });
-          setSchools(resolvedSchools);
-          // Auto-align selectedSchool to match the real Supabase school with real UUID
-          setSelectedSchool((prev) => {
-            if (!prev) return resolvedSchools[0];
-            const matched = resolvedSchools.find(
-              (s) =>
-                s.id === prev.id ||
-                s.name.trim().toLowerCase() === prev.name.trim().toLowerCase()
+            const orgTrainers = (backendProfiles || []).filter(
+              (p) => p.role === 'FIELD_TRAINER' && (!s.organizationCode || p.organizationCode === s.organizationCode)
             );
-            return matched || resolvedSchools[0];
-          });
-        }
+            if (orgTrainers.length === 1) {
+              return {
+                ...updated,
+                assignedTrainerId: orgTrainers[0].id,
+                assignedTrainerName: orgTrainers[0].fullName,
+              };
+            }
+          } else if (!s.assignedTrainerName) {
+            const tr = (backendProfiles || []).find((p) => p.id === s.assignedTrainerId);
+            if (tr) {
+              return { ...updated, assignedTrainerName: tr.fullName };
+            }
+          }
+          return updated;
+        });
+        setSchools(resolvedSchools);
+        setSelectedSchool((prev) => {
+          if (!prev) return resolvedSchools[0];
+          const matched = resolvedSchools.find(
+            (s) =>
+              s.id === prev.id ||
+              s.name.trim().toLowerCase() === prev.name.trim().toLowerCase()
+          );
+          return matched || resolvedSchools[0];
+        });
+      }
 
-        if (backendStudents && backendStudents.length > 0) {
-          setStudents(backendStudents);
+      if (backendStudents && backendStudents.length > 0) {
+        setStudents(backendStudents);
 
-          // Reconstruct assessment pairs for all students and papers from Supabase
-          const assessmentsList = backendAssessments || [];
-          const allPairs: StudentAssessmentPair[] = [];
+        // Reconstruct assessment pairs for all students and papers from Supabase
+        const assessmentsList = backendAssessments || [];
+        const allPairs: StudentAssessmentPair[] = [];
 
-          backendStudents.forEach((student) => {
-            (['MKMH', 'MMAT', 'ERT'] as PaperType[]).forEach((pType) => {
-              const preRec = assessmentsList.find(
-                (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'PRE'
-              );
-              const postRec = assessmentsList.find(
-                (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'POST'
-              );
+        backendStudents.forEach((student) => {
+          (['MKMH', 'MMAT', 'ERT'] as PaperType[]).forEach((pType) => {
+            const preRec = assessmentsList.find(
+              (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'PRE'
+            );
+            const postRec = assessmentsList.find(
+              (a) => a.studentId === student.id && a.paperType === pType && a.phase === 'POST'
+            );
 
-              const preTest: AssessmentRecord | undefined = preRec
-                ? {
-                    id: preRec.id,
-                    studentId: preRec.studentId,
-                    studentName: student.fullName,
-                    bundleSequenceNo: student.bundleSequenceNo,
-                    paperType: preRec.paperType,
-                    phase: 'PRE',
-                    totalQuestions: preRec.totalQuestions,
-                    answeredCount: preRec.answeredCount,
-                    correctCount: preRec.correctCount,
-                    scorePercentage: preRec.scorePercentage,
-                    completedAt: preRec.completedAt,
-                    responses: preRec.responses.map((r, idx) => {
-                      const qNum =
-                        backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
-                        idx + 1;
-                      return {
-                        questionId: r.questionId,
-                        questionNumber: qNum,
-                        selectedOptionCode: r.selectedOptionCode,
-                        isCorrect: r.isCorrect,
-                        pointsAwarded: r.pointsAwarded,
-                      };
-                    }),
-                  }
-                : undefined;
+            const preTest: AssessmentRecord | undefined = preRec
+              ? {
+                  id: preRec.id,
+                  studentId: preRec.studentId,
+                  studentName: student.fullName,
+                  bundleSequenceNo: student.bundleSequenceNo,
+                  paperType: preRec.paperType,
+                  phase: 'PRE',
+                  totalQuestions: preRec.totalQuestions,
+                  answeredCount: preRec.answeredCount,
+                  correctCount: preRec.correctCount,
+                  scorePercentage: preRec.scorePercentage,
+                  completedAt: preRec.completedAt,
+                  responses: preRec.responses.map((r, idx) => {
+                    const qNum =
+                      backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
+                      idx + 1;
+                    return {
+                      questionId: r.questionId,
+                      questionNumber: qNum,
+                      selectedOptionCode: r.selectedOptionCode,
+                      isCorrect: r.isCorrect,
+                      pointsAwarded: r.pointsAwarded,
+                    };
+                  }),
+                }
+              : undefined;
 
-              const postTest: AssessmentRecord | undefined = postRec
-                ? {
-                    id: postRec.id,
-                    studentId: postRec.studentId,
-                    studentName: student.fullName,
-                    bundleSequenceNo: student.bundleSequenceNo,
-                    paperType: postRec.paperType,
-                    phase: 'POST',
-                    totalQuestions: postRec.totalQuestions,
-                    answeredCount: postRec.answeredCount,
-                    correctCount: postRec.correctCount,
-                    scorePercentage: postRec.scorePercentage,
-                    completedAt: postRec.completedAt,
-                    responses: postRec.responses.map((r, idx) => {
-                      const qNum =
-                        backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
-                        idx + 1;
-                      return {
-                        questionId: r.questionId,
-                        questionNumber: qNum,
-                        selectedOptionCode: r.selectedOptionCode,
-                        isCorrect: r.isCorrect,
-                        pointsAwarded: r.pointsAwarded,
-                      };
-                    }),
-                  }
-                : undefined;
+            const postTest: AssessmentRecord | undefined = postRec
+              ? {
+                  id: postRec.id,
+                  studentId: postRec.studentId,
+                  studentName: student.fullName,
+                  bundleSequenceNo: student.bundleSequenceNo,
+                  paperType: postRec.paperType,
+                  phase: 'POST',
+                  totalQuestions: postRec.totalQuestions,
+                  answeredCount: postRec.answeredCount,
+                  correctCount: postRec.correctCount,
+                  scorePercentage: postRec.scorePercentage,
+                  completedAt: postRec.completedAt,
+                  responses: postRec.responses.map((r, idx) => {
+                    const qNum =
+                      backendQuestions?.find((bq) => bq.id === r.questionId)?.questionNumber ||
+                      idx + 1;
+                    return {
+                      questionId: r.questionId,
+                      questionNumber: qNum,
+                      selectedOptionCode: r.selectedOptionCode,
+                      isCorrect: r.isCorrect,
+                      pointsAwarded: r.pointsAwarded,
+                    };
+                  }),
+                }
+              : undefined;
 
-              let delta: number | undefined = undefined;
-              let pct: number | undefined = undefined;
-              let status: StudentAssessmentPair['status'] = 'PENDING_PRE';
+            let delta: number | undefined = undefined;
+            let pct: number | undefined = undefined;
+            let status: StudentAssessmentPair['status'] = 'PENDING_PRE';
 
-              if (preTest && postTest) {
-                status = 'ALL_COMPLETED';
-                delta = Number((postTest.scorePercentage - preTest.scorePercentage).toFixed(2));
-                pct =
-                  preTest.scorePercentage > 0
-                    ? Number(
-                        (((postTest.scorePercentage - preTest.scorePercentage) /
-                          preTest.scorePercentage) *
-                          100).toFixed(2)
-                      )
-                    : postTest.scorePercentage;
-              } else if (preTest) {
-                status = 'PRE_COMPLETED';
-              }
+            if (preTest && postTest) {
+              status = 'ALL_COMPLETED';
+              delta = Number((postTest.scorePercentage - preTest.scorePercentage).toFixed(2));
+              pct =
+                preTest.scorePercentage > 0
+                  ? Number(
+                      (((postTest.scorePercentage - preTest.scorePercentage) /
+                        preTest.scorePercentage) *
+                        100).toFixed(2)
+                    )
+                  : postTest.scorePercentage;
+            } else if (preTest) {
+              status = 'PRE_COMPLETED';
+            }
 
-              allPairs.push({
-                studentId: student.id,
-                schoolId: student.schoolId,
-                schoolName: (backendSchools || schools).find((s) => s.id === student.schoolId)?.name,
-                financialYear: student.financialYear,
-                studentName: student.fullName,
-                bundleSequenceNo: student.bundleSequenceNo,
-                gender: student.gender,
-                standard: student.standard,
-                division: student.division,
-                paperType: pType,
-                preTest,
-                postTest,
-                improvementDelta: delta,
-                improvementPercentage: pct,
-                status,
-              });
+            allPairs.push({
+              studentId: student.id,
+              schoolId: student.schoolId,
+              schoolName: (backendSchools || schools).find((s) => s.id === student.schoolId)?.name,
+              financialYear: student.financialYear,
+              studentName: student.fullName,
+              bundleSequenceNo: student.bundleSequenceNo,
+              gender: student.gender,
+              standard: student.standard,
+              division: student.division,
+              paperType: pType,
+              preTest,
+              postTest,
+              improvementDelta: delta,
+              improvementPercentage: pct,
+              status,
             });
           });
+        });
 
-          setAssessmentPairs(allPairs);
-        }
-
-        if (backendLogs && backendLogs.length > 0) {
-          setSessionLogs(backendLogs);
-        }
-
-        if (backendModules && backendModules.length > 0) {
-          setCurriculumModules(backendModules);
-        }
-
-        if (backendSessions && backendSessions.length > 0) {
-          setCurriculumSessions(backendSessions);
-        }
-
-        if (backendQuestions && backendQuestions.length > 0) {
-          setQuestions(backendQuestions);
-        }
-      } catch (err) {
-        console.warn('Hydration from Supabase error:', err);
+        setAssessmentPairs(allPairs);
       }
-    }
 
-    hydrateFromBackend();
-    return () => {
-      isMounted = false;
-    };
+      if (backendLogs && backendLogs.length > 0) {
+        setSessionLogs(backendLogs);
+      }
+
+      if (backendModules && backendModules.length > 0) {
+        setCurriculumModules(backendModules);
+      }
+
+      if (backendSessions && backendSessions.length > 0) {
+        setCurriculumSessions(backendSessions);
+      }
+
+      if (backendQuestions && backendQuestions.length > 0) {
+        setQuestions(backendQuestions);
+      }
+    } catch (err) {
+      console.warn('Hydration from Supabase error:', err);
+    }
   }, []);
+
+  // Responsive trigger: run on mount AND whenever user logs in
+  useEffect(() => {
+    hydrateFromBackend();
+  }, [hydrateFromBackend, isLoggedIn]);
+
+  // Login handler: sets user and immediately awaits full backend hydration
+  const login = async (user: UserProfile) => {
+    setCurrentUser(user);
+    setIsLoggedIn(true);
+    localStorage.setItem('saiyam_logged_in_v10', 'true');
+    localStorage.setItem('saiyam_user_v10', JSON.stringify(user));
+    await hydrateFromBackend();
+  };
 
   // Sync state to versioned local storage (v10)
   useEffect(() => {
@@ -1088,6 +1081,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         switchUser,
         users,
         refreshProfiles,
+        refreshData: hydrateFromBackend,
         addUser,
         updateUser,
         deleteUser,
