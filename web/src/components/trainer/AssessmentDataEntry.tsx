@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Clock,
   HelpCircle,
+  Building2,
 } from 'lucide-react';
 
 interface Props {
@@ -254,7 +255,7 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
   return (
     <div className="space-y-4 w-full">
       {/* Top Header & Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex items-center space-x-3">
           {onBack && (
             <button
@@ -269,45 +270,47 @@ export const AssessmentDataEntry: React.FC<Props> = ({ onBack, onNavigate }) => 
             <h2 className="text-lg font-bold text-slate-900">
               {language === 'mr' ? 'विद्यार्थी चाचण्या नोंदणी (Pre / Post Tests)' : 'Pre & Post Assessments Entry'}
             </h2>
-            <div className="flex flex-wrap items-center gap-2 mt-0.5">
-              <span className="text-xs text-slate-500 font-semibold">
-                {activeSchool.name} • {activeSchool.village}
-              </span>
-              {availableSchools.length > 1 && (
-                <div className="flex items-center space-x-1">
-                  <span className="text-[10px] text-slate-400 font-medium">| {language === 'mr' ? 'शाळा बदला:' : 'Switch:'}</span>
-                  <select
-                    value={activeSchool.id}
-                    onChange={(e) => {
-                      const found = availableSchools.find((s) => s.id === e.target.value);
-                      if (found) {
-                        setSelectedSchool(found);
-                        setSelectedStudentId('');
-                        setAnswers({});
-                      }
-                    }}
-                    className="text-[11px] font-bold bg-slate-50 hover:bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-[#233d76] cursor-pointer focus:ring-1 focus:ring-[#233d76]"
-                  >
-                    {availableSchools.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} ({s.village})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
+            <p className="text-xs text-slate-500 font-medium">
+              {activeSchool.name} • {activeSchool.village}
+            </p>
           </div>
         </div>
 
-        {/* Quick Helper Pill (Desktop) */}
-        <div className="hidden sm:inline-flex items-center space-x-1.5 text-xs text-[#233d76] bg-[#f0da9a]/40 px-3 py-1.5 rounded-full border border-[#dfaf27]/40 font-semibold self-start sm:self-auto">
-          <Sparkles className="w-3.5 h-3.5 text-[#dfaf27] shrink-0" />
-          <span>
-            {language === 'mr'
-              ? 'बंडल क्रमानुसार (S-1, S-2...) सलग उत्तरे भरा'
-              : 'Enter marks sequentially by physical bundle (S-1, S-2...)'}
-          </span>
+        {/* School Selector Dropdown & Helper */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center space-x-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5 shrink-0">
+              <Building2 className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'शाळा निवडा:' : 'Select School:'}</span>
+            </label>
+            <select
+              value={activeSchool.id}
+              onChange={(e) => {
+                const found = availableSchools.find((s) => s.id === e.target.value);
+                if (found) {
+                  setSelectedSchool(found);
+                  setSelectedStudentId('');
+                  setAnswers({});
+                }
+              }}
+              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-[#233d76] focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+            >
+              {availableSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.village})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="hidden sm:inline-flex items-center space-x-1.5 text-xs text-[#233d76] bg-[#f0da9a]/40 px-3 py-2 rounded-xl border border-[#dfaf27]/40 font-semibold shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-[#dfaf27] shrink-0" />
+            <span>
+              {language === 'mr'
+                ? 'बंडल क्रमानुसार (S-1, S-2...) सलग उत्तरे भरा'
+                : 'Enter marks sequentially (S-1, S-2...)'}
+            </span>
+          </div>
         </div>
       </div>
 

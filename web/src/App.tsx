@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { isLoggedIn, currentUser, language, selectedSchool } = useApp();
+  const { isLoggedIn, currentUser, language, selectedSchool, schools } = useApp();
 
   const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser?.role === 'ORG_COORDINATOR';
@@ -79,11 +79,16 @@ export const App: React.FC = () => {
     return <LoginPage />;
   }
 
+  const availableTrainerSchools =
+    currentUser?.role === 'FIELD_TRAINER'
+      ? schools.filter((s) => s.assignedTrainerId === currentUser?.id || !s.assignedTrainerId)
+      : schools;
+
   const requiresSchool =
     !isTrustAdmin &&
     !isOrgCoordinator &&
     activeTab !== 'SCHOOLS' &&
-    selectedSchool === null;
+    availableTrainerSchools.length === 0;
 
   return (
     <div className="min-h-screen bg-[#f4f6fa] flex flex-col font-sans">
@@ -172,56 +177,50 @@ export const App: React.FC = () => {
                   <span>{language === 'mr' ? 'शाळा निवड' : 'Schools'}</span>
                 </button>
 
-                {selectedSchool && (
-                  <>
-                    <span className="text-slate-300 font-bold text-sm">›</span>
+                <button
+                  onClick={() => setActiveTab('STUDENTS')}
+                  className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'STUDENTS'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Users className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? '१. विद्यार्थी' : '1. Students'}</span>
+                </button>
 
-                    <button
-                      onClick={() => setActiveTab('STUDENTS')}
-                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        activeTab === 'STUDENTS'
-                          ? 'bg-[#233d76] text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Users className="w-4 h-4 text-[#dfaf27]" />
-                      <span>{language === 'mr' ? '१. विद्यार्थी' : '1. Students'}</span>
-                    </button>
+                <button
+                  onClick={() => setActiveTab('ASSESSMENTS')}
+                  className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'ASSESSMENTS'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <ClipboardCheck className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? '२. पूर्व/उत्तर चाचण्या' : '2. Pre/Post Tests'}</span>
+                </button>
 
-                    <button
-                      onClick={() => setActiveTab('ASSESSMENTS')}
-                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        activeTab === 'ASSESSMENTS'
-                          ? 'bg-[#233d76] text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <ClipboardCheck className="w-4 h-4 text-[#dfaf27]" />
-                      <span>{language === 'mr' ? '२. पूर्व/उत्तर चाचण्या' : '2. Pre/Post Tests'}</span>
-                    </button>
+                <button
+                  onClick={() => setActiveTab('SESSIONS')}
+                  className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'SESSIONS'
+                      ? 'bg-[#233d76] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4 text-[#dfaf27]" />
+                  <span>{language === 'mr' ? '३. २५ सत्रे' : '3. 25 Sessions'}</span>
+                </button>
 
-                    <button
-                      onClick={() => setActiveTab('SESSIONS')}
-                      className={`flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        activeTab === 'SESSIONS'
-                          ? 'bg-[#233d76] text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <BookOpen className="w-4 h-4 text-[#dfaf27]" />
-                      <span>{language === 'mr' ? '३. २५ सत्रे' : '3. 25 Sessions'}</span>
-                    </button>
-
-                    {activeTab === 'DOCUMENTS' && (
-                      <button
-                        onClick={() => setActiveTab('DOCUMENTS')}
-                        className="flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer bg-[#233d76] text-white shadow-xs"
-                      >
-                        <FileText className="w-4 h-4 text-[#dfaf27]" />
-                        <span>{language === 'mr' ? 'शाळा कागदपत्रे व शिक्का' : 'School Documents'}</span>
-                      </button>
-                    )}
-                  </>
+                {activeTab === 'DOCUMENTS' && (
+                  <button
+                    onClick={() => setActiveTab('DOCUMENTS')}
+                    className="flex items-center space-x-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer bg-[#233d76] text-white shadow-xs"
+                  >
+                    <FileText className="w-4 h-4 text-[#dfaf27]" />
+                    <span>{language === 'mr' ? 'शाळा कागदपत्रे व शिक्का' : 'School Documents'}</span>
+                  </button>
                 )}
               </div>
             )}

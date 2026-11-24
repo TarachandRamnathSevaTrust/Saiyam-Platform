@@ -19,6 +19,7 @@ import {
   Clock,
   Sparkles,
   Table,
+  Building2,
 } from 'lucide-react';
 
 interface Props {
@@ -29,6 +30,8 @@ interface Props {
 export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   const {
     selectedSchool,
+    setSelectedSchool,
+    schools,
     sessionLogs,
     saveSessionLog,
     language,
@@ -40,6 +43,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser.role === 'ORG_COORDINATOR';
+
+  // Available schools for current user
+  const availableSchools =
+    currentUser.role === 'FIELD_TRAINER'
+      ? schools.filter((s) => s.assignedTrainerId === currentUser.id || !s.assignedTrainerId)
+      : schools;
+
+  const activeSchool = selectedSchool || availableSchools[0] || null;
 
   // For Trust Admins & NGO Coordinators, the default is TABLE view.
   // Field Trainers default to FORM view.
@@ -76,14 +87,14 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     allSessionSlots.find((s) => s.sessionNumber === activeSessionNumber) || allSessionSlots[0];
 
   const existingLog = sessionLogs.find(
-    (l) => l.schoolId === selectedSchool?.id && l.sessionNumber === activeSessionNumber
+    (l) => l.schoolId === activeSchool?.id && l.sessionNumber === activeSessionNumber
   );
 
   // Auto-populate form from saved log whenever active session or school changes
   useEffect(() => {
-    if (!selectedSchool) return;
+    if (!activeSchool) return;
     const log = sessionLogs.find(
-      (l) => l.schoolId === selectedSchool.id && l.sessionNumber === activeSessionNumber
+      (l) => l.schoolId === activeSchool.id && l.sessionNumber === activeSessionNumber
     );
     if (log) {
       setConductedDate(log.conductedDate || new Date().toISOString().split('T')[0]);
@@ -106,7 +117,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
       setSpecialNotes('');
       setUploadedPhotos([]);
     }
-  }, [activeSessionNumber, selectedSchool?.id, sessionLogs]);
+  }, [activeSessionNumber, activeSchool?.id, sessionLogs]);
 
   // Clean numeric input handler:
   // 1. Allows deleting completely with Backspace/Delete (setting empty string '')
@@ -136,11 +147,11 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     setter(parsed);
   };
 
-  if (!selectedSchool) {
+  if (!activeSchool) {
     return (
       <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
         <p className="text-slate-600 font-semibold mb-3">
-          {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
+          {language === 'mr' ? 'कोणतीही शाळा उपलब्ध नाही. कृपया आधी शाळा नोंदणी करा.' : 'No schools available. Please register a school first.'}
         </p>
         {onBack && (
           <button
@@ -191,7 +202,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     const totalAttendance = numGirls + numBoys;
 
     saveSessionLog({
-      schoolId: selectedSchool.id,
+      schoolId: activeSchool.id,
       sessionNumber: activeSessionNumber,
       conductedDate,
       durationMinutes: Number(durationMinutes) || 45,
@@ -285,7 +296,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
   };
 
   const completedCount = new Set(
-    sessionLogs.filter((l) => l.schoolId === selectedSchool.id).map((l) => l.sessionNumber)
+    sessionLogs.filter((l) => l.schoolId === activeSchool.id).map((l) => l.sessionNumber)
   ).size;
 
   // For Trust Admins or when toggled to Table View, display the comprehensive 25-Session Table
@@ -342,12 +353,34 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
               {language === 'mr' ? 'सत्रांच्या नोंदी (२५ सत्रे)' : 'Session Records (25 Sessions)'}
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              {selectedSchool.name} • {selectedSchool.village}
+              {activeSchool.name} • {activeSchool.village}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end space-x-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+        <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+          {/* In-tab School Selector Dropdown */}
+          <div className="flex items-center space-x-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5 shrink-0">
+              <Building2 className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'शाळा:' : 'School:'}</span>
+            </label>
+            <select
+              value={activeSchool.id}
+              onChange={(e) => {
+                const found = availableSchools.find((s) => s.id === e.target.value);
+                if (found) setSelectedSchool(found);
+              }}
+              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-[#233d76] focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+            >
+              {availableSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.village})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Switch to Detailed Table View Button */}
           <button
             type="button"
@@ -458,7 +491,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-h-[620px] overflow-y-auto divide-y divide-slate-100 flex-1">
             {filteredSessions.map((sess) => {
               const isLogged = sessionLogs.some(
-                (l) => l.schoolId === selectedSchool.id && l.sessionNumber === sess.sessionNumber
+                (l) => l.schoolId === activeSchool.id && l.sessionNumber === sess.sessionNumber
               );
               const isSelected = activeSessionNumber === sess.sessionNumber;
 
@@ -517,7 +550,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
                       {/* Photo indicator badge if this session has photos */}
                       {(() => {
                         const matchingLog = sessionLogs.find(
-                          (l) => l.schoolId === selectedSchool.id && l.sessionNumber === sess.sessionNumber
+                          (l) => l.schoolId === activeSchool.id && l.sessionNumber === sess.sessionNumber
                         );
                         if (matchingLog && matchingLog.media && matchingLog.media.length > 0) {
                           return (

@@ -36,6 +36,8 @@ export const SessionTableView: React.FC<Props> = ({
 }) => {
   const {
     selectedSchool,
+    setSelectedSchool,
+    schools,
     sessionLogs,
     language,
     currentUser,
@@ -47,6 +49,14 @@ export const SessionTableView: React.FC<Props> = ({
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser.role === 'ORG_COORDINATOR';
+
+  // Available schools for current user
+  const availableSchools =
+    currentUser.role === 'FIELD_TRAINER'
+      ? schools.filter((s) => s.assignedTrainerId === currentUser.id || !s.assignedTrainerId)
+      : schools;
+
+  const activeSchool = selectedSchool || availableSchools[0] || null;
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,11 +76,11 @@ export const SessionTableView: React.FC<Props> = ({
     conductedDate: string;
   } | null>(null);
 
-  if (!selectedSchool) {
+  if (!activeSchool) {
     return (
       <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
         <p className="text-slate-600 font-semibold mb-3">
-          {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
+          {language === 'mr' ? 'कोणतीही शाळा उपलब्ध नाही. कृपया आधी शाळा नोंदणी करा.' : 'No schools available. Please register a school first.'}
         </p>
         {onBack && (
           <button
@@ -94,18 +104,18 @@ export const SessionTableView: React.FC<Props> = ({
     if (log?.conductedBy) {
       trainerUser = users.find((u) => u.id === log.conductedBy);
     }
-    if (!trainerUser && selectedSchool.assignedTrainerId) {
-      trainerUser = users.find((u) => u.id === selectedSchool.assignedTrainerId);
+    if (!trainerUser && activeSchool.assignedTrainerId) {
+      trainerUser = users.find((u) => u.id === activeSchool.assignedTrainerId);
     }
 
     const name =
       trainerUser?.fullName ||
-      selectedSchool.assignedTrainerName ||
+      activeSchool.assignedTrainerName ||
       (language === 'mr' ? 'नेमून दिलेले प्रशिक्षक' : 'Assigned Trainer');
 
     const org =
       trainerUser?.organizationCode ||
-      selectedSchool.organizationCode ||
+      activeSchool.organizationCode ||
       'TRST_DIRECT';
 
     return { name, org, role: trainerUser?.role || 'FIELD_TRAINER' };
@@ -114,7 +124,7 @@ export const SessionTableView: React.FC<Props> = ({
   // Match logs with all 25 sessions
   const sessionRows = allSessionSlots.map((session) => {
     const log = sessionLogs.find(
-      (l) => l.schoolId === selectedSchool.id && l.sessionNumber === session.sessionNumber
+      (l) => l.schoolId === activeSchool.id && l.sessionNumber === session.sessionNumber
     );
     const trainer = getTrainerInfo(log);
     const isRecorded = Boolean(log);
@@ -192,7 +202,7 @@ export const SessionTableView: React.FC<Props> = ({
               </span>
               <span className="text-xs text-slate-400">•</span>
               <span className="text-xs font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200">
-                {selectedSchool.organizationCode || 'TRST_DIRECT'}
+                {activeSchool.organizationCode || 'TRST_DIRECT'}
               </span>
             </div>
             <h1 className="text-lg sm:text-xl font-black text-slate-900 mt-1 trust-heading leading-tight">
@@ -201,13 +211,34 @@ export const SessionTableView: React.FC<Props> = ({
                 : 'Session Audit & Monitoring Table (25 Sessions)'}
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {selectedSchool.name} • {selectedSchool.village}, {selectedSchool.district}
+              {activeSchool.name} • {activeSchool.village}, {activeSchool.district}
             </p>
           </div>
         </div>
 
-        {/* Action Buttons: Form View Toggle & Export */}
-        <div className="flex items-center space-x-2.5 self-start sm:self-auto shrink-0">
+        {/* Action Buttons: School Switcher, Form View Toggle & Export */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto shrink-0">
+          <div className="flex items-center space-x-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5 shrink-0">
+              <Building2 className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'शाळा:' : 'School:'}</span>
+            </label>
+            <select
+              value={activeSchool.id}
+              onChange={(e) => {
+                const found = availableSchools.find((s) => s.id === e.target.value);
+                if (found) setSelectedSchool(found);
+              }}
+              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-[#233d76] focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+            >
+              {availableSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.village})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {onNavigateToForm && !isTrustAdmin && (
             <button
               type="button"
@@ -222,7 +253,7 @@ export const SessionTableView: React.FC<Props> = ({
           {exportToExcel && (
             <button
               type="button"
-              onClick={() => exportToExcel(selectedSchool.id)}
+              onClick={() => exportToExcel(activeSchool.id)}
               className="text-xs font-bold bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] px-3.5 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center space-x-1.5 shadow-2xs"
               title={language === 'mr' ? 'एक्सेल अहवाल डाउनलोड करा' : 'Export Excel Report'}
             >
@@ -245,12 +276,12 @@ export const SessionTableView: React.FC<Props> = ({
               {language === 'mr' ? 'क्षेत्र प्रशिक्षक (Field Trainer)' : 'Assigned Field Trainer'}
             </span>
             <p className="text-sm font-black text-slate-900 truncate mt-0.5">
-              {selectedSchool.assignedTrainerName ||
-                users.find((u) => u.id === selectedSchool.assignedTrainerId)?.fullName ||
+              {activeSchool.assignedTrainerName ||
+                users.find((u) => u.id === activeSchool.assignedTrainerId)?.fullName ||
                 (language === 'mr' ? 'नेमून दिलेले' : 'Assigned Trainer')}
             </p>
             <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-              {selectedSchool.organizationCode || 'TRST_DIRECT'}
+              {activeSchool.organizationCode || 'TRST_DIRECT'}
             </span>
           </div>
         </div>
@@ -773,7 +804,7 @@ export const SessionTableView: React.FC<Props> = ({
                       {getTrainerInfo(inspectSession.log).name}
                     </p>
                     <span className="text-[10px] text-emerald-700 font-semibold">
-                      {selectedSchool.organizationCode || 'TRST_DIRECT'}
+                      {activeSchool.organizationCode || 'TRST_DIRECT'}
                     </span>
                   </div>
                 </div>
@@ -998,7 +1029,7 @@ export const SessionTableView: React.FC<Props> = ({
               <div>
                 <h4 className="text-sm font-bold text-white">{previewPhoto.caption}</h4>
                 <p className="text-xs text-slate-300">
-                  {selectedSchool.name} • {previewPhoto.trainerName} • {previewPhoto.conductedDate}
+                  {activeSchool.name} • {previewPhoto.trainerName} • {previewPhoto.conductedDate}
                 </p>
               </div>
               <button

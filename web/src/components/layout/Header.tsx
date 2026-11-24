@@ -43,12 +43,6 @@ export const Header: React.FC = () => {
                   TRST
                 </span>
               </div>
-              {/* On mobile, show active school directly in header */}
-              {!isTrustAdmin && !isOrgCoordinator && selectedSchool && (
-                <p className="sm:hidden text-[10px] text-[#f0da9a] font-bold truncate max-w-[130px]">
-                  🏫 {selectedSchool.name}
-                </p>
-              )}
               <p className="text-[10px] sm:text-[11px] text-[#f0da9a] font-medium hidden sm:block mt-0.5">
                 {language === 'mr'
                   ? 'ताराचंद रामनाथ सेवा ट्रस्ट, पुणे'
@@ -180,7 +174,7 @@ export const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Active School Sub-Bar for Field Trainer (Desktop only, mobile shows active school in main top bar) */}
+      {/* Sub-Bar for Field Trainer (Desktop only) */}
       {!isTrustAdmin && !isOrgCoordinator && (
         <div className="hidden sm:flex bg-[#142345] border-t border-[#294279] px-3 sm:px-8 lg:px-12 py-1.5 sm:py-2 flex-row items-center justify-between gap-1 text-xs text-[#f0da9a]">
           <div className="flex items-center space-x-2">
@@ -192,26 +186,11 @@ export const Header: React.FC = () => {
             </span>
           </div>
 
-          {selectedSchool ? (
-            <div className="flex items-center space-x-2 truncate">
-              <SchoolIcon className="w-3.5 h-3.5 text-[#dfaf27] shrink-0" />
-              <span className="truncate text-slate-200 text-xs">
-                <strong>{language === 'mr' ? 'शाळा:' : 'School:'}</strong> {selectedSchool.name}
-              </span>
-              {schools.length > 1 && (
-                <button
-                  onClick={() => setSelectedSchool(null)}
-                  className="text-xs text-[#dfaf27] underline hover:text-white shrink-0 font-bold ml-1 cursor-pointer"
-                >
-                  {language === 'mr' ? 'बदला' : 'Change'}
-                </button>
-              )}
-            </div>
-          ) : (
-            <span className="text-slate-300 italic text-[11px]">
-              {language === 'mr' ? 'सत्रे घेण्यासाठी खालीलपैकी शाळा निवडा' : 'Select a school below to conduct sessions'}
-            </span>
-          )}
+          <span className="text-slate-300 text-xs">
+            {language === 'mr'
+              ? 'किशोरवयीन व्यसनमुक्ती व मूल्यशिक्षण प्रकल्प'
+              : 'Adolescent Anti-Addiction & Value Education Initiative'}
+          </span>
         </div>
       )}
     </header>

@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
   UserCheck,
+  Building2,
 } from 'lucide-react';
 import { Gender, Student } from '@saiyam/shared';
 
@@ -23,6 +24,8 @@ interface Props {
 export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   const {
     selectedSchool,
+    setSelectedSchool,
+    schools,
     students,
     addStudent,
     updateStudent,
@@ -32,6 +35,15 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
+
+  // Available schools for current user
+  const availableSchools =
+    currentUser.role === 'FIELD_TRAINER'
+      ? schools.filter((s) => s.assignedTrainerId === currentUser.id || !s.assignedTrainerId)
+      : schools;
+
+  const activeSchool = selectedSchool || availableSchools[0] || null;
+
   const [isAdding, setIsAdding] = useState(false);
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState<Gender>('FEMALE');
@@ -46,11 +58,11 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   const [editDivision, setEditDivision] = useState('A');
   const [editBundleSequenceNo, setEditBundleSequenceNo] = useState<number | string>(1);
 
-  if (!selectedSchool) {
+  if (!activeSchool) {
     return (
       <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-xl mx-auto shadow-2xs">
         <p className="text-slate-600 font-semibold mb-3">
-          {language === 'mr' ? 'कृपया आधी शाळा निवडा.' : 'Please select a school first.'}
+          {language === 'mr' ? 'कोणतीही शाळा उपलब्ध नाही. कृपया आधी शाळा नोंदणी करा.' : 'No schools available. Please register a school first.'}
         </p>
         {onBack && (
           <button
@@ -65,7 +77,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   }
 
   const schoolStudents = students
-    .filter((s) => s.schoolId === selectedSchool.id)
+    .filter((s) => s.schoolId === activeSchool.id)
     .sort((a, b) => a.bundleSequenceNo - b.bundleSequenceNo);
 
   const nextSequenceNo = schoolStudents.length + 1;
@@ -75,7 +87,7 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
     if (!fullName.trim()) return;
 
     addStudent({
-      schoolId: selectedSchool.id,
+      schoolId: activeSchool.id,
       bundleSequenceNo: nextSequenceNo,
       fullName: fullName.trim(),
       gender,
@@ -124,12 +136,12 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
   return (
     <div className="space-y-5 w-full">
       {/* Back button & Title Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex items-center space-x-3">
           {onBack && (
             <button
               onClick={onBack}
-              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shrink-0"
               title="Back"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -137,42 +149,66 @@ export const StudentRoster: React.FC<Props> = ({ onBack, onNavigate }) => {
           )}
           <div>
             <h2 className="text-lg font-bold text-slate-900">
-              {language === 'mr' ? 'विद्यार्थी नोंदणी' : 'Student Registration'}
+              {language === 'mr' ? 'विद्यार्थी नोंदणी (Roster)' : 'Student Registration'}
             </h2>
-            <p className="text-xs text-slate-500">
-              {selectedSchool.name} • {selectedSchool.village}
+            <p className="text-xs text-slate-500 font-medium">
+              {activeSchool.name} • {activeSchool.village}
             </p>
           </div>
         </div>
 
-        {!isTrustAdmin ? (
-          <button
-            onClick={() => {
-              setEditingStudentId(null);
-              setIsAdding(!isAdding);
-            }}
-            className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
-          >
-            {isAdding ? (
-              <X className="w-4 h-4 text-[#dfaf27]" />
-            ) : (
-              <Plus className="w-4 h-4 text-[#dfaf27]" />
-            )}
-            <span>
-              {isAdding
-                ? language === 'mr'
-                  ? 'फॉर्म बंद करा'
-                  : 'Close Form'
-                : language === 'mr'
-                ? 'नवीन विद्यार्थी जोडा'
-                : 'Add Student'}
+        {/* School Selector Dropdown & Action */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center space-x-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5 shrink-0">
+              <Building2 className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'शाळा निवडा:' : 'Select School:'}</span>
+            </label>
+            <select
+              value={activeSchool.id}
+              onChange={(e) => {
+                const found = availableSchools.find((s) => s.id === e.target.value);
+                if (found) setSelectedSchool(found);
+              }}
+              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-[#233d76] focus:ring-2 focus:ring-[#233d76] cursor-pointer"
+            >
+              {availableSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.village})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {!isTrustAdmin ? (
+            <button
+              onClick={() => {
+                setEditingStudentId(null);
+                setIsAdding(!isAdding);
+              }}
+              className="flex items-center space-x-1.5 bg-[#233d76] hover:bg-[#1b2f5c] text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              {isAdding ? (
+                <X className="w-4 h-4 text-[#dfaf27]" />
+              ) : (
+                <Plus className="w-4 h-4 text-[#dfaf27]" />
+              )}
+              <span>
+                {isAdding
+                  ? language === 'mr'
+                    ? 'फॉर्म बंद करा'
+                    : 'Close Form'
+                  : language === 'mr'
+                  ? 'नवीन विद्यार्थी जोडा'
+                  : 'Add Student'}
+              </span>
+            </button>
+          ) : (
+            <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1.5 rounded-lg border border-[#dfaf27]/40">
+              {language === 'mr' ? 'विश्वस्त निरीक्षण (Read-Only)' : 'Trust Audit Mode'}
             </span>
-          </button>
-        ) : (
-          <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1.5 rounded-lg border border-[#dfaf27]/40">
-            {language === 'mr' ? 'विश्वस्त निरीक्षण (Read-Only)' : 'Trust Audit Mode'}
-          </span>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Trust Admin Read-Only Notice */}
