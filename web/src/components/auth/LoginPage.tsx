@@ -74,7 +74,7 @@ export const LoginPage: React.FC = () => {
       }
 
       if (user) {
-        login(user, false);
+        login(user);
         setIsLoading(false);
         return;
       }
@@ -91,49 +91,49 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  // Demo 1: Trust Admin (1-Click)
+  // 1. Trust Admin (1-Click Access using Real Supabase Account)
   const handleDemoAdmin = () => {
     const adminUser = users.find((u) => u.role === 'TRUST_ADMIN') || {
       id: 'demo-trust-admin',
-      fullName: language === 'mr' ? 'विश्वस्त प्रतिनिधी' : 'TRST Admin',
+      fullName: 'admin',
       email: 'admin@trst.org',
       role: 'TRUST_ADMIN',
       organizationCode: 'TRST_DIRECT',
       isActive: true,
       createdAt: '2026-01-01',
     };
-    login(adminUser, true);
+    login(adminUser);
   };
 
-  // Demo 2: Field Trainer (1-Click)
+  // 2. Field Trainer (1-Click Access using Real Supabase Trainer)
   const handleDemoTrainer = () => {
     const existingTrainer = users.find((u) => u.role === 'FIELD_TRAINER');
-    const demoTrainer: UserProfile = existingTrainer || {
+    const trainerUser: UserProfile = existingTrainer || {
       id: 'demo-field-trainer',
-      fullName: language === 'mr' ? 'तुकाराम मुंढे (क्षेत्र प्रशिक्षक)' : 'Tukaram Munde (Field Trainer)',
-      email: 'trainer@trst.org',
+      fullName: 'Tukaram Munde',
+      email: 'tukarammunde635@gmail.com',
       role: 'FIELD_TRAINER',
       organizationCode: 'TRST_DIRECT',
       isActive: true,
       createdAt: new Date().toISOString().split('T')[0],
     };
-    login(demoTrainer, true);
+    login(trainerUser);
   };
 
-  // Demo 3: Partner NGO Coordinator (1-Click)
+  // 3. Partner NGO Coordinator (1-Click Access)
   const handleDemoPartner = () => {
     const existingCoord = users.find((u) => u.role === 'ORG_COORDINATOR');
     const partnerOrg = organizations.find((o) => o.code !== 'TRST_DIRECT') || organizations[0];
-    const demoPartner: UserProfile = existingCoord || {
+    const partnerUser: UserProfile = existingCoord || {
       id: 'demo-partner-coord',
-      fullName: language === 'mr' ? 'डॉ. अनघा कादोलकर (JPIP)' : 'Dr. Anagha Kadolkar (JPIP)',
+      fullName: language === 'mr' ? 'डॉ. अनघा कादोलकर' : 'NGO Coordinator',
       email: 'coordinator@jpip.org',
       role: 'ORG_COORDINATOR',
       organizationCode: partnerOrg?.code || 'JPIP',
       isActive: true,
       createdAt: new Date().toISOString().split('T')[0],
     };
-    login(demoPartner, true);
+    login(partnerUser);
   };
 
   return (

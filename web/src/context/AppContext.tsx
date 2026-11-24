@@ -27,17 +27,12 @@ import {
   INITIAL_ASSESSMENT_PAIRS,
   INITIAL_SESSION_LOGS,
   INITIAL_ORGANIZATIONS,
-  DEMO_ORGANIZATIONS,
-  DEMO_SCHOOLS,
-  DEMO_STUDENTS,
-  DEMO_ASSESSMENT_PAIRS,
-  DEMO_SESSION_LOGS,
 } from '../lib/mockData';
 import { INITIAL_QUESTIONS } from '@saiyam/shared';
 
 interface AppContextType {
   isLoggedIn: boolean;
-  login: (user: UserProfile, isDemo?: boolean) => void;
+  login: (user: UserProfile) => void;
   logout: () => void;
   currentUser: UserProfile;
   switchUser: (userId: string) => void;
@@ -152,23 +147,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   });
 
-  const login = (user: UserProfile, isDemo = false) => {
+  const login = (user: UserProfile) => {
     setCurrentUser(user);
     setIsLoggedIn(true);
     localStorage.setItem('saiyam_logged_in_v10', 'true');
     localStorage.setItem('saiyam_user_v10', JSON.stringify(user));
-
-    if (isDemo) {
-      localStorage.setItem('saiyam_is_demo_session', 'true');
-      setSchools((prev) => (prev.length > 0 ? prev : DEMO_SCHOOLS));
-      setStudents((prev) => (prev.length > 0 ? prev : DEMO_STUDENTS));
-      setAssessmentPairs((prev) => (prev.length > 0 ? prev : DEMO_ASSESSMENT_PAIRS));
-      setSessionLogs((prev) => (prev.length > 0 ? prev : DEMO_SESSION_LOGS));
-      setOrganizations((prev) => (prev.length > 0 ? prev : DEMO_ORGANIZATIONS));
-      setSelectedSchool((prev) => prev || DEMO_SCHOOLS[0]);
-    } else {
-      localStorage.removeItem('saiyam_is_demo_session');
-    }
   };
 
   const logout = () => {
@@ -177,7 +160,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const keysToPurge = [
       'saiyam_logged_in_v10',
       'saiyam_user_v10',
-      'saiyam_is_demo_session',
       'saiyam_schools_v10',
       'saiyam_students_v10',
       'saiyam_assessment_pairs_v10',
@@ -276,7 +258,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         // 1. Authenticate & cryptographically verify active session with Supabase Auth
         const activeAuthUser = await apiService.getCurrentSessionUser();
-        const isDemoSession = localStorage.getItem('saiyam_is_demo_session') === 'true';
 
         if (isMounted) {
           if (activeAuthUser) {
@@ -284,19 +265,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setIsLoggedIn(true);
             localStorage.setItem('saiyam_logged_in_v10', 'true');
             localStorage.setItem('saiyam_user_v10', JSON.stringify(activeAuthUser));
-          } else if (!isDemoSession) {
-            // Not authenticated in Supabase Auth and not a demo session - purge local session
-            setIsLoggedIn(false);
-            setCurrentUser({
-              id: '',
-              fullName: '',
-              email: '',
-              role: undefined,
-              isActive: false,
-              createdAt: '',
-            });
-            localStorage.removeItem('saiyam_logged_in_v10');
-            localStorage.removeItem('saiyam_user_v10');
           }
         }
 
@@ -518,24 +486,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (backendQuestions && backendQuestions.length > 0) {
           setQuestions(backendQuestions);
-        }
-
-        // Demo presentation fallback: ensure presentation screens are never empty
-        if (isDemoSession) {
-          if (!backendSchools || backendSchools.length === 0) {
-            setSchools(DEMO_SCHOOLS);
-            setSelectedSchool((prev) => prev || DEMO_SCHOOLS[0]);
-          }
-          if (!backendStudents || backendStudents.length === 0) {
-            setStudents(DEMO_STUDENTS);
-            setAssessmentPairs(DEMO_ASSESSMENT_PAIRS);
-          }
-          if (!backendLogs || backendLogs.length === 0) {
-            setSessionLogs(DEMO_SESSION_LOGS);
-          }
-          if (!backendOrgs || backendOrgs.length === 0) {
-            setOrganizations(DEMO_ORGANIZATIONS);
-          }
         }
       } catch (err) {
         console.warn('Hydration from Supabase error:', err);
