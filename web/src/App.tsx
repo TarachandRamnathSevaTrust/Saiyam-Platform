@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { isLoggedIn, currentUser, language, selectedSchool, schools } = useApp();
+  const { isLoggedIn, currentUser, language, selectedSchool, schools = [] } = useApp();
 
   const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser?.role === 'ORG_COORDINATOR';
@@ -81,8 +81,8 @@ export const App: React.FC = () => {
 
   const availableTrainerSchools =
     currentUser?.role === 'FIELD_TRAINER'
-      ? schools.filter((s) => s.assignedTrainerId === currentUser?.id || !s.assignedTrainerId)
-      : schools;
+      ? (schools || []).filter((s) => s.assignedTrainerId === currentUser?.id || !s.assignedTrainerId)
+      : (schools || []);
 
   const requiresSchool =
     !isTrustAdmin &&
