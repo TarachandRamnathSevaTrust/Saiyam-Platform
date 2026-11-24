@@ -26,7 +26,7 @@ export interface UserProfile {
   authUserId?: string; // Links to Supabase auth.users(id)
   fullName: string;
   email: string;
-  role: UserRole;
+  role?: UserRole | null;
   phone?: string;
   organizationId?: string; // null for TRUST_ADMIN who oversees all orgs
   organizationCode?: OrganizationCode;

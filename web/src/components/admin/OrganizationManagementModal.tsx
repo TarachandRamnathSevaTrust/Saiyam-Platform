@@ -495,7 +495,7 @@ export const OrganizationManagementModal: React.FC<Props> = ({ isOpen, onClose }
                         </option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.fullName} ({u.email}) — [{u.role}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
+                            {u.fullName} ({u.email}) — [{u.role ? u.role : (language === 'mr' ? '⏳ भूमिका बाकी' : '⏳ Unassigned')}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
                           </option>
                         ))}
                         <option value="__NEW_MANUAL__">

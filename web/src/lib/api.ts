@@ -49,7 +49,7 @@ export const apiService = {
           authUserId: profileRow.auth_user_id || profileRow.id,
           fullName: profileRow.full_name || profileRow.email,
           email: profileRow.email,
-          role: profileRow.role || 'FIELD_TRAINER',
+          role: (profileRow.role as any) || undefined,
           phone: profileRow.phone || undefined,
           organizationId: profileRow.organization_id || undefined,
           organizationCode: profileRow.organization_code || undefined,
@@ -66,7 +66,7 @@ export const apiService = {
           session.user.email?.split('@')[0] ||
           'User',
         email: session.user.email || '',
-        role: (session.user.user_metadata?.role as any) || 'FIELD_TRAINER',
+        role: (session.user.user_metadata?.role as any) || undefined,
         isActive: true,
         createdAt: session.user.created_at,
       };
@@ -109,7 +109,7 @@ export const apiService = {
             authUserId: profileRow.auth_user_id || profileRow.id,
             fullName: profileRow.full_name || profileRow.email,
             email: profileRow.email,
-            role: profileRow.role || 'FIELD_TRAINER',
+            role: (profileRow.role as any) || undefined,
             phone: profileRow.phone || undefined,
             organizationId: profileRow.organization_id || undefined,
             organizationCode: profileRow.organization_code || undefined,
@@ -127,7 +127,7 @@ export const apiService = {
           authUserId: data.user.id,
           fullName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
           email: data.user.email || email,
-          role: (data.user.user_metadata?.role as any) || 'FIELD_TRAINER',
+          role: (data.user.user_metadata?.role as any) || undefined,
           isActive: true,
           createdAt: data.user.created_at,
         },
@@ -281,7 +281,7 @@ export const apiService = {
         authUserId: row.auth_user_id || row.id,
         fullName: row.full_name || row.email,
         email: row.email,
-        role: row.role || 'FIELD_TRAINER',
+        role: (row.role as any) || undefined,
         phone: row.phone || undefined,
         organizationId: row.organization_id || undefined,
         organizationCode: row.organization_code || undefined,
@@ -305,7 +305,10 @@ export const apiService = {
       if (updates.organizationId !== undefined) payload.organization_id = updates.organizationId;
       if (updates.isActive !== undefined) payload.is_active = updates.isActive;
 
-      const { error } = await supabase.from('profiles').update(payload).eq('id', id);
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .or(`id.eq.${id},auth_user_id.eq.${id}`);
       if (error) throw error;
       return true;
     } catch (err) {

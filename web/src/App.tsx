@@ -23,11 +23,12 @@ import {
 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { isLoggedIn, currentUser, language, selectedSchool, schools = [] } = useApp();
+  const { isLoggedIn, currentUser, language, selectedSchool, schools = [], logout } = useApp();
 
   const isTrustAdmin = currentUser?.role === 'TRUST_ADMIN';
   const isOrgCoordinator = currentUser?.role === 'ORG_COORDINATOR';
-  const isFieldTrainer = !isTrustAdmin && !isOrgCoordinator;
+  const isFieldTrainer = currentUser?.role === 'FIELD_TRAINER' || currentUser?.role === 'HEAD_TRAINER';
+  const isUnassignedRole = !currentUser?.role;
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<string>(
@@ -77,6 +78,52 @@ export const App: React.FC = () => {
   // If not logged in, show the official Login Page first!
   if (!isLoggedIn || !currentUser || !currentUser.id) {
     return <LoginPage />;
+  }
+
+  // If user is logged in but has no assigned role (empty/null in Supabase profiles)
+  if (isUnassignedRole) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1a2d57] via-[#233d76] to-[#122040] flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto text-2xl font-black shadow-xs">
+            ⏳
+          </div>
+
+          <span className="inline-block text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-3 py-1 rounded-full border border-amber-200">
+            {language === 'mr' ? 'भूमिका व संस्था वाटप बाकी' : 'Role & Org Pending'}
+          </span>
+
+          <div>
+            <h2 className="text-lg font-black text-slate-900">
+              {currentUser.fullName || currentUser.email}
+            </h2>
+            <p className="font-mono text-xs text-slate-500 mt-0.5">
+              {currentUser.email}
+            </p>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left space-y-2 text-xs text-slate-600 leading-relaxed">
+            <p>
+              {language === 'mr'
+                ? 'आपले खाते Supabase Auth मध्ये सक्रिय आहे, परंतु मुख्य विश्वस्तांनी अद्याप कोणतीही भूमिका (क्षेत्र प्रशिक्षक / संस्था समन्वयक) किंवा संस्था नेमून दिलेली नाही.'
+                : 'Your account is active in Supabase Auth, but an administrator has not yet assigned your role (Field Trainer / NGO Coordinator) or organization.'}
+            </p>
+            <p className="text-[11px] text-slate-500">
+              {language === 'mr'
+                ? 'कृपया ट्रस्ट प्रशासकांशी संपर्क साधा किंवा प्रशासक खात्यातून प्रशासन (Governance) टॅबद्वारे भूमिका नियुक्त करा.'
+                : 'Please contact the Trust Administrator to assign your role via the Governance panel.'}
+            </p>
+          </div>
+
+          <button
+            onClick={logout}
+            className="w-full bg-[#233d76] hover:bg-[#1a2d57] text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-colors cursor-pointer shadow-xs"
+          >
+            {language === 'mr' ? 'लॉगआउट करा' : 'Sign Out'}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const availableTrainerSchools =

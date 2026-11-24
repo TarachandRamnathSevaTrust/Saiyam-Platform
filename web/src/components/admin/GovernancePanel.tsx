@@ -76,6 +76,7 @@ export const GovernancePanel: React.FC = () => {
   // --- Add/Edit Trainer Form State ---
   const [isAddingTrainer, setIsAddingTrainer] = useState(false);
   const [editingTrainerId, setEditingTrainerId] = useState<string | null>(null);
+  const [selectedTrainerProfileId, setSelectedTrainerProfileId] = useState<string>('');
   const [trainerName, setTrainerName] = useState('');
   const [trainerPhone, setTrainerPhone] = useState('');
   const [trainerEmail, setTrainerEmail] = useState('');
@@ -245,6 +246,7 @@ export const GovernancePanel: React.FC = () => {
   // --- Field Trainer Handlers ---
   const handleOpenEditTrainer = (user: UserProfile) => {
     setEditingTrainerId(user.id);
+    setSelectedTrainerProfileId('');
     setTrainerName(user.fullName);
     setTrainerPhone(user.phone || '');
     setTrainerEmail(user.email);
@@ -254,8 +256,39 @@ export const GovernancePanel: React.FC = () => {
     setIsAddingTrainer(true);
   };
 
+  const handleSelectTrainerProfile = (profileId: string) => {
+    setSelectedTrainerProfileId(profileId);
+    if (!profileId || profileId === '__NEW__') {
+      setTrainerName('');
+      setTrainerEmail('');
+      setTrainerPhone('');
+      setSelectedOrgCode('');
+      return;
+    }
+    const found = users.find((u) => u.id === profileId);
+    if (found) {
+      setTrainerName(found.fullName);
+      setTrainerEmail(found.email);
+      setTrainerPhone(found.phone || '');
+      setSelectedOrgCode(found.organizationCode || '');
+    }
+  };
+
+  const handleAssignUnassignedUserAsTrainer = (u: UserProfile) => {
+    setSelectedTrainerProfileId(u.id);
+    setEditingTrainerId(null);
+    setTrainerName(u.fullName || u.email.split('@')[0]);
+    setTrainerEmail(u.email);
+    setTrainerPhone(u.phone || '');
+    setSelectedOrgCode(u.organizationCode || '');
+    setTrainerPassword('');
+    setShowTrainerPassword(false);
+    setIsAddingTrainer(true);
+  };
+
   const handleResetTrainerForm = () => {
     setEditingTrainerId(null);
+    setSelectedTrainerProfileId('');
     setTrainerName('');
     setTrainerPhone('');
     setTrainerEmail('');
@@ -273,7 +306,9 @@ export const GovernancePanel: React.FC = () => {
       return;
     }
 
-    if (!editingTrainerId && (!trainerPassword.trim() || trainerPassword.trim().length < 6)) {
+    const targetUserId = editingTrainerId || (selectedTrainerProfileId && selectedTrainerProfileId !== '__NEW__' ? selectedTrainerProfileId : null);
+
+    if (!targetUserId && (!trainerPassword.trim() || trainerPassword.trim().length < 6)) {
       alert(
         language === 'mr'
           ? 'कृपया Supabase Auth साठी किमान ६ अक्षरी पासवर्ड भरा.'
@@ -287,21 +322,23 @@ export const GovernancePanel: React.FC = () => {
     setIsSavingTrainer(true);
 
     try {
-      if (editingTrainerId) {
-        // Update local context
-        updateUser(editingTrainerId, {
+      if (targetUserId) {
+        // Update user profile to FIELD_TRAINER and assign selected organization
+        updateUser(targetUserId, {
           fullName: trainerName.trim(),
           phone: trainerPhone.trim(),
           email: trainerEmail.trim(),
+          role: 'FIELD_TRAINER',
           organizationId: assignedOrg?.id,
           organizationCode: selectedOrgCode || undefined,
         });
 
         // Update live Supabase profiles if connected
         if (apiService.isConnected()) {
-          await apiService.updateProfile(editingTrainerId, {
+          await apiService.updateProfile(targetUserId, {
             fullName: trainerName.trim(),
             phone: trainerPhone.trim(),
+            role: 'FIELD_TRAINER',
             organizationId: assignedOrg?.id,
             organizationCode: selectedOrgCode || undefined,
           });
@@ -309,8 +346,8 @@ export const GovernancePanel: React.FC = () => {
 
         triggerNotify(
           language === 'mr'
-            ? 'प्रशिक्षकाची माहिती यशस्वीरीत्या अद्ययावत केली!'
-            : 'Trainer profile updated successfully!'
+            ? 'प्रशिक्षकाची माहिती व भूमिका यशस्वीरीत्या अद्ययावत केली!'
+            : 'Field trainer profile & role updated successfully!'
         );
       } else {
         // Register new Field Trainer in Supabase Auth & public.profiles
@@ -848,7 +885,7 @@ export const GovernancePanel: React.FC = () => {
                         </option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.fullName} ({u.email}) — [{u.role}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
+                            {u.fullName} ({u.email}) — [{u.role ? u.role : (language === 'mr' ? '⏳ भूमिका बाकी' : '⏳ Unassigned')}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
                           </option>
                         ))}
                         <option value="__NEW_MANUAL__">
@@ -1121,6 +1158,32 @@ export const GovernancePanel: React.FC = () => {
                 </button>
               </div>
 
+              {!editingTrainerId && (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <label className="font-bold text-slate-700 block mb-1 text-[11px]">
+                    {language === 'mr'
+                      ? 'नोंदणीकृत प्रोफाइलमधून निवडा (उदा. भूमिका वाटप बाकी असलेला वापरकर्ता) किंवा नवीन तयार करा:'
+                      : 'Select Existing Registered Profile (e.g. Pending Role User) or Create New User:'}
+                  </label>
+                  <select
+                    value={selectedTrainerProfileId}
+                    onChange={(e) => handleSelectTrainerProfile(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                  >
+                    <option value="__NEW__">
+                      {language === 'mr'
+                        ? '+ नवीन वापरकर्ता व पासवर्ड तयार करा (Create New Auth Account)'
+                        : '+ Create New Auth User Account with Password'}
+                    </option>
+                    {users.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.fullName} ({u.email}) — [{u.role ? u.role : (language === 'mr' ? '⏳ भूमिका बाकी' : '⏳ Unassigned')}] {u.organizationCode ? `(Org: ${u.organizationCode})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
@@ -1183,46 +1246,58 @@ export const GovernancePanel: React.FC = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-bold text-slate-700 block">
-                      {editingTrainerId
-                        ? (language === 'mr' ? 'नवीन पासवर्ड बदला (ऐच्छिक)' : 'Change Supabase Auth Password (Optional)')
-                        : (language === 'mr' ? 'Supabase Auth पासवर्ड *' : 'Supabase Auth Password *')}
-                    </label>
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      {language === 'mr' ? 'किमान ६ अक्षरे' : 'Min 6 chars'}
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showTrainerPassword ? 'text' : 'password'}
-                      required={!editingTrainerId}
-                      minLength={6}
-                      value={trainerPassword}
-                      onChange={(e) => setTrainerPassword(e.target.value)}
-                      placeholder={
-                        editingTrainerId
-                          ? '••••••••'
-                          : language === 'mr'
-                          ? 'प्रशिक्षकासाठी पासवर्ड टाका...'
-                          : 'Enter Supabase Auth password...'
-                      }
-                      className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowTrainerPassword(!showTrainerPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                      title={showTrainerPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showTrainerPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    {language === 'mr'
-                      ? 'हा पासवर्ड थेट Supabase Auth (auth.users) मध्ये सुरक्षित साठवला जाईल. प्रशिक्षक याच पासवर्डने लॉगिन करतील.'
-                      : 'This password is saved directly into Supabase Auth (auth.users). Trainer will use it to log in.'}
-                  </p>
+                  {editingTrainerId || (selectedTrainerProfileId && selectedTrainerProfileId !== '__NEW__') ? (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex flex-col space-y-1">
+                      <div className="font-bold flex items-center space-x-1.5 text-blue-800">
+                        <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>{language === 'mr' ? 'नोंदणीकृत Auth खाते' : 'Registered Auth Profile'}</span>
+                      </div>
+                      <p className="text-[11px] text-blue-700">
+                        {language === 'mr'
+                          ? 'वापरकर्ता आधीच अस्तित्वात आहे. जतन केल्यावर या वापरकर्त्याला FIELD_TRAINER भूमिका आणि निवडलेली संस्था लागू होईल.'
+                          : 'User already exists in Supabase. Saving will assign FIELD_TRAINER role and the chosen organization.'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="font-bold text-slate-700 block">
+                          {language === 'mr' ? 'Supabase Auth पासवर्ड *' : 'Supabase Auth Password *'}
+                        </label>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {language === 'mr' ? 'किमान ६ अक्षरे' : 'Min 6 chars'}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type={showTrainerPassword ? 'text' : 'password'}
+                          required
+                          minLength={6}
+                          value={trainerPassword}
+                          onChange={(e) => setTrainerPassword(e.target.value)}
+                          placeholder={
+                            language === 'mr'
+                              ? 'प्रशिक्षकासाठी पासवर्ड टाका...'
+                              : 'Enter Supabase Auth password...'
+                          }
+                          className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-[#233d76]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowTrainerPassword(!showTrainerPassword)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                          title={showTrainerPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showTrainerPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        {language === 'mr'
+                          ? 'हा पासवर्ड थेट Supabase Auth (auth.users) मध्ये सुरक्षित साठवला जाईल. प्रशिक्षक याच पासवर्डने लॉगिन करतील.'
+                          : 'This password is saved directly into Supabase Auth (auth.users). Trainer will use it to log in.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1262,6 +1337,61 @@ export const GovernancePanel: React.FC = () => {
                 </button>
               </div>
             </form>
+          )}
+
+          {/* Pending Unassigned Users Banner */}
+          {users.some((u) => !u.role) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg">⏳</span>
+                  <h4 className="font-bold text-xs text-amber-900 uppercase tracking-wider">
+                    {language === 'mr'
+                      ? `भूमिका वाटप बाकी असलेले वापरकर्ते (${users.filter((u) => !u.role).length})`
+                      : `Registered Users Pending Role Assignment (${users.filter((u) => !u.role).length})`}
+                  </h4>
+                </div>
+                <span className="text-[10px] bg-amber-200 text-amber-900 font-bold px-2.5 py-0.5 rounded-full border border-amber-300">
+                  {language === 'mr' ? 'भूमिका देणे बाकी' : 'Unassigned'}
+                </span>
+              </div>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                {language === 'mr'
+                  ? 'खालील वापरकर्त्यांनी Supabase Auth मध्ये नोंदणी केली आहे परंतु अद्याप कोणतीही भूमिका (प्रशिक्षक / समन्वयक) नेमलेली नाही. खालील बटणावर क्लिक करून त्यांना थेट क्षेत्र प्रशिक्षक म्हणून नियुक्त करा.'
+                  : 'The following users are registered in Supabase Auth without a role. Click the button to quickly assign them as a Field Trainer and link them to an organization.'}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {users
+                  .filter((u) => !u.role)
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      className="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between space-y-2.5 shadow-2xs"
+                    >
+                      <div>
+                        <div className="font-bold text-xs text-slate-900">
+                          {u.fullName || u.email.split('@')[0]}
+                        </div>
+                        <div className="font-mono text-[11px] text-slate-500 truncate">
+                          {u.email}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleAssignUnassignedUserAsTrainer(u)}
+                        className="w-full bg-[#233d76] hover:bg-[#1a2d57] text-white font-bold text-[11px] py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1 cursor-pointer transition-colors shadow-2xs"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>
+                          {language === 'mr'
+                            ? '+ क्षेत्र प्रशिक्षक नियुक्त करा'
+                            : '+ Assign as Field Trainer'}
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
           )}
 
           {/* Mobile Scroll Hint */}

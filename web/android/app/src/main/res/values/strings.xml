@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">संयम (Saiyam)</string>
-    <string name="title_activity_main">संयम (Saiyam)</string>
+    <string name="app_name">Saiyam</string>
+    <string name="title_activity_main">Saiyam</string>
     <string name="package_name">org.trst.saiyam</string>
     <string name="custom_url_scheme">org.trst.saiyam</string>
 </resources>

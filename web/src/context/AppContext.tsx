@@ -141,7 +141,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: '',
       fullName: '',
       email: '',
-      role: 'FIELD_TRAINER',
+      role: undefined,
       isActive: false,
       createdAt: '',
     };
@@ -156,9 +156,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem('saiyam_logged_in_v10');
-    localStorage.removeItem('saiyam_user_v10');
+    // Securely purge all session & student PII from browser localStorage
+    const keysToPurge = [
+      'saiyam_logged_in_v10',
+      'saiyam_user_v10',
+      'saiyam_schools_v10',
+      'saiyam_students_v10',
+      'saiyam_assessment_pairs_v10',
+      'saiyam_session_logs_v10',
+      'saiyam_organizations_v10',
+      'saiyam_users_v10',
+      'saiyam_selected_school_v10',
+    ];
+    for (const key of keysToPurge) {
+      localStorage.removeItem(key);
+    }
+    setStudents([]);
+    setAssessmentPairs([]);
+    setSessionLogs([]);
     setSelectedSchool(null);
+    setCurrentUser({
+      id: '',
+      fullName: '',
+      email: '',
+      role: undefined,
+      isActive: false,
+      createdAt: '',
+    });
     if (apiService.isConnected()) {
       apiService.signOut().catch(() => {});
     }
@@ -247,7 +271,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               id: '',
               fullName: '',
               email: '',
-              role: 'FIELD_TRAINER',
+              role: undefined,
               isActive: false,
               createdAt: '',
             });
