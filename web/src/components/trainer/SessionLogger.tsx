@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ALL_25_SESSIONS, CurriculumSession } from '@saiyam/shared';
-import { SessionTableView } from './SessionTableView';
 import {
   BookOpen,
   Camera,
@@ -18,8 +17,8 @@ import {
   CheckCircle2,
   Clock,
   Sparkles,
-  Table,
   Building2,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 interface Props {
@@ -39,6 +38,7 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     curriculumSessions,
     curriculumModules,
     users,
+    exportToExcel,
   } = useApp();
 
   const isTrustAdmin = currentUser.role === 'TRUST_ADMIN';
@@ -52,11 +52,6 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
   const activeSchool = selectedSchool || availableSchools[0] || null;
 
-  // For Trust Admins & NGO Coordinators, the default is TABLE view.
-  // Field Trainers default to FORM view.
-  const [viewMode, setViewMode] = useState<'TABLE' | 'FORM'>(
-    isTrustAdmin || isOrgCoordinator ? 'TABLE' : 'FORM'
-  );
   const [activeSessionNumber, setActiveSessionNumber] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'LOG' | 'PHOTOS'>('LOG');
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<number | 'ALL'>('ALL');
@@ -299,41 +294,6 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
     sessionLogs.filter((l) => l.schoolId === activeSchool.id).map((l) => l.sessionNumber)
   ).size;
 
-  // For Trust Admins or when toggled to Table View, display the comprehensive 25-Session Table
-  if (viewMode === 'TABLE') {
-    return (
-      <div className="space-y-4">
-        {/* If field trainer, allow switching between Table and Form mode */}
-        {!isTrustAdmin && (
-          <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs w-full">
-            <span className="text-xs text-slate-600 font-semibold">
-              {language === 'mr'
-                ? '📋 सत्रांचा सविस्तर तक्ता (प्रशिक्षकांचे नाव व उपस्थिती)'
-                : '📋 Detailed Table View Active (with Field Trainer names & attendance)'}
-            </span>
-            <button
-              type="button"
-              onClick={() => setViewMode('FORM')}
-              className="text-xs font-bold bg-[#233d76] hover:bg-[#1b2f5c] text-white px-4 py-2 rounded-xl transition-colors cursor-pointer flex items-center space-x-1.5 shadow-2xs"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-[#dfaf27]" />
-              <span>{language === 'mr' ? 'नोंद फॉर्म भरा →' : 'Switch to Form Entry →'}</span>
-            </button>
-          </div>
-        )}
-
-        <SessionTableView
-          onBack={onBack}
-          onNavigate={onNavigate}
-          onNavigateToForm={(sessionNumber) => {
-            setActiveSessionNumber(sessionNumber);
-            setViewMode('FORM');
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 w-full">
       {/* Top Header & Back Button */}
@@ -381,16 +341,17 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
             </select>
           </div>
 
-          {/* Switch to Detailed Table View Button */}
-          <button
-            type="button"
-            onClick={() => setViewMode('TABLE')}
-            className="text-xs font-bold bg-white hover:bg-slate-50 text-[#233d76] px-3 py-1.5 rounded-xl border border-slate-200 flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
-            title={language === 'mr' ? 'सविस्तर तक्ता पहा' : 'View Detailed Table'}
-          >
-            <Table className="w-3.5 h-3.5 text-[#233d76]" />
-            <span>{language === 'mr' ? 'तक्ता दृश्य' : 'Table View'}</span>
-          </button>
+          {exportToExcel && (
+            <button
+              type="button"
+              onClick={() => exportToExcel(activeSchool.id)}
+              className="text-xs font-bold bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] px-3 py-1.5 rounded-xl border border-[#dfaf27]/60 flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
+              title={language === 'mr' ? 'एक्सेल अहवाल डाउनलोड करा' : 'Export Excel Report'}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-[#233d76]" />
+              <span>{language === 'mr' ? 'एक्सेल अहवाल' : 'Export Excel'}</span>
+            </button>
+          )}
 
           <span className="text-xs bg-[#f0da9a]/60 text-[#233d76] font-bold px-3 py-1.5 rounded-xl border border-[#dfaf27]/40 flex items-center space-x-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#233d76]" />
@@ -727,23 +688,13 @@ export const SessionLogger: React.FC<Props> = ({ onBack, onNavigate }) => {
 
           {/* Trust Admin Read-Only Audit Notice Banner */}
           {isTrustAdmin && (
-            <div className="mx-4 sm:mx-6 mt-4 bg-[#233d76] text-white p-3.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs shadow-xs">
-              <div className="flex items-center space-x-2.5">
-                <span className="text-base">👁️</span>
-                <span className="font-semibold">
-                  {language === 'mr'
-                    ? 'विश्वस्त तपासणी मोड: सत्राच्या नोंदी केवळ नेमून दिलेले क्षेत्रीय प्रशिक्षक भरू शकतात.'
-                    : 'Trust Audit View: Only assigned field trainers can record or edit session logs on-ground.'}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setViewMode('TABLE')}
-                className="font-extrabold text-[11px] bg-[#dfaf27] hover:bg-[#b88d18] text-[#233d76] px-3 py-1.5 rounded-lg shrink-0 cursor-pointer transition-colors shadow-2xs flex items-center space-x-1"
-              >
-                <Table className="w-3.5 h-3.5" />
-                <span>{language === 'mr' ? '← सविस्तर तक्ता पहा' : '← View Detailed Table'}</span>
-              </button>
+            <div className="mx-4 sm:mx-6 mt-4 bg-[#233d76] text-white p-3.5 rounded-xl flex items-center space-x-2.5 text-xs shadow-xs">
+              <span className="text-base">👁️</span>
+              <span className="font-semibold">
+                {language === 'mr'
+                  ? 'विश्वस्त तपासणी मोड: सत्राच्या नोंदी केवळ नेमून दिलेले क्षेत्रीय प्रशिक्षक भरू शकतात.'
+                  : 'Trust Audit View: Only assigned field trainers can record or edit session logs on-ground.'}
+              </span>
             </div>
           )}
 
